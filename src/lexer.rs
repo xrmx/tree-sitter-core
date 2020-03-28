@@ -1,7 +1,7 @@
 use crate::*;
 
 use libc::{memcpy, snprintf};
-use std::os;
+use std::{ffi, os};
 
 static mut BYTE_ORDER_MARK: i32 = 0xfeff as os::raw::c_int;
 
@@ -82,7 +82,8 @@ unsafe extern "C" fn ts_lexer__get_lookahead(mut self_0: *mut Lexer) {
         decode.expect("non-null function pointer")(chunk, size, &mut (*self_0).data.lookahead);
     // If this chunk ended in the middle of a multi-byte character,
     // try again with a fresh chunk.
-    if (*self_0).data.lookahead == TS_DECODE_ERROR && size < 4 as os::raw::c_int as os::raw::c_uint {
+    if (*self_0).data.lookahead == TS_DECODE_ERROR && size < 4 as os::raw::c_int as os::raw::c_uint
+    {
         ts_lexer__get_chunk(self_0);
         chunk = (*self_0).chunk as *const u8;
         size = (*self_0).chunk_size;
@@ -307,13 +308,13 @@ pub unsafe extern "C" fn ts_lexer_init(mut self_0: *mut Lexer) {
             chunk_size: 0 as os::raw::c_int as u32,
             lookahead_size: 0,
             input: TSInput {
-                payload: 0 as *mut libc::c_void,
+                payload: 0 as *mut ffi::c_void,
                 read: None,
                 encoding: TSInputEncodingUTF8,
             },
             logger: {
                 let mut init = TSLogger {
-                    payload: 0 as *mut libc::c_void,
+                    payload: 0 as *mut ffi::c_void,
                     log: None,
                 };
                 init
@@ -326,7 +327,7 @@ pub unsafe extern "C" fn ts_lexer_init(mut self_0: *mut Lexer) {
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_lexer_delete(mut self_0: *mut Lexer) {
-    ts_free((*self_0).included_ranges as *mut libc::c_void);
+    ts_free((*self_0).included_ranges as *mut ffi::c_void);
 }
 unsafe extern "C" fn ts_lexer_goto(mut self_0: *mut Lexer, mut position: Length) {
     (*self_0).current_position = position;
@@ -472,10 +473,10 @@ pub unsafe extern "C" fn ts_lexer_set_included_ranges(
     let mut size: size_t = (count as os::raw::c_ulong)
         .wrapping_mul(::std::mem::size_of::<TSRange>() as os::raw::c_ulong);
     (*self_0).included_ranges =
-        ts_realloc((*self_0).included_ranges as *mut libc::c_void, size) as *mut TSRange;
+        ts_realloc((*self_0).included_ranges as *mut ffi::c_void, size) as *mut TSRange;
     memcpy(
-        (*self_0).included_ranges as *mut libc::c_void,
-        ranges as *const libc::c_void,
+        (*self_0).included_ranges as *mut ffi::c_void,
+        ranges as *const ffi::c_void,
         size as usize,
     );
     (*self_0).included_range_count = count as size_t;

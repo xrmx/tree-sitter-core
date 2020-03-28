@@ -1,13 +1,14 @@
 use crate::{util::WrappingOffsetFromExt, *};
 
 use libc::{memcpy, memset, strcmp, strncmp};
-use std::os;
+use std::{ffi, os};
 
 static mut PARENT_DONE: TSQueryError = 4294967295 as TSQueryError;
 static mut PATTERN_DONE_MARKER: u8 = 255 as os::raw::c_int as u8;
 static mut NONE: u16 = 65535 as os::raw::c_int as u16;
 static mut WILDCARD_SYMBOL: TSSymbol = 0 as os::raw::c_int as TSSymbol;
-static mut NAMED_WILDCARD_SYMBOL: TSSymbol = (65535 as os::raw::c_int - 1 as os::raw::c_int) as TSSymbol;
+static mut NAMED_WILDCARD_SYMBOL: TSSymbol =
+    (65535 as os::raw::c_int - 1 as os::raw::c_int) as TSSymbol;
 static mut MAX_STATE_COUNT: u16 = 32 as os::raw::c_int as u16;
 
 #[derive(Copy, Clone)]
@@ -288,7 +289,8 @@ unsafe extern "C" fn capture_list_pool_new() -> CaptureListPool {
 }
 unsafe extern "C" fn capture_list_pool_reset(mut self_0: *mut CaptureListPool, mut list_size: u16) {
     (*self_0).usage_map = 4294967295 as os::raw::c_uint;
-    let mut total_size: u32 = (MAX_STATE_COUNT as os::raw::c_int * list_size as os::raw::c_int) as u32;
+    let mut total_size: u32 =
+        (MAX_STATE_COUNT as os::raw::c_int * list_size as os::raw::c_int) as u32;
     array__reserve(
         &mut (*self_0).list as *mut TSQueryCaptureArray as *mut VoidArray,
         ::std::mem::size_of::<TSQueryCapture>() as os::raw::c_ulong,
@@ -417,7 +419,7 @@ unsafe extern "C" fn symbol_table_insert_name(
         (*self_0)
             .characters
             .contents
-            .offset((*self_0).characters.size as isize) as *mut libc::c_void,
+            .offset((*self_0).characters.size as isize) as *mut ffi::c_void,
         0 as os::raw::c_int,
         (length.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as usize)
             .wrapping_mul(::std::mem::size_of::<os::raw::c_char>() as usize),
@@ -427,8 +429,8 @@ unsafe extern "C" fn symbol_table_insert_name(
         as u32 as u32;
     memcpy(
         &mut *(*self_0).characters.contents.offset(slice.offset as isize) as *mut os::raw::c_char
-            as *mut libc::c_void,
-        name as *const libc::c_void,
+            as *mut ffi::c_void,
+        name as *const ffi::c_void,
         length as usize,
     );
     *(*self_0).characters.contents.offset(
@@ -471,7 +473,7 @@ unsafe extern "C" fn symbol_table_insert_name_with_escapes(
         (*self_0)
             .characters
             .contents
-            .offset((*self_0).characters.size as isize) as *mut libc::c_void,
+            .offset((*self_0).characters.size as isize) as *mut ffi::c_void,
         0 as os::raw::c_int,
         (escaped_length.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as usize)
             .wrapping_mul(::std::mem::size_of::<os::raw::c_char>() as usize),
@@ -583,7 +585,8 @@ unsafe extern "C" fn query_step__remove_capture(mut self_0: *mut QueryStep, mut 
             while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
                 < 4 as os::raw::c_int as os::raw::c_uint
             {
-                if (*self_0).capture_ids[i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as usize]
+                if (*self_0).capture_ids
+                    [i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as usize]
                     as os::raw::c_int
                     == NONE as os::raw::c_int
                 {
@@ -591,8 +594,8 @@ unsafe extern "C" fn query_step__remove_capture(mut self_0: *mut QueryStep, mut 
                 }
                 (*self_0).capture_ids[i as usize] = (*self_0).capture_ids
                     [i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as usize];
-                (*self_0).capture_ids[i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as usize] =
-                    NONE;
+                (*self_0).capture_ids
+                    [i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as usize] = NONE;
                 i = i.wrapping_add(1)
             }
             break;
@@ -682,7 +685,7 @@ unsafe extern "C" fn ts_query__pattern_map_insert(
                 pattern_index: (*self_0).pattern_map.size as u16,
             };
             init
-        } as *mut PatternEntry as *const libc::c_void,
+        } as *mut PatternEntry as *const ffi::c_void,
     );
 }
 unsafe extern "C" fn ts_query__finalize_steps(mut self_0: *mut TSQuery) {
@@ -691,7 +694,9 @@ unsafe extern "C" fn ts_query__finalize_steps(mut self_0: *mut TSQuery) {
         let mut step: *mut QueryStep =
             &mut *(*self_0).steps.contents.offset(i as isize) as *mut QueryStep;
         let mut depth: u32 = (*step).depth() as u32;
-        if (*step).capture_ids[0 as os::raw::c_int as usize] as os::raw::c_int != NONE as os::raw::c_int {
+        if (*step).capture_ids[0 as os::raw::c_int as usize] as os::raw::c_int
+            != NONE as os::raw::c_int
+        {
             (*step).set_contains_captures(1 as os::raw::c_int != 0)
         } else {
             (*step).set_contains_captures(0 as os::raw::c_int != 0);
@@ -704,7 +709,8 @@ unsafe extern "C" fn ts_query__finalize_steps(mut self_0: *mut TSQuery) {
                 {
                     break;
                 }
-                if (*s).capture_ids[0 as os::raw::c_int as usize] as os::raw::c_int != NONE as os::raw::c_int
+                if (*s).capture_ids[0 as os::raw::c_int as usize] as os::raw::c_int
+                    != NONE as os::raw::c_int
                 {
                     (*step).set_contains_captures(1 as os::raw::c_int != 0)
                 }
@@ -856,7 +862,10 @@ unsafe extern "C" fn ts_query__parse_predicate(
                         }
                     }
                     if !stream_advance(stream) {
-                        stream_reset(stream, string_content.offset(-(1 as os::raw::c_int as isize)));
+                        stream_reset(
+                            stream,
+                            string_content.offset(-(1 as os::raw::c_int as isize)),
+                        );
                         return TSQueryErrorSyntax;
                     }
                 }
@@ -1098,7 +1107,10 @@ unsafe extern "C" fn ts_query__parse_pattern(
             #[allow(clippy::while_immutable_condition)]
             while (*stream).next != '\"' as i32 {
                 if !stream_advance(stream) {
-                    stream_reset(stream, string_content.offset(-(1 as os::raw::c_int as isize)));
+                    stream_reset(
+                        stream,
+                        string_content.offset(-(1 as os::raw::c_int as isize)),
+                    );
                     return TSQueryErrorSyntax;
                 }
             }
@@ -1401,8 +1413,8 @@ pub unsafe extern "C" fn ts_query_delete(mut self_0: *mut TSQuery) {
         );
         symbol_table_delete(&mut (*self_0).captures);
         symbol_table_delete(&mut (*self_0).predicate_values);
-        ts_free((*self_0).symbol_map as *mut libc::c_void);
-        ts_free(self_0 as *mut libc::c_void);
+        ts_free((*self_0).symbol_map as *mut ffi::c_void);
+        ts_free(self_0 as *mut ffi::c_void);
     };
 }
 #[no_mangle]
@@ -1513,8 +1525,8 @@ pub unsafe extern "C" fn ts_query_cursor_new() -> *mut TSQueryCursor {
         let mut init = TSQueryCursor {
             query: 0 as *const TSQuery,
             cursor: TSTreeCursor {
-                tree: 0 as *const libc::c_void,
-                id: 0 as *const libc::c_void,
+                tree: 0 as *const ffi::c_void,
+                id: 0 as *const ffi::c_void,
                 context: [0; 2],
             },
             states: {
@@ -1576,7 +1588,7 @@ pub unsafe extern "C" fn ts_query_cursor_delete(mut self_0: *mut TSQueryCursor) 
     );
     ts_tree_cursor_delete(&mut (*self_0).cursor);
     capture_list_pool_delete(&mut (*self_0).capture_list_pool);
-    ts_free(self_0 as *mut libc::c_void);
+    ts_free(self_0 as *mut ffi::c_void);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_query_cursor_exec(
@@ -1762,8 +1774,8 @@ unsafe extern "C" fn ts_query__cursor_copy_state(
     let mut new_captures: *mut TSQueryCapture =
         capture_list_pool_get(&mut (*self_0).capture_list_pool, new_list_id as u16);
     memcpy(
-        new_captures as *mut libc::c_void,
-        old_captures as *const libc::c_void,
+        new_captures as *mut ffi::c_void,
+        old_captures as *const ffi::c_void,
         ((*state).capture_count as usize)
             .wrapping_mul(::std::mem::size_of::<TSQueryCapture>() as usize),
     );
@@ -1806,8 +1818,8 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
                 }
                 i = i.wrapping_add(1)
             }
-            (*self_0).states.size =
-                ((*self_0).states.size as os::raw::c_uint).wrapping_sub(deleted_count) as u32 as u32;
+            (*self_0).states.size = ((*self_0).states.size as os::raw::c_uint)
+                .wrapping_sub(deleted_count) as u32 as u32;
             if ts_tree_cursor_goto_next_sibling(&mut (*self_0).cursor) {
                 (*self_0).ascending = 0 as os::raw::c_int != 0
             } else if ts_tree_cursor_goto_parent(&mut (*self_0).cursor) {
@@ -1842,7 +1854,8 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
             } else {
                 // If this node is after the selected range, then stop walking.
                 if (*self_0).end_byte <= ts_node_start_byte(node)
-                    || point_lte((*self_0).end_point, ts_node_start_point(node)) as os::raw::c_int != 0
+                    || point_lte((*self_0).end_point, ts_node_start_point(node)) as os::raw::c_int
+                        != 0
                 {
                     return 0 as os::raw::c_int != 0;
                 }
@@ -1929,7 +1942,8 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
                         // pattern.
                         let mut node_does_match: bool = (*step_2).symbol as os::raw::c_int
                             == symbol as os::raw::c_int
-                            || (*step_2).symbol as os::raw::c_int == WILDCARD_SYMBOL as os::raw::c_int
+                            || (*step_2).symbol as os::raw::c_int
+                                == WILDCARD_SYMBOL as os::raw::c_int
                             || (*step_2).symbol as os::raw::c_int
                                 == NAMED_WILDCARD_SYMBOL as os::raw::c_int
                                 && is_named as os::raw::c_int != 0;
@@ -2080,7 +2094,8 @@ pub unsafe extern "C" fn ts_query_cursor_next_match(
     let mut state: *mut QueryState = &mut *(*self_0)
         .finished_states
         .contents
-        .offset(0 as os::raw::c_int as isize) as *mut QueryState;
+        .offset(0 as os::raw::c_int as isize)
+        as *mut QueryState;
     (*match_0).id = (*state).id;
     (*match_0).pattern_index = (*state).pattern_index;
     (*match_0).capture_count = (*state).capture_count;

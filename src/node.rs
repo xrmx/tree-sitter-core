@@ -1,6 +1,6 @@
 use crate::*;
 
-use std::os;
+use std::{ffi, os};
 
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -29,7 +29,7 @@ pub unsafe extern "C" fn ts_node_new(
                 position.extent.column,
                 alias as u32,
             ],
-            id: subtree as *const libc::c_void,
+            id: subtree as *const ffi::c_void,
             tree: tree,
         };
         init
@@ -117,7 +117,8 @@ unsafe extern "C" fn ts_node_child_iterator_next(
     mut self_0: *mut NodeChildIterator,
     mut result: *mut TSNode,
 ) -> bool {
-    if (*self_0).parent.ptr.is_null() || ts_node_child_iterator_done(self_0) as os::raw::c_int != 0 {
+    if (*self_0).parent.ptr.is_null() || ts_node_child_iterator_done(self_0) as os::raw::c_int != 0
+    {
         return 0 as os::raw::c_int != 0;
     }
     let mut child: *const Subtree = &mut *(*(*self_0).parent.ptr)
@@ -189,7 +190,7 @@ unsafe extern "C" fn ts_node__child(
         did_descend = 0 as os::raw::c_int != 0;
         let mut child: TSNode = TSNode {
             context: [0; 4],
-            id: 0 as *const libc::c_void,
+            id: 0 as *const ffi::c_void,
             tree: 0 as *const TSTree,
         };
         let mut index: u32 = 0 as os::raw::c_int as u32;
@@ -224,7 +225,9 @@ unsafe extern "C" fn ts_subtree_has_trailing_empty_descendant(
 ) -> bool {
     let mut i: os::raw::c_uint =
         ts_subtree_child_count(self_0).wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
-    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) > 0 as os::raw::c_int as os::raw::c_uint {
+    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
+        > 0 as os::raw::c_int as os::raw::c_uint
+    {
         let mut child: Subtree = *(*self_0.ptr)
             .c2rust_unnamed
             .c2rust_unnamed
@@ -260,7 +263,7 @@ unsafe extern "C" fn ts_node__prev_sibling(
         let mut found_child_containing_target: bool = 0 as os::raw::c_int != 0;
         let mut child: TSNode = TSNode {
             context: [0; 4],
-            id: 0 as *const libc::c_void,
+            id: 0 as *const ffi::c_void,
             tree: 0 as *const TSTree,
         };
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut node);
@@ -324,7 +327,7 @@ unsafe extern "C" fn ts_node__next_sibling(
         let mut child_containing_target: TSNode = ts_node__null();
         let mut child: TSNode = TSNode {
             context: [0; 4],
-            id: 0 as *const libc::c_void,
+            id: 0 as *const ffi::c_void,
             tree: 0 as *const TSTree,
         };
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut node);
@@ -383,7 +386,7 @@ unsafe extern "C" fn ts_node__first_child_for_byte(
         did_descend = 0 as os::raw::c_int != 0;
         let mut child: TSNode = TSNode {
             context: [0; 4],
-            id: 0 as *const libc::c_void,
+            id: 0 as *const ffi::c_void,
             tree: 0 as *const TSTree,
         };
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut node);
@@ -419,7 +422,7 @@ unsafe extern "C" fn ts_node__descendant_for_byte_range(
         did_descend = 0 as os::raw::c_int != 0;
         let mut child: TSNode = TSNode {
             context: [0; 4],
-            id: 0 as *const libc::c_void,
+            id: 0 as *const ffi::c_void,
             tree: 0 as *const TSTree,
         };
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut node);
@@ -463,7 +466,7 @@ unsafe extern "C" fn ts_node__descendant_for_point_range(
         did_descend = 0 as os::raw::c_int != 0;
         let mut child: TSNode = TSNode {
             context: [0; 4],
-            id: 0 as *const libc::c_void,
+            id: 0 as *const ffi::c_void,
             tree: 0 as *const TSTree,
         };
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut node);
@@ -564,7 +567,8 @@ pub unsafe extern "C" fn ts_node_has_changes(mut self_0: TSNode) -> bool {
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_node_has_error(mut self_0: TSNode) -> bool {
-    return ts_subtree_error_cost(ts_node__subtree(self_0)) > 0 as os::raw::c_int as os::raw::c_uint;
+    return ts_subtree_error_cost(ts_node__subtree(self_0))
+        > 0 as os::raw::c_int as os::raw::c_uint;
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_node_parent(mut self_0: TSNode) -> TSNode {
@@ -583,7 +587,7 @@ pub unsafe extern "C" fn ts_node_parent(mut self_0: TSNode) -> TSNode {
         did_descend = 0 as os::raw::c_int != 0;
         let mut child: TSNode = TSNode {
             context: [0; 4],
-            id: 0 as *const libc::c_void,
+            id: 0 as *const ffi::c_void,
             tree: 0 as *const TSTree,
         };
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut node);
@@ -654,7 +658,7 @@ pub unsafe extern "C" fn ts_node_child_by_field_id(
         }
         let mut child: TSNode = TSNode {
             context: [0; 4],
-            id: 0 as *const libc::c_void,
+            id: 0 as *const ffi::c_void,
             tree: 0 as *const TSTree,
         };
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut self_0);

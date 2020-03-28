@@ -1,7 +1,7 @@
 use crate::*;
 
 use libc::{fprintf, FILE};
-use std::os;
+use std::{ffi, os};
 
 pub type StackActionType = os::raw::c_uint;
 
@@ -15,7 +15,7 @@ pub const StackActionNone: StackActionType = 0;
 pub const StackActionStop: StackActionType = 1;
 pub const StackActionPop: StackActionType = 2;
 pub type StackCallback =
-    Option<unsafe extern "C" fn(_: *mut libc::c_void, _: *const StackIterator) -> StackAction>;
+    Option<unsafe extern "C" fn(_: *mut ffi::c_void, _: *const StackIterator) -> StackAction>;
 
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -54,11 +54,11 @@ pub struct StackNodeArray {
     pub capacity: u32,
 }
 pub type StackIterateCallback =
-    Option<unsafe extern "C" fn(_: *mut libc::c_void, _: TSStateId, _: u32) -> ()>;
+    Option<unsafe extern "C" fn(_: *mut ffi::c_void, _: TSStateId, _: u32) -> ()>;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct StackIterateSession {
-    pub payload: *mut libc::c_void,
+    pub payload: *mut ffi::c_void,
     pub callback: StackIterateCallback,
 }
 
@@ -214,7 +214,7 @@ unsafe extern "C" fn stack_node_release(
             let ref mut fresh1 = *(*pool).contents.offset(fresh0 as isize);
             *fresh1 = self_0
         } else {
-            ts_free(self_0 as *mut libc::c_void);
+            ts_free(self_0 as *mut ffi::c_void);
         }
         if first_predecessor.is_null() {
             break;
@@ -231,7 +231,7 @@ unsafe extern "C" fn stack_node_new(
 ) -> *mut StackNode {
     let mut node: *mut StackNode = if (*pool).size > 0 as os::raw::c_int as os::raw::c_uint {
         (*pool).size = (*pool).size.wrapping_sub(1);
-        *(*pool).contents.offset((*pool).size as isize) as *mut libc::c_void
+        *(*pool).contents.offset((*pool).size as isize) as *mut ffi::c_void
     } else {
         ts_malloc(::std::mem::size_of::<StackNode>() as os::raw::c_ulong)
     } as *mut StackNode;
@@ -299,7 +299,8 @@ unsafe extern "C" fn stack__subtree_is_equivalent(mut left: Subtree, mut right: 
     return left.ptr == right.ptr
         || !left.ptr.is_null()
             && !right.ptr.is_null()
-            && ts_subtree_symbol(left) as os::raw::c_int == ts_subtree_symbol(right) as os::raw::c_int
+            && ts_subtree_symbol(left) as os::raw::c_int
+                == ts_subtree_symbol(right) as os::raw::c_int
             && (ts_subtree_error_cost(left) > 0 as os::raw::c_int as os::raw::c_uint
                 && ts_subtree_error_cost(right) > 0 as os::raw::c_int as os::raw::c_uint
                 || ts_subtree_padding(left).bytes == ts_subtree_padding(right).bytes
@@ -339,7 +340,8 @@ unsafe extern "C" fn stack_node_add_link(
                 return;
             }
             // If the previous nodes are mergeable, merge them recursively.
-            if (*(*existing_link).node).state as os::raw::c_int == (*link.node).state as os::raw::c_int
+            if (*(*existing_link).node).state as os::raw::c_int
+                == (*link.node).state as os::raw::c_int
                 && (*(*existing_link).node).position.bytes == (*link.node).position.bytes
             {
                 let mut j: os::raw::c_int = 0 as os::raw::c_int;
@@ -395,7 +397,7 @@ unsafe extern "C" fn stack_head_delete(
         }
         if !(*self_0).summary.is_null() {
             array__delete((*self_0).summary as *mut VoidArray);
-            ts_free((*self_0).summary as *mut libc::c_void);
+            ts_free((*self_0).summary as *mut ffi::c_void);
         }
         stack_node_release((*self_0).node, pool, subtree_pool);
     };
@@ -445,7 +447,9 @@ unsafe extern "C" fn ts_stack__add_slice(
         .slices
         .size
         .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
-    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) > 0 as os::raw::c_int as os::raw::c_uint {
+    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
+        > 0 as os::raw::c_int as os::raw::c_uint
+    {
         let mut version: StackVersion = (*(*self_0).slices.contents.offset(i as isize)).version;
         if (*(*self_0).heads.contents.offset(version as isize)).node == node {
             let mut slice: StackSlice = {
@@ -461,7 +465,7 @@ unsafe extern "C" fn ts_stack__add_slice(
                 i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint),
                 0 as os::raw::c_int as u32,
                 1 as os::raw::c_int as u32,
-                &mut slice as *mut StackSlice as *const libc::c_void,
+                &mut slice as *mut StackSlice as *const ffi::c_void,
             );
             return;
         }
@@ -489,7 +493,7 @@ unsafe extern "C" fn stack__iter(
     mut self_0: *mut Stack,
     mut version: StackVersion,
     mut callback: StackCallback,
-    mut payload: *mut libc::c_void,
+    mut payload: *mut ffi::c_void,
     mut goal_subtree_count: os::raw::c_int,
 ) -> StackSliceArray {
     (*self_0).slices.size = 0 as os::raw::c_int as u32;
@@ -548,10 +552,11 @@ unsafe extern "C" fn stack__iter(
             let mut node: *mut StackNode = (*iterator_0).node;
             let mut action: StackAction =
                 callback.expect("non-null function pointer")(payload, iterator_0);
-            let mut should_pop: bool = action & StackActionPop as os::raw::c_int as os::raw::c_uint != 0;
-            let mut should_stop: bool = action & StackActionStop as os::raw::c_int as os::raw::c_uint
-                != 0
-                || (*node).link_count as os::raw::c_int == 0 as os::raw::c_int;
+            let mut should_pop: bool =
+                action & StackActionPop as os::raw::c_int as os::raw::c_uint != 0;
+            let mut should_stop: bool =
+                action & StackActionStop as os::raw::c_int as os::raw::c_uint != 0
+                    || (*node).link_count as os::raw::c_int == 0 as os::raw::c_int;
             if should_pop {
                 let mut subtrees: SubtreeArray = (*iterator_0).subtrees;
                 if !should_stop {
@@ -760,13 +765,13 @@ pub unsafe extern "C" fn ts_stack_delete(mut self_0: *mut Stack) {
     if !(*self_0).node_pool.contents.is_null() {
         let mut i_0: u32 = 0 as os::raw::c_int as u32;
         while i_0 < (*self_0).node_pool.size {
-            ts_free(*(*self_0).node_pool.contents.offset(i_0 as isize) as *mut libc::c_void);
+            ts_free(*(*self_0).node_pool.contents.offset(i_0 as isize) as *mut ffi::c_void);
             i_0 = i_0.wrapping_add(1)
         }
         array__delete(&mut (*self_0).node_pool as *mut StackNodeArray as *mut VoidArray);
     }
     array__delete(&mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray);
-    ts_free(self_0 as *mut libc::c_void);
+    ts_free(self_0 as *mut ffi::c_void);
 }
 // Get the stack's current number of versions.
 #[no_mangle]
@@ -967,7 +972,7 @@ pub unsafe extern "C" fn ts_stack_push(
 }
 #[inline(always)]
 unsafe extern "C" fn iterate_callback(
-    mut payload: *mut libc::c_void,
+    mut payload: *mut ffi::c_void,
     mut iterator: *const StackIterator,
 ) -> StackAction {
     let mut session: *mut StackIterateSession = payload as *mut StackIterateSession;
@@ -983,7 +988,7 @@ pub unsafe extern "C" fn ts_stack_iterate(
     mut self_0: *mut Stack,
     mut version: StackVersion,
     mut callback: StackIterateCallback,
-    mut payload: *mut libc::c_void,
+    mut payload: *mut ffi::c_void,
 ) {
     let mut session: StackIterateSession = {
         let mut init = StackIterateSession {
@@ -998,22 +1003,23 @@ pub unsafe extern "C" fn ts_stack_iterate(
         Some(
             iterate_callback
                 as unsafe extern "C" fn(
-                    _: *mut libc::c_void,
+                    _: *mut ffi::c_void,
                     _: *const StackIterator,
                 ) -> StackAction,
         ),
-        &mut session as *mut StackIterateSession as *mut libc::c_void,
+        &mut session as *mut StackIterateSession as *mut ffi::c_void,
         -(1 as os::raw::c_int),
     );
 }
 #[inline(always)]
 unsafe extern "C" fn pop_count_callback(
-    mut payload: *mut libc::c_void,
+    mut payload: *mut ffi::c_void,
     mut iterator: *const StackIterator,
 ) -> StackAction {
     let mut goal_subtree_count: *mut os::raw::c_uint = payload as *mut os::raw::c_uint;
     if (*iterator).subtree_count == *goal_subtree_count {
-        return (StackActionPop as os::raw::c_int | StackActionStop as os::raw::c_int) as StackAction;
+        return (StackActionPop as os::raw::c_int | StackActionStop as os::raw::c_int)
+            as StackAction;
     } else {
         return StackActionNone as os::raw::c_int as StackAction;
     };
@@ -1035,22 +1041,23 @@ pub unsafe extern "C" fn ts_stack_pop_count(
         Some(
             pop_count_callback
                 as unsafe extern "C" fn(
-                    _: *mut libc::c_void,
+                    _: *mut ffi::c_void,
                     _: *const StackIterator,
                 ) -> StackAction,
         ),
-        &mut count as *mut u32 as *mut libc::c_void,
+        &mut count as *mut u32 as *mut ffi::c_void,
         count as os::raw::c_int,
     );
 }
 #[inline(always)]
 unsafe extern "C" fn pop_pending_callback(
-    mut _payload: *mut libc::c_void,
+    mut _payload: *mut ffi::c_void,
     mut iterator: *const StackIterator,
 ) -> StackAction {
     if (*iterator).subtree_count >= 1 as os::raw::c_int as os::raw::c_uint {
         if (*iterator).is_pending {
-            return (StackActionPop as os::raw::c_int | StackActionStop as os::raw::c_int) as StackAction;
+            return (StackActionPop as os::raw::c_int | StackActionStop as os::raw::c_int)
+                as StackAction;
         } else {
             return StackActionStop as os::raw::c_int as StackAction;
         }
@@ -1070,11 +1077,11 @@ pub unsafe extern "C" fn ts_stack_pop_pending(
         Some(
             pop_pending_callback
                 as unsafe extern "C" fn(
-                    _: *mut libc::c_void,
+                    _: *mut ffi::c_void,
                     _: *const StackIterator,
                 ) -> StackAction,
         ),
-        0 as *mut libc::c_void,
+        0 as *mut ffi::c_void,
         0 as os::raw::c_int,
     );
     if pop.size > 0 as os::raw::c_int as os::raw::c_uint {
@@ -1089,7 +1096,7 @@ pub unsafe extern "C" fn ts_stack_pop_pending(
 }
 #[inline(always)]
 unsafe extern "C" fn pop_error_callback(
-    mut payload: *mut libc::c_void,
+    mut payload: *mut ffi::c_void,
     mut iterator: *const StackIterator,
 ) -> StackAction {
     if (*iterator).subtrees.size > 0 as os::raw::c_int as os::raw::c_uint {
@@ -1104,7 +1111,8 @@ unsafe extern "C" fn pop_error_callback(
                 != 0
         {
             *found_error = 1 as os::raw::c_int != 0;
-            return (StackActionPop as os::raw::c_int | StackActionStop as os::raw::c_int) as StackAction;
+            return (StackActionPop as os::raw::c_int | StackActionStop as os::raw::c_int)
+                as StackAction;
         } else {
             return StackActionStop as os::raw::c_int as StackAction;
         }
@@ -1144,11 +1152,11 @@ pub unsafe extern "C" fn ts_stack_pop_error(
                 Some(
                     pop_error_callback
                         as unsafe extern "C" fn(
-                            _: *mut libc::c_void,
+                            _: *mut ffi::c_void,
                             _: *const StackIterator,
                         ) -> StackAction,
                 ),
-                &mut found_error as *mut bool as *mut libc::c_void,
+                &mut found_error as *mut bool as *mut ffi::c_void,
                 1 as os::raw::c_int,
             );
             if pop.size > 0 as os::raw::c_int as os::raw::c_uint {
@@ -1187,7 +1195,7 @@ pub unsafe extern "C" fn ts_stack_pop_error(
 }
 #[inline(always)]
 unsafe extern "C" fn pop_all_callback(
-    mut _payload: *mut libc::c_void,
+    mut _payload: *mut ffi::c_void,
     mut iterator: *const StackIterator,
 ) -> StackAction {
     return if (*(*iterator).node).link_count as os::raw::c_int == 0 as os::raw::c_int {
@@ -1208,17 +1216,17 @@ pub unsafe extern "C" fn ts_stack_pop_all(
         Some(
             pop_all_callback
                 as unsafe extern "C" fn(
-                    _: *mut libc::c_void,
+                    _: *mut ffi::c_void,
                     _: *const StackIterator,
                 ) -> StackAction,
         ),
-        0 as *mut libc::c_void,
+        0 as *mut ffi::c_void,
         0 as os::raw::c_int,
     );
 }
 #[inline(always)]
 unsafe extern "C" fn summarize_stack_callback(
-    mut payload: *mut libc::c_void,
+    mut payload: *mut ffi::c_void,
     mut iterator: *const StackIterator,
 ) -> StackAction {
     let mut session: *mut SummarizeStackSession = payload as *mut SummarizeStackSession;
@@ -1230,7 +1238,9 @@ unsafe extern "C" fn summarize_stack_callback(
     let mut i: os::raw::c_uint = (*(*session).summary)
         .size
         .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
-    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) > 0 as os::raw::c_int as os::raw::c_uint {
+    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
+        > 0 as os::raw::c_int as os::raw::c_uint
+    {
         let mut entry: StackSummaryEntry = *(*(*session).summary).contents.offset(i as isize);
         if entry.depth < depth {
             break;
@@ -1282,11 +1292,11 @@ pub unsafe extern "C" fn ts_stack_record_summary(
         Some(
             summarize_stack_callback
                 as unsafe extern "C" fn(
-                    _: *mut libc::c_void,
+                    _: *mut ffi::c_void,
                     _: *const StackIterator,
                 ) -> StackAction,
         ),
-        &mut session as *mut SummarizeStackSession as *mut libc::c_void,
+        &mut session as *mut SummarizeStackSession as *mut ffi::c_void,
         -(1 as os::raw::c_int),
     );
     let ref mut fresh9 = (*(*self_0).heads.contents.offset(version as isize)).summary;
@@ -1570,8 +1580,10 @@ pub unsafe extern "C" fn ts_stack_can_merge(
         &mut *(*self_0).heads.contents.offset(version1 as isize) as *mut StackHead;
     let mut head2: *mut StackHead =
         &mut *(*self_0).heads.contents.offset(version2 as isize) as *mut StackHead;
-    return (*head1).status as os::raw::c_uint == StackStatusActive as os::raw::c_int as os::raw::c_uint
-        && (*head2).status as os::raw::c_uint == StackStatusActive as os::raw::c_int as os::raw::c_uint
+    return (*head1).status as os::raw::c_uint
+        == StackStatusActive as os::raw::c_int as os::raw::c_uint
+        && (*head2).status as os::raw::c_uint
+            == StackStatusActive as os::raw::c_int as os::raw::c_uint
         && (*(*head1).node).state as os::raw::c_int == (*(*head2).node).state as os::raw::c_int
         && (*(*head1).node).position.bytes == (*(*head2).node).position.bytes
         && (*(*head1).node).error_cost == (*(*head2).node).error_cost
@@ -1766,7 +1778,8 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
         ::std::mem::size_of::<StackIterator>() as os::raw::c_ulong,
         32 as os::raw::c_int as u32,
     );
-    let mut was_recording_allocations: bool = ts_toggle_allocation_recording(0 as os::raw::c_int != 0);
+    let mut was_recording_allocations: bool =
+        ts_toggle_allocation_recording(0 as os::raw::c_int != 0);
     if f.is_null() {
         f = stderr
     }
@@ -1795,7 +1808,9 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
     while i < (*self_0).heads.size {
         let mut head: *mut StackHead =
             &mut *(*self_0).heads.contents.offset(i as isize) as *mut StackHead;
-        if !((*head).status as os::raw::c_uint == StackStatusHalted as os::raw::c_int as os::raw::c_uint) {
+        if !((*head).status as os::raw::c_uint
+            == StackStatusHalted as os::raw::c_int as os::raw::c_uint)
+        {
             fprintf(
                 f,
                 b"node_head_%u [shape=none, label=\"\"]\n\x00" as *const u8
@@ -1808,7 +1823,9 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
                 i,
                 (*head).node,
             );
-            if (*head).status as os::raw::c_uint == StackStatusPaused as os::raw::c_int as os::raw::c_uint {
+            if (*head).status as os::raw::c_uint
+                == StackStatusPaused as os::raw::c_int as os::raw::c_uint
+            {
                 fprintf(f, b"color=red \x00" as *const u8 as *const os::raw::c_char);
             }
             fprintf(f,
@@ -1941,7 +1958,8 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
                         fprintf(f, b"color=red\x00" as *const u8 as *const os::raw::c_char);
                     } else {
                         fprintf(f, b"label=\"\x00" as *const u8 as *const os::raw::c_char);
-                        let mut quoted: bool = ts_subtree_visible(link.subtree) as os::raw::c_int != 0
+                        let mut quoted: bool = ts_subtree_visible(link.subtree) as os::raw::c_int
+                            != 0
                             && !ts_subtree_named(link.subtree);
                         if quoted {
                             fprintf(f, b"\'\x00" as *const u8 as *const os::raw::c_char);
@@ -1950,7 +1968,8 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
                             ts_language_symbol_name(language, ts_subtree_symbol(link.subtree));
                         let mut c: *const os::raw::c_char = name;
                         while *c != 0 {
-                            if *c as os::raw::c_int == '\"' as i32 || *c as os::raw::c_int == '\\' as i32
+                            if *c as os::raw::c_int == '\"' as i32
+                                || *c as os::raw::c_int == '\\' as i32
                             {
                                 fprintf(f, b"\\\x00" as *const u8 as *const os::raw::c_char);
                             }

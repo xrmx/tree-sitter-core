@@ -8,7 +8,7 @@ use libc::{
     FILE,
 };
 use std::{
-    os,
+    ffi, os,
     sync::atomic::{AtomicU32, AtomicUsize, Ordering},
 };
 
@@ -207,19 +207,19 @@ pub struct Lexer {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSLogger {
-    pub payload: *mut libc::c_void,
+    pub payload: *mut ffi::c_void,
     pub log: Option<
-        unsafe extern "C" fn(_: *mut libc::c_void, _: TSLogType, _: *const os::raw::c_char) -> (),
+        unsafe extern "C" fn(_: *mut ffi::c_void, _: TSLogType, _: *const os::raw::c_char) -> (),
     >,
 }
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSInput {
-    pub payload: *mut libc::c_void,
+    pub payload: *mut ffi::c_void,
     pub read: Option<
         unsafe extern "C" fn(
-            _: *mut libc::c_void,
+            _: *mut ffi::c_void,
             _: u32,
             _: TSPoint,
             _: *mut u32,
@@ -308,15 +308,16 @@ pub struct TSFieldMapSlice {
 pub struct TSLanguageExternalScanner {
     pub states: *const bool,
     pub symbol_map: *const TSSymbol,
-    pub create: Option<unsafe extern "C" fn() -> *mut libc::c_void>,
-    pub destroy: Option<unsafe extern "C" fn(_: *mut libc::c_void) -> ()>,
+    pub create: Option<unsafe extern "C" fn() -> *mut ffi::c_void>,
+    pub destroy: Option<unsafe extern "C" fn(_: *mut ffi::c_void) -> ()>,
     pub scan:
-        Option<unsafe extern "C" fn(_: *mut libc::c_void, _: *mut TSLexer, _: *const bool) -> bool>,
-    pub serialize:
-        Option<unsafe extern "C" fn(_: *mut libc::c_void, _: *mut os::raw::c_char) -> os::raw::c_uint>,
+        Option<unsafe extern "C" fn(_: *mut ffi::c_void, _: *mut TSLexer, _: *const bool) -> bool>,
+    pub serialize: Option<
+        unsafe extern "C" fn(_: *mut ffi::c_void, _: *mut os::raw::c_char) -> os::raw::c_uint,
+    >,
     pub deserialize: Option<
         unsafe extern "C" fn(
-            _: *mut libc::c_void,
+            _: *mut ffi::c_void,
             _: *const os::raw::c_char,
             _: os::raw::c_uint,
         ) -> (),
@@ -540,7 +541,7 @@ pub struct TSInputEdit {
 #[repr(C)]
 pub struct TSNode {
     pub context: [u32; 4],
-    pub id: *const libc::c_void,
+    pub id: *const ffi::c_void,
     pub tree: *const TSTree,
 }
 #[derive(Copy, Clone)]
@@ -580,7 +581,7 @@ pub union MutableSubtree {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct VoidArray {
-    pub contents: *mut libc::c_void,
+    pub contents: *mut ffi::c_void,
     pub size: u32,
     pub capacity: u32,
 }
@@ -595,15 +596,15 @@ pub struct TSRangeArray {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSTreeCursor {
-    pub tree: *const libc::c_void,
-    pub id: *const libc::c_void,
+    pub tree: *const ffi::c_void,
+    pub id: *const ffi::c_void,
     pub context: [u32; 2],
 }
 
 // Private
 #[inline]
-pub unsafe extern "C" fn ts_malloc(mut size: size_t) -> *mut libc::c_void {
-    let mut result: *mut libc::c_void = malloc(size as usize);
+pub unsafe extern "C" fn ts_malloc(mut size: size_t) -> *mut ffi::c_void {
+    let mut result: *mut ffi::c_void = malloc(size as usize);
     if size > 0 as os::raw::c_int as os::raw::c_ulong && result.is_null() {
         fprintf(
             stderr,
@@ -615,8 +616,8 @@ pub unsafe extern "C" fn ts_malloc(mut size: size_t) -> *mut libc::c_void {
     return result;
 }
 #[inline]
-pub unsafe extern "C" fn ts_calloc(mut count: size_t, mut size: size_t) -> *mut libc::c_void {
-    let mut result: *mut libc::c_void = calloc(count as usize, size as usize);
+pub unsafe extern "C" fn ts_calloc(mut count: size_t, mut size: size_t) -> *mut ffi::c_void {
+    let mut result: *mut ffi::c_void = calloc(count as usize, size as usize);
     if count > 0 as os::raw::c_int as os::raw::c_ulong && result.is_null() {
         fprintf(
             stderr,
@@ -628,7 +629,7 @@ pub unsafe extern "C" fn ts_calloc(mut count: size_t, mut size: size_t) -> *mut 
     return result;
 }
 #[inline]
-pub unsafe extern "C" fn ts_free(mut buffer: *mut libc::c_void) {
+pub unsafe extern "C" fn ts_free(mut buffer: *mut ffi::c_void) {
     free(buffer);
 }
 #[inline]
@@ -721,7 +722,10 @@ pub unsafe extern "C" fn point_add(mut a: TSPoint, mut b: TSPoint) -> TSPoint {
     };
 }
 #[inline]
-pub unsafe extern "C" fn point__new(mut row: os::raw::c_uint, mut column: os::raw::c_uint) -> TSPoint {
+pub unsafe extern "C" fn point__new(
+    mut row: os::raw::c_uint,
+    mut column: os::raw::c_uint,
+) -> TSPoint {
     let mut result: TSPoint = {
         let mut init = TSPoint {
             row: row,
@@ -849,10 +853,10 @@ pub unsafe extern "C" fn ts_language_field_map(
 //TSTreeCursor
 #[inline]
 pub unsafe extern "C" fn ts_realloc(
-    mut buffer: *mut libc::c_void,
+    mut buffer: *mut ffi::c_void,
     mut size: size_t,
-) -> *mut libc::c_void {
-    let mut result: *mut libc::c_void = realloc(buffer, size as usize);
+) -> *mut ffi::c_void {
+    let mut result: *mut ffi::c_void = realloc(buffer, size as usize);
     if size > 0 as os::raw::c_int as os::raw::c_ulong && result.is_null() {
         fprintf(
             stderr,
@@ -884,7 +888,7 @@ pub unsafe extern "C" fn array__splice(
     mut index: u32,
     mut old_count: u32,
     mut new_count: u32,
-    mut elements: *const libc::c_void,
+    mut elements: *const ffi::c_void,
 ) {
     let mut new_size: u32 = (*self_0)
         .size
@@ -907,9 +911,9 @@ pub unsafe extern "C" fn array__splice(
     if (*self_0).size > old_end {
         memmove(
             contents.offset((new_end as os::raw::c_ulong).wrapping_mul(element_size) as isize)
-                as *mut libc::c_void,
+                as *mut ffi::c_void,
             contents.offset((old_end as os::raw::c_ulong).wrapping_mul(element_size) as isize)
-                as *const libc::c_void,
+                as *const ffi::c_void,
             ((*self_0).size.wrapping_sub(old_end) as os::raw::c_ulong).wrapping_mul(element_size)
                 as usize,
         );
@@ -918,14 +922,14 @@ pub unsafe extern "C" fn array__splice(
         if !elements.is_null() {
             memcpy(
                 contents.offset((index as os::raw::c_ulong).wrapping_mul(element_size) as isize)
-                    as *mut libc::c_void,
+                    as *mut ffi::c_void,
                 elements,
                 (new_count as os::raw::c_ulong).wrapping_mul(element_size) as usize,
             );
         } else {
             memset(
                 contents.offset((index as os::raw::c_ulong).wrapping_mul(element_size) as isize)
-                    as *mut libc::c_void,
+                    as *mut ffi::c_void,
                 0 as os::raw::c_int,
                 (new_count as os::raw::c_ulong).wrapping_mul(element_size) as usize,
             );
@@ -938,7 +942,7 @@ pub unsafe extern "C" fn array__splice(
 #[inline]
 pub unsafe extern "C" fn array__delete(mut self_0: *mut VoidArray) {
     ts_free((*self_0).contents);
-    (*self_0).contents = 0 as *mut libc::c_void;
+    (*self_0).contents = 0 as *mut ffi::c_void;
     (*self_0).size = 0 as os::raw::c_int as u32;
     (*self_0).capacity = 0 as os::raw::c_int as u32;
 }
@@ -1184,11 +1188,11 @@ pub unsafe extern "C" fn array__erase(
     let mut contents: *mut os::raw::c_char = (*self_0).contents as *mut os::raw::c_char;
     memmove(
         contents.offset((index as os::raw::c_ulong).wrapping_mul(element_size) as isize)
-            as *mut libc::c_void,
+            as *mut ffi::c_void,
         contents.offset(
             (index.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as os::raw::c_ulong)
                 .wrapping_mul(element_size) as isize,
-        ) as *const libc::c_void,
+        ) as *const ffi::c_void,
         ((*self_0)
             .size
             .wrapping_sub(index)
@@ -1269,8 +1273,8 @@ pub unsafe extern "C" fn ts_decode_utf8(
                             (i) != length
                         }
                         && {
-                            __t = (*string.offset(i as isize) as os::raw::c_int - 0x80 as os::raw::c_int)
-                                as u8;
+                            __t = (*string.offset(i as isize) as os::raw::c_int
+                                - 0x80 as os::raw::c_int) as u8;
                             (__t as os::raw::c_int) <= 0x3f as os::raw::c_int
                         }) as os::raw::c_int
                 }) != 0
@@ -1489,8 +1493,8 @@ pub unsafe extern "C" fn ts_language_next_state(
         let mut actions: *const TSParseAction =
             ts_language_actions(self_0, state, symbol, &mut count);
         if count > 0 as os::raw::c_int as os::raw::c_uint {
-            let mut action: TSParseAction =
-                *actions.offset(count.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize);
+            let mut action: TSParseAction = *actions
+                .offset(count.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize);
             if action.type_0() as os::raw::c_int == TSParseActionTypeShift as os::raw::c_int {
                 return if action.params.c2rust_unnamed.extra() as os::raw::c_int != 0 {
                     state as os::raw::c_int
@@ -1587,7 +1591,8 @@ pub unsafe extern "C" fn ts_decode_utf16(
         } {
             i = i.wrapping_add(1);
             *code_point = (*code_point << 10 as os::raw::c_ulong) + __c2 as UChar32
-                - (((0xd800 as os::raw::c_int) << 10 as os::raw::c_ulong) + 0xdc00 as os::raw::c_int
+                - (((0xd800 as os::raw::c_int) << 10 as os::raw::c_ulong)
+                    + 0xdc00 as os::raw::c_int
                     - 0x10000 as os::raw::c_int)
         }
     }

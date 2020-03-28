@@ -1,7 +1,7 @@
 use crate::*;
 
 use libc::{fclose, fdopen, fprintf, fputc, fputs, memcmp, snprintf, FILE};
-use std::os;
+use std::{ffi, os};
 
 static mut MAX_VERSION_COUNT: os::raw::c_uint = 6 as os::raw::c_int as os::raw::c_uint;
 static mut MAX_VERSION_COUNT_OVERFLOW: os::raw::c_uint = 4 as os::raw::c_int as os::raw::c_uint;
@@ -31,7 +31,7 @@ pub struct TSParser {
     pub scratch_tree: MutableSubtree,
     pub token_cache: TokenCache,
     pub reusable_node: ReusableNode,
-    pub external_scanner_payload: *mut libc::c_void,
+    pub external_scanner_payload: *mut ffi::c_void,
     pub dot_graph_file: *mut FILE,
     pub end_clock: TSClock,
     pub timeout_duration: TSDuration,
@@ -68,7 +68,7 @@ pub struct TSStringInput {
 
 // StringInput
 unsafe extern "C" fn ts_string_input_read(
-    mut _self: *mut libc::c_void,
+    mut _self: *mut ffi::c_void,
     mut byte: u32,
     mut _id: TSPoint,
     mut length: *mut u32,
@@ -149,7 +149,8 @@ unsafe extern "C" fn ts_parser__breakdown_top_of_stack(
                 );
             }
             let mut parent: Subtree =
-                *(&mut *slice.subtrees.contents.offset(0 as os::raw::c_int as isize) as *mut Subtree);
+                *(&mut *slice.subtrees.contents.offset(0 as os::raw::c_int as isize)
+                    as *mut Subtree);
             let mut j: u32 = 0 as os::raw::c_int as u32;
             let mut n: u32 = ts_subtree_child_count(parent);
             while j < n {
@@ -305,7 +306,8 @@ unsafe extern "C" fn ts_parser__version_status(
             node_count: ts_stack_node_count_since_error((*self_0).stack, version),
             dynamic_precedence: ts_stack_dynamic_precedence((*self_0).stack, version),
             is_in_error: is_paused as os::raw::c_int != 0
-                || ts_stack_state((*self_0).stack, version) as os::raw::c_int == 0 as os::raw::c_int,
+                || ts_stack_state((*self_0).stack, version) as os::raw::c_int
+                    == 0 as os::raw::c_int,
         };
         init
     };
@@ -396,14 +398,16 @@ unsafe extern "C" fn ts_parser__can_reuse_first_leaf(
     // NULL, which indicates that the parser should look for a reduce action
     // at symbol `0`. Avoid reusing tokens in this situation to ensure that
     // the same thing happens when incrementally reparsing.
-    if current_lex_mode.lex_state as os::raw::c_int == -(1 as os::raw::c_int) as u16 as os::raw::c_int {
+    if current_lex_mode.lex_state as os::raw::c_int
+        == -(1 as os::raw::c_int) as u16 as os::raw::c_int
+    {
         return 0 as os::raw::c_int != 0;
     }
     // If the token was created in a state with the same set of lookaheads, it is reusable.
     if (*table_entry).action_count > 0 as os::raw::c_int as os::raw::c_uint
         && memcmp(
-            &mut leaf_lex_mode as *mut TSLexMode as *const libc::c_void,
-            &mut current_lex_mode as *mut TSLexMode as *const libc::c_void,
+            &mut leaf_lex_mode as *mut TSLexMode as *const ffi::c_void,
+            &mut current_lex_mode as *mut TSLexMode as *const ffi::c_void,
             ::std::mem::size_of::<TSLexMode>(),
         ) == 0 as os::raw::c_int
         && (leaf_symbol as os::raw::c_int
@@ -1120,7 +1124,10 @@ unsafe extern "C" fn ts_parser__reduce(
             while children.size > 0 as os::raw::c_int as os::raw::c_uint
                 && ts_subtree_extra(
                     *children.contents.offset(
-                        children.size.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
+                        children
+                            .size
+                            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
+                            as isize,
                     ),
                 ) as os::raw::c_int
                     != 0
@@ -1259,8 +1266,12 @@ unsafe extern "C" fn ts_parser__accept(
         let mut root: Subtree = Subtree {
             ptr: 0 as *const SubtreeHeapData,
         };
-        let mut j: u32 = trees.size.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
-        while j.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) > 0 as os::raw::c_int as os::raw::c_uint {
+        let mut j: u32 = trees
+            .size
+            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
+        while j.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
+            > 0 as os::raw::c_int as os::raw::c_uint
+        {
             let mut child: Subtree = *trees.contents.offset(j as isize);
             if !ts_subtree_extra(child) {
                 if !child.data.is_inline() {
@@ -1293,7 +1304,7 @@ unsafe extern "C" fn ts_parser__accept(
                     j,
                     1 as os::raw::c_int as u32,
                     child_count,
-                    (*child.ptr).c2rust_unnamed.c2rust_unnamed.children as *const libc::c_void,
+                    (*child.ptr).c2rust_unnamed.c2rust_unnamed.children as *const ffi::c_void,
                 );
                 root = ts_subtree_from_mut(ts_subtree_new_node(
                     &mut (*self_0).tree_pool,
@@ -1649,7 +1660,7 @@ unsafe extern "C" fn ts_parser__recover_to_state(
                         0 as os::raw::c_int as u32,
                         error_child_count,
                         (*error_tree.ptr).c2rust_unnamed.c2rust_unnamed.children
-                            as *const libc::c_void,
+                            as *const ffi::c_void,
                     );
                     let mut j: os::raw::c_uint = 0 as os::raw::c_int as os::raw::c_uint;
                     while j < error_child_count {
@@ -1749,7 +1760,9 @@ unsafe extern "C" fn ts_parser__recover(
                         // Do not recover if the result would clearly be worse than some existing stack version.
                         let mut new_cost: os::raw::c_uint = current_error_cost
                             .wrapping_add(
-                                entry.depth.wrapping_mul(100 as os::raw::c_int as os::raw::c_uint),
+                                entry
+                                    .depth
+                                    .wrapping_mul(100 as os::raw::c_int as os::raw::c_uint),
                             )
                             .wrapping_add(
                                 position
@@ -1898,8 +1911,8 @@ unsafe extern "C" fn ts_parser__recover(
         &mut n,
     );
     if n > 0 as os::raw::c_int as os::raw::c_uint
-        && (*actions.offset(n.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize)).type_0()
-            as os::raw::c_int
+        && (*actions.offset(n.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize))
+            .type_0() as os::raw::c_int
             == TSParseActionTypeShift as os::raw::c_int
         && (*actions.offset(n.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize))
             .params
@@ -2004,7 +2017,8 @@ unsafe extern "C" fn ts_parser__recover(
             .offset(fresh13 as isize) = ts_subtree_from_mut(error_repeat);
         error_repeat = ts_subtree_new_node(
             &mut (*self_0).tree_pool,
-            (-(1 as os::raw::c_int) as TSSymbol as os::raw::c_int - 1 as os::raw::c_int) as TSSymbol,
+            (-(1 as os::raw::c_int) as TSSymbol as os::raw::c_int - 1 as os::raw::c_int)
+                as TSSymbol,
             &mut (*pop.contents.offset(0 as os::raw::c_int as isize)).subtrees,
             0 as os::raw::c_int as os::raw::c_uint,
             (*self_0).language,
@@ -2575,7 +2589,7 @@ pub unsafe extern "C" fn ts_parser_delete(mut self_0: *mut TSParser) {
     );
     ts_subtree_pool_delete(&mut (*self_0).tree_pool);
     reusable_node_delete(&mut (*self_0).reusable_node);
-    ts_free(self_0 as *mut libc::c_void);
+    ts_free(self_0 as *mut ffi::c_void);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_parser_language(mut self_0: *const TSParser) -> *const TSLanguage {
@@ -2608,7 +2622,7 @@ pub unsafe extern "C" fn ts_parser_set_language(
             .create
             .expect("non-null function pointer")()
     } else {
-        (*self_0).external_scanner_payload = 0 as *mut libc::c_void
+        (*self_0).external_scanner_payload = 0 as *mut ffi::c_void
     }
     (*self_0).language = language;
     ts_parser_reset(self_0);
@@ -2809,7 +2823,8 @@ pub unsafe extern "C" fn ts_parser_parse(
             if !(version < version_count) {
                 break;
             }
-            let mut allow_node_reuse: bool = version_count == 1 as os::raw::c_int as os::raw::c_uint;
+            let mut allow_node_reuse: bool =
+                version_count == 1 as os::raw::c_int as os::raw::c_uint;
             while ts_stack_is_active((*self_0).stack, version) {
                 if (*self_0).lexer.logger.log.is_some() || !(*self_0).dot_graph_file.is_null() {
                     snprintf(
@@ -2844,7 +2859,8 @@ pub unsafe extern "C" fn ts_parser_parse(
                 }
                 position = ts_stack_position((*self_0).stack, version).bytes;
                 if !(position > last_position
-                    || version > 0 as os::raw::c_int as os::raw::c_uint && position == last_position)
+                    || version > 0 as os::raw::c_int as os::raw::c_uint
+                        && position == last_position)
                 {
                     continue;
                 }
@@ -2938,11 +2954,11 @@ pub unsafe extern "C" fn ts_parser_parse_string_encoding(
     };
     return ts_parser_parse(self_0, old_tree, {
         let mut init = TSInput {
-            payload: &mut input as *mut TSStringInput as *mut libc::c_void,
+            payload: &mut input as *mut TSStringInput as *mut ffi::c_void,
             read: Some(
                 ts_string_input_read
                     as unsafe extern "C" fn(
-                        _: *mut libc::c_void,
+                        _: *mut ffi::c_void,
                         _: u32,
                         _: TSPoint,
                         _: *mut u32,

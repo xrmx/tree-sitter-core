@@ -1,6 +1,6 @@
 use crate::*;
 
-use std::os;
+use std::{ffi, os};
 
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -143,8 +143,8 @@ unsafe extern "C" fn ts_tree_cursor_child_iterator_next(
 pub unsafe extern "C" fn ts_tree_cursor_new(mut node: TSNode) -> TSTreeCursor {
     let mut self_0: TSTreeCursor = {
         let mut init = TSTreeCursor {
-            tree: 0 as *const libc::c_void,
-            id: 0 as *const libc::c_void,
+            tree: 0 as *const ffi::c_void,
+            id: 0 as *const ffi::c_void,
             context: [0 as os::raw::c_int as u32, 0 as os::raw::c_int as u32],
         };
         init
@@ -218,7 +218,8 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_first_child(mut _self: *mut TSTreeC
                 *(*self_0).stack.contents.offset(fresh1 as isize) = entry;
                 return 1 as os::raw::c_int != 0;
             }
-            if !(ts_subtree_visible_child_count(*entry.subtree) > 0 as os::raw::c_int as os::raw::c_uint)
+            if !(ts_subtree_visible_child_count(*entry.subtree)
+                > 0 as os::raw::c_int as os::raw::c_uint)
             {
                 continue;
             }
@@ -374,7 +375,9 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_parent(mut _self: *mut TSTreeCursor
         .stack
         .size
         .wrapping_sub(2 as os::raw::c_int as os::raw::c_uint);
-    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) > 0 as os::raw::c_int as os::raw::c_uint {
+    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
+        > 0 as os::raw::c_int as os::raw::c_uint
+    {
         let mut entry: *mut TreeCursorEntry =
             &mut *(*self_0).stack.contents.offset(i as isize) as *mut TreeCursorEntry;
         let mut is_aliased: bool = 0 as os::raw::c_int != 0;
@@ -392,7 +395,8 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_parent(mut _self: *mut TSTreeCursor
                     .production_id as u32,
             );
             is_aliased = !alias_sequence.is_null()
-                && *alias_sequence.offset((*entry).structural_child_index as isize) as os::raw::c_int
+                && *alias_sequence.offset((*entry).structural_child_index as isize)
+                    as os::raw::c_int
                     != 0
         }
         if ts_subtree_visible(*(*entry).subtree) as os::raw::c_int != 0
@@ -499,7 +503,8 @@ pub unsafe extern "C" fn ts_tree_cursor_current_status(
                     .production_id as u32,
             );
             if !alias_sequence.is_null()
-                && *alias_sequence.offset((*entry).structural_child_index as isize) as os::raw::c_int
+                && *alias_sequence.offset((*entry).structural_child_index as isize)
+                    as os::raw::c_int
                     != 0
             {
                 break;
@@ -594,7 +599,8 @@ pub unsafe extern "C" fn ts_tree_cursor_current_field_id(
                     .production_id as u32,
             );
             if !alias_sequence.is_null()
-                && *alias_sequence.offset((*entry).structural_child_index as isize) as os::raw::c_int
+                && *alias_sequence.offset((*entry).structural_child_index as isize)
+                    as os::raw::c_int
                     != 0
             {
                 break;
@@ -647,8 +653,8 @@ pub unsafe extern "C" fn ts_tree_cursor_copy(mut _cursor: *const TSTreeCursor) -
     let mut cursor: *const TreeCursor = _cursor as *const TreeCursor;
     let mut res: TSTreeCursor = {
         let mut init = TSTreeCursor {
-            tree: 0 as *const libc::c_void,
-            id: 0 as *const libc::c_void,
+            tree: 0 as *const ffi::c_void,
+            id: 0 as *const ffi::c_void,
             context: [0 as os::raw::c_int as u32, 0 as os::raw::c_int as u32],
         };
         init
@@ -661,7 +667,7 @@ pub unsafe extern "C" fn ts_tree_cursor_copy(mut _cursor: *const TSTreeCursor) -
         (*copy).stack.size,
         0 as os::raw::c_int as u32,
         (*cursor).stack.size,
-        (*cursor).stack.contents as *const libc::c_void,
+        (*cursor).stack.contents as *const ffi::c_void,
     );
     return res;
 }

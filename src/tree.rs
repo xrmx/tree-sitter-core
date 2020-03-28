@@ -1,7 +1,7 @@
 use crate::*;
 
 use libc::{memcpy, FILE};
-use std::os;
+use std::{ffi, os};
 
 static mut PARENT_CACHE_CAPACITY: os::raw::c_uint = 32 as os::raw::c_int as os::raw::c_uint;
 
@@ -24,8 +24,8 @@ pub unsafe extern "C" fn ts_tree_new(
         ::std::mem::size_of::<TSRange>() as os::raw::c_ulong,
     ) as *mut TSRange;
     memcpy(
-        (*result).included_ranges as *mut libc::c_void,
-        included_ranges as *const libc::c_void,
+        (*result).included_ranges as *mut ffi::c_void,
+        included_ranges as *const ffi::c_void,
         (included_range_count as libc::size_t)
             .wrapping_mul(::std::mem::size_of::<TSRange>() as libc::size_t),
     );
@@ -50,11 +50,11 @@ pub unsafe extern "C" fn ts_tree_delete(mut self_0: *mut TSTree) {
     let mut pool: SubtreePool = ts_subtree_pool_new(0 as os::raw::c_int as u32);
     ts_subtree_release(&mut pool, (*self_0).root);
     ts_subtree_pool_delete(&mut pool);
-    ts_free((*self_0).included_ranges as *mut libc::c_void);
+    ts_free((*self_0).included_ranges as *mut ffi::c_void);
     if !(*self_0).parent_cache.is_null() {
-        ts_free((*self_0).parent_cache as *mut libc::c_void);
+        ts_free((*self_0).parent_cache as *mut ffi::c_void);
     }
-    ts_free(self_0 as *mut libc::c_void);
+    ts_free(self_0 as *mut ffi::c_void);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_tree_root_node(mut self_0: *const TSTree) -> TSNode {
