@@ -16,8 +16,8 @@ pub unsafe extern "C" fn ts_tree_new(
     (*result).root = root;
     (*result).language = language;
     (*result).parent_cache = 0 as *mut ParentCacheEntry;
-    (*result).parent_cache_start = 0 as libc::c_int as uint32_t;
-    (*result).parent_cache_size = 0 as libc::c_int as uint32_t;
+    (*result).parent_cache_start = 0 as libc::c_int as u32;
+    (*result).parent_cache_size = 0 as libc::c_int as u32;
     (*result).included_ranges = ts_calloc(
         included_range_count as size_t,
         ::std::mem::size_of::<TSRange>() as libc::c_ulong,
@@ -46,7 +46,7 @@ pub unsafe extern "C" fn ts_tree_delete(mut self_0: *mut TSTree) {
     if self_0.is_null() {
         return;
     }
-    let mut pool: SubtreePool = ts_subtree_pool_new(0 as libc::c_int as uint32_t);
+    let mut pool: SubtreePool = ts_subtree_pool_new(0 as libc::c_int as u32);
     ts_subtree_release(&mut pool, (*self_0).root);
     ts_subtree_pool_delete(&mut pool);
     ts_free((*self_0).included_ranges as *mut libc::c_void);
@@ -116,17 +116,17 @@ pub unsafe extern "C" fn ts_tree_edit(mut self_0: *mut TSTree, mut edit: *const 
         }
         i = i.wrapping_add(1)
     }
-    let mut pool: SubtreePool = ts_subtree_pool_new(0 as libc::c_int as uint32_t);
+    let mut pool: SubtreePool = ts_subtree_pool_new(0 as libc::c_int as u32);
     (*self_0).root = ts_subtree_edit((*self_0).root, edit, &mut pool);
-    (*self_0).parent_cache_start = 0 as libc::c_int as uint32_t;
-    (*self_0).parent_cache_size = 0 as libc::c_int as uint32_t;
+    (*self_0).parent_cache_start = 0 as libc::c_int as u32;
+    (*self_0).parent_cache_size = 0 as libc::c_int as u32;
     ts_subtree_pool_delete(&mut pool);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_tree_get_changed_ranges(
     mut self_0: *const TSTree,
     mut other: *const TSTree,
-    mut count: *mut uint32_t,
+    mut count: *mut u32,
 ) -> *mut TSRange {
     let mut cursor1: TreeCursor = {
         let mut init = TreeCursor {
@@ -134,8 +134,8 @@ pub unsafe extern "C" fn ts_tree_get_changed_ranges(
             stack: {
                 let mut init = TreeCursorEntryArray {
                     contents: 0 as *mut TreeCursorEntry,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
@@ -148,8 +148,8 @@ pub unsafe extern "C" fn ts_tree_get_changed_ranges(
             stack: {
                 let mut init = TreeCursorEntryArray {
                     contents: 0 as *mut TreeCursorEntry,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
@@ -161,8 +161,8 @@ pub unsafe extern "C" fn ts_tree_get_changed_ranges(
     let mut included_range_differences: TSRangeArray = {
         let mut init = TSRangeArray {
             contents: 0 as *mut TSRange,
-            size: 0 as libc::c_int as uint32_t,
-            capacity: 0 as libc::c_int as uint32_t,
+            size: 0 as libc::c_int as u32,
+            capacity: 0 as libc::c_int as u32,
         };
         init
     };
@@ -198,9 +198,9 @@ pub unsafe extern "C" fn ts_tree_get_cached_parent(
     mut self_0: *const TSTree,
     mut node: *const TSNode,
 ) -> TSNode {
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < (*self_0).parent_cache_size {
-        let mut index: uint32_t = (*self_0)
+        let mut index: u32 = (*self_0)
             .parent_cache_start
             .wrapping_add(i)
             .wrapping_rem(PARENT_CACHE_CAPACITY);
@@ -236,7 +236,7 @@ pub unsafe extern "C" fn ts_tree_set_cached_parent(
             ::std::mem::size_of::<ParentCacheEntry>() as libc::c_ulong,
         ) as *mut ParentCacheEntry
     }
-    let mut index: uint32_t = (*self_0)
+    let mut index: u32 = (*self_0)
         .parent_cache_start
         .wrapping_add((*self_0).parent_cache_size)
         .wrapping_rem(PARENT_CACHE_CAPACITY);

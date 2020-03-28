@@ -40,7 +40,7 @@ static mut empty_state: ExternalScannerState = {
                 0,
             ],
         },
-        length: 0 as libc::c_int as uint32_t,
+        length: 0 as libc::c_int as u32,
     };
     init
 };
@@ -138,7 +138,7 @@ pub unsafe extern "C" fn ts_subtree_array_copy(
             self_0.contents as *const libc::c_void,
             (self_0.size as usize).wrapping_mul(::std::mem::size_of::<Subtree>() as usize),
         );
-        let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut i: u32 = 0 as libc::c_int as u32;
         while i < self_0.size {
             ts_subtree_retain(*(*dest).contents.offset(i as isize));
             i = i.wrapping_add(1)
@@ -150,7 +150,7 @@ pub unsafe extern "C" fn ts_subtree_array_delete(
     mut pool: *mut SubtreePool,
     mut self_0: *mut SubtreeArray,
 ) {
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < (*self_0).size {
         ts_subtree_release(pool, *(*self_0).contents.offset(i as isize));
         i = i.wrapping_add(1)
@@ -164,12 +164,12 @@ pub unsafe extern "C" fn ts_subtree_array_remove_trailing_extras(
     let mut result: SubtreeArray = {
         let mut init = SubtreeArray {
             contents: 0 as *mut Subtree,
-            size: 0 as libc::c_int as uint32_t,
-            capacity: 0 as libc::c_int as uint32_t,
+            size: 0 as libc::c_int as u32,
+            capacity: 0 as libc::c_int as u32,
         };
         init
     };
-    let mut i: uint32_t = (*self_0)
+    let mut i: u32 = (*self_0)
         .size
         .wrapping_sub(1 as libc::c_int as libc::c_uint);
     while i.wrapping_add(1 as libc::c_int as libc::c_uint) > 0 as libc::c_int as libc::c_uint {
@@ -193,8 +193,8 @@ pub unsafe extern "C" fn ts_subtree_array_remove_trailing_extras(
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_subtree_array_reverse(mut self_0: *mut SubtreeArray) {
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
-    let mut limit: uint32_t = (*self_0)
+    let mut i: u32 = 0 as libc::c_int as u32;
+    let mut limit: u32 = (*self_0)
         .size
         .wrapping_div(2 as libc::c_int as libc::c_uint);
     while i < limit {
@@ -210,22 +210,22 @@ pub unsafe extern "C" fn ts_subtree_array_reverse(mut self_0: *mut SubtreeArray)
 }
 // SubtreePool
 #[no_mangle]
-pub unsafe extern "C" fn ts_subtree_pool_new(mut capacity: uint32_t) -> SubtreePool {
+pub unsafe extern "C" fn ts_subtree_pool_new(mut capacity: u32) -> SubtreePool {
     let mut self_0: SubtreePool = {
         let mut init = SubtreePool {
             free_trees: {
                 let mut init = MutableSubtreeArray {
                     contents: 0 as *mut MutableSubtree,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
             tree_stack: {
                 let mut init = MutableSubtreeArray {
                     contents: 0 as *mut MutableSubtree,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
@@ -296,7 +296,7 @@ unsafe extern "C" fn ts_subtree_pool_free(
 unsafe extern "C" fn ts_subtree_can_inline(
     mut padding: Length,
     mut size: Length,
-    mut lookahead_bytes: uint32_t,
+    mut lookahead_bytes: u32,
 ) -> bool {
     return padding.bytes < 255 as libc::c_int as libc::c_uint
         && padding.extent.row < 16 as libc::c_int as libc::c_uint
@@ -311,7 +311,7 @@ pub unsafe extern "C" fn ts_subtree_new_leaf(
     mut symbol: TSSymbol,
     mut padding: Length,
     mut size: Length,
-    mut lookahead_bytes: uint32_t,
+    mut lookahead_bytes: u32,
     mut parse_state: TSStateId,
     mut has_external_tokens: bool,
     mut is_keyword: bool,
@@ -328,10 +328,10 @@ pub unsafe extern "C" fn ts_subtree_new_leaf(
                 let mut init = SubtreeInlineData {
                     is_inline_visible_named_extra_has_changes_is_missing_is_keyword: [0; 1],
                     padding_rows_lookahead_bytes: [0; 1],
-                    symbol: symbol as uint8_t,
-                    padding_bytes: padding.bytes as uint8_t,
-                    size_bytes: size.bytes as uint8_t,
-                    padding_columns: padding.extent.column as uint8_t,
+                    symbol: symbol as u8,
+                    padding_bytes: padding.bytes as u8,
+                    size_bytes: size.bytes as u8,
+                    padding_columns: padding.extent.column as u8,
                     parse_state: parse_state,
                 };
                 init.set_is_inline(1 as libc::c_int != 0);
@@ -341,8 +341,8 @@ pub unsafe extern "C" fn ts_subtree_new_leaf(
                 init.set_has_changes(0 as libc::c_int != 0);
                 init.set_is_missing(0 as libc::c_int != 0);
                 init.set_is_keyword(is_keyword);
-                init.set_padding_rows(padding.extent.row as uint8_t);
-                init.set_lookahead_bytes(lookahead_bytes as uint8_t);
+                init.set_padding_rows(padding.extent.row as u8);
+                init.set_lookahead_bytes(lookahead_bytes as u8);
                 init
             },
         };
@@ -353,12 +353,12 @@ pub unsafe extern "C" fn ts_subtree_new_leaf(
                     SubtreeHeapData{visible_named_extra_fragile_left_fragile_right_has_changes_has_external_tokens_is_missing_is_keyword:
                                         [0; 2],
                                     c2rust_padding: [0; 2],
-                                    ref_count: 1 as libc::c_int as uint32_t,
+                                    ref_count: 1 as libc::c_int as u32,
                                     padding: padding,
                                     size: size,
                                     lookahead_bytes: lookahead_bytes,
-                                    error_cost: 0 as libc::c_int as uint32_t,
-                                    child_count: 0 as libc::c_int as uint32_t,
+                                    error_cost: 0 as libc::c_int as u32,
+                                    child_count: 0 as libc::c_int as u32,
                                     symbol: symbol,
                                     parse_state: parse_state,
                                     c2rust_unnamed:
@@ -432,7 +432,7 @@ pub unsafe extern "C" fn ts_subtree_set_symbol(
                           (*::std::mem::transmute::<&[u8; 75],
                                                     &[libc::c_char; 75]>(b"void ts_subtree_set_symbol(MutableSubtree *, TSSymbol, const TSLanguage *)\x00")).as_ptr());
         }
-        (*self_0).data.symbol = symbol as uint8_t;
+        (*self_0).data.symbol = symbol as u8;
         (*self_0).data.set_named(metadata.named());
         (*self_0).data.set_visible(metadata.visible())
     } else {
@@ -444,10 +444,10 @@ pub unsafe extern "C" fn ts_subtree_set_symbol(
 #[no_mangle]
 pub unsafe extern "C" fn ts_subtree_new_error(
     mut pool: *mut SubtreePool,
-    mut lookahead_char: int32_t,
+    mut lookahead_char: i32,
     mut padding: Length,
     mut size: Length,
-    mut bytes_scanned: uint32_t,
+    mut bytes_scanned: u32,
     mut parse_state: TSStateId,
     mut language: *const TSLanguage,
 ) -> Subtree {
@@ -496,7 +496,7 @@ pub unsafe extern "C" fn ts_subtree_make_mut(
             ((*result).child_count as usize)
                 .wrapping_mul(::std::mem::size_of::<Subtree>() as usize),
         );
-        let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut i: u32 = 0 as libc::c_int as u32;
         while i < (*result).child_count {
             ts_subtree_retain(
                 *(*result)
@@ -512,8 +512,8 @@ pub unsafe extern "C" fn ts_subtree_make_mut(
             ts_external_scanner_state_copy(&(*self_0.ptr).c2rust_unnamed.external_scanner_state)
     }
     ::std::ptr::write_volatile(
-        &mut (*result).ref_count as *mut uint32_t,
-        1 as libc::c_int as uint32_t,
+        &mut (*result).ref_count as *mut u32,
+        1 as libc::c_int as u32,
     );
     ts_subtree_release(pool, self_0);
     return MutableSubtree { ptr: result };
@@ -648,7 +648,7 @@ pub unsafe extern "C" fn ts_subtree_balance(
     mut pool: *mut SubtreePool,
     mut language: *const TSLanguage,
 ) {
-    (*pool).tree_stack.size = 0 as libc::c_int as uint32_t;
+    (*pool).tree_stack.size = 0 as libc::c_int as u32;
     if ts_subtree_child_count(self_0) > 0 as libc::c_int as libc::c_uint
         && (*self_0.ptr).ref_count == 1 as libc::c_int as libc::c_uint
     {
@@ -691,7 +691,7 @@ pub unsafe extern "C" fn ts_subtree_balance(
                 }
             }
         }
-        let mut i_0: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut i_0: u32 = 0 as libc::c_int as u32;
         while i_0 < (*tree.ptr).child_count {
             let mut child: Subtree = *(*tree.ptr)
                 .c2rust_unnamed
@@ -719,7 +719,7 @@ pub unsafe extern "C" fn ts_subtree_balance(
 pub unsafe extern "C" fn ts_subtree_set_children(
     mut self_0: MutableSubtree,
     mut children: *mut Subtree,
-    mut child_count: uint32_t,
+    mut child_count: u32,
     mut language: *const TSLanguage,
 ) {
     if !self_0.data.is_inline() {
@@ -742,26 +742,26 @@ pub unsafe extern "C" fn ts_subtree_set_children(
     (*self_0.ptr)
         .c2rust_unnamed
         .c2rust_unnamed
-        .named_child_count = 0 as libc::c_int as uint32_t;
+        .named_child_count = 0 as libc::c_int as u32;
     (*self_0.ptr)
         .c2rust_unnamed
         .c2rust_unnamed
-        .visible_child_count = 0 as libc::c_int as uint32_t;
-    (*self_0.ptr).error_cost = 0 as libc::c_int as uint32_t;
-    (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.repeat_depth = 0 as libc::c_int as uint32_t;
-    (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.node_count = 1 as libc::c_int as uint32_t;
+        .visible_child_count = 0 as libc::c_int as u32;
+    (*self_0.ptr).error_cost = 0 as libc::c_int as u32;
+    (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.repeat_depth = 0 as libc::c_int as u32;
+    (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.node_count = 1 as libc::c_int as u32;
     (*self_0.ptr).set_has_external_tokens(0 as libc::c_int != 0);
     (*self_0.ptr)
         .c2rust_unnamed
         .c2rust_unnamed
         .dynamic_precedence = 0 as libc::c_int;
-    let mut non_extra_index: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut non_extra_index: u32 = 0 as libc::c_int as u32;
     let mut alias_sequence: *const TSSymbol = ts_language_alias_sequence(
         language,
-        (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.production_id as uint32_t,
+        (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.production_id as u32,
     );
-    let mut lookahead_end_byte: uint32_t = 0 as libc::c_int as uint32_t;
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut lookahead_end_byte: u32 = 0 as libc::c_int as u32;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < (*self_0.ptr).child_count {
         let mut child: Subtree = *(*self_0.ptr)
             .c2rust_unnamed
@@ -774,7 +774,7 @@ pub unsafe extern "C" fn ts_subtree_set_children(
         } else {
             (*self_0.ptr).size = length_add((*self_0.ptr).size, ts_subtree_total_size(child))
         }
-        let mut child_lookahead_end_byte: uint32_t = (*self_0.ptr)
+        let mut child_lookahead_end_byte: u32 = (*self_0.ptr)
             .padding
             .bytes
             .wrapping_add((*self_0.ptr).size.bytes)
@@ -787,7 +787,7 @@ pub unsafe extern "C" fn ts_subtree_set_children(
         {
             (*self_0.ptr).error_cost = ((*self_0.ptr).error_cost as libc::c_uint)
                 .wrapping_add(ts_subtree_error_cost(child))
-                as uint32_t as uint32_t
+                as u32 as u32
         }
         (*self_0.ptr)
             .c2rust_unnamed
@@ -795,7 +795,7 @@ pub unsafe extern "C" fn ts_subtree_set_children(
             .dynamic_precedence += ts_subtree_dynamic_precedence(child);
         (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.node_count =
             ((*self_0.ptr).c2rust_unnamed.c2rust_unnamed.node_count as libc::c_uint)
-                .wrapping_add(ts_subtree_node_count(child)) as uint32_t as uint32_t;
+                .wrapping_add(ts_subtree_node_count(child)) as u32 as u32;
         if !alias_sequence.is_null()
             && *alias_sequence.offset(non_extra_index as isize) as libc::c_int != 0 as libc::c_int
             && !ts_subtree_extra(child)
@@ -855,7 +855,7 @@ pub unsafe extern "C" fn ts_subtree_set_children(
                         .c2rust_unnamed
                         .c2rust_unnamed
                         .visible_child_count,
-                ) as uint32_t as uint32_t;
+                ) as u32 as u32;
             (*self_0.ptr)
                 .c2rust_unnamed
                 .c2rust_unnamed
@@ -864,7 +864,7 @@ pub unsafe extern "C" fn ts_subtree_set_children(
                 .c2rust_unnamed
                 .named_child_count as libc::c_uint)
                 .wrapping_add((*child.ptr).c2rust_unnamed.c2rust_unnamed.named_child_count)
-                as uint32_t as uint32_t
+                as u32 as u32
         }
         if ts_subtree_has_external_tokens(child) {
             (*self_0.ptr).set_has_external_tokens(1 as libc::c_int != 0)
@@ -894,15 +894,15 @@ pub unsafe extern "C" fn ts_subtree_set_children(
                 .wrapping_add(
                     (30 as libc::c_int as libc::c_uint).wrapping_mul((*self_0.ptr).size.extent.row),
                 ),
-        ) as uint32_t as uint32_t;
-        let mut i_0: uint32_t = 0 as libc::c_int as uint32_t;
+        ) as u32 as u32;
+        let mut i_0: u32 = 0 as libc::c_int as u32;
         while i_0 < (*self_0.ptr).child_count {
             let mut child_0: Subtree = *(*self_0.ptr)
                 .c2rust_unnamed
                 .c2rust_unnamed
                 .children
                 .offset(i_0 as isize);
-            let mut grandchild_count: uint32_t = ts_subtree_child_count(child_0);
+            let mut grandchild_count: u32 = ts_subtree_child_count(child_0);
             if !ts_subtree_extra(child_0) {
                 if !(ts_subtree_is_error(child_0) as libc::c_int != 0
                     && grandchild_count == 0 as libc::c_int as libc::c_uint)
@@ -910,18 +910,17 @@ pub unsafe extern "C" fn ts_subtree_set_children(
                     if ts_subtree_visible(child_0) {
                         (*self_0.ptr).error_cost = ((*self_0.ptr).error_cost as libc::c_uint)
                             .wrapping_add(100 as libc::c_int as libc::c_uint)
-                            as uint32_t
-                            as uint32_t
+                            as u32 as u32
                     } else if grandchild_count > 0 as libc::c_int as libc::c_uint {
-                        (*self_0.ptr).error_cost =
-                            ((*self_0.ptr).error_cost as libc::c_uint).wrapping_add(
+                        (*self_0.ptr).error_cost = ((*self_0.ptr).error_cost as libc::c_uint)
+                            .wrapping_add(
                                 (100 as libc::c_int as libc::c_uint).wrapping_mul(
                                     (*child_0.ptr)
                                         .c2rust_unnamed
                                         .c2rust_unnamed
                                         .visible_child_count,
                                 ),
-                            ) as uint32_t as uint32_t
+                            ) as u32 as u32
                     }
                 }
             }
@@ -990,7 +989,7 @@ pub unsafe extern "C" fn ts_subtree_new_node(
                 SubtreeHeapData{visible_named_extra_fragile_left_fragile_right_has_changes_has_external_tokens_is_missing_is_keyword:
                                     [0; 2],
                                 c2rust_padding: [0; 2],
-                                ref_count: 1 as libc::c_int as uint32_t,
+                                ref_count: 1 as libc::c_int as u32,
                                 padding:
                                     Length{bytes: 0,
                                            extent:
@@ -1021,7 +1020,7 @@ pub unsafe extern "C" fn ts_subtree_new_node(
                                                                                         as
                                                                                         libc::c_int
                                                                                         as
-                                                                                        uint32_t,
+                                                                                        u32,
                                                                                 repeat_depth:
                                                                                     0,
                                                                                 dynamic_precedence:
@@ -1029,7 +1028,7 @@ pub unsafe extern "C" fn ts_subtree_new_node(
                                                                                 production_id:
                                                                                     production_id
                                                                                         as
-                                                                                        uint16_t,
+                                                                                        u16,
                                                                                 first_leaf:
                                                                                     {
                                                                                         let mut init =
@@ -1093,7 +1092,7 @@ pub unsafe extern "C" fn ts_subtree_new_missing_leaf(
         symbol,
         padding,
         length_zero(),
-        0 as libc::c_int as uint32_t,
+        0 as libc::c_int as u32,
         0 as libc::c_int as TSStateId,
         0 as libc::c_int != 0,
         0 as libc::c_int != 0,
@@ -1124,7 +1123,7 @@ pub unsafe extern "C" fn ts_subtree_retain(mut self_0: Subtree) {
             .as_ptr(),
         );
     }
-    atomic_inc(&(*self_0.ptr).ref_count as *const uint32_t as *mut uint32_t);
+    atomic_inc(&(*self_0.ptr).ref_count as *const u32 as *mut u32);
     if (*self_0.ptr).ref_count != 0 as libc::c_int as libc::c_uint {
     } else {
         __assert_fail(
@@ -1143,7 +1142,7 @@ pub unsafe extern "C" fn ts_subtree_release(mut pool: *mut SubtreePool, mut self
     if self_0.data.is_inline() {
         return;
     }
-    (*pool).tree_stack.size = 0 as libc::c_int as uint32_t;
+    (*pool).tree_stack.size = 0 as libc::c_int as u32;
     if (*self_0.ptr).ref_count > 0 as libc::c_int as libc::c_uint {
     } else {
         __assert_fail(
@@ -1156,7 +1155,7 @@ pub unsafe extern "C" fn ts_subtree_release(mut pool: *mut SubtreePool, mut self
             .as_ptr(),
         );
     }
-    if atomic_dec(&(*self_0.ptr).ref_count as *const uint32_t as *mut uint32_t)
+    if atomic_dec(&(*self_0.ptr).ref_count as *const u32 as *mut u32)
         == 0 as libc::c_int as libc::c_uint
     {
         array__grow(
@@ -1175,7 +1174,7 @@ pub unsafe extern "C" fn ts_subtree_release(mut pool: *mut SubtreePool, mut self
             .contents
             .offset((*pool).tree_stack.size as isize);
         if (*tree.ptr).child_count > 0 as libc::c_int as libc::c_uint {
-            let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+            let mut i: u32 = 0 as libc::c_int as u32;
             while i < (*tree.ptr).child_count {
                 let mut child: Subtree = *(*tree.ptr)
                     .c2rust_unnamed
@@ -1195,7 +1194,7 @@ pub unsafe extern "C" fn ts_subtree_release(mut pool: *mut SubtreePool, mut self
                             .as_ptr(),
                         );
                     }
-                    if atomic_dec(&(*child.ptr).ref_count as *const uint32_t as *mut uint32_t)
+                    if atomic_dec(&(*child.ptr).ref_count as *const u32 as *mut u32)
                         == 0 as libc::c_int as libc::c_uint
                     {
                         array__grow(
@@ -1278,7 +1277,7 @@ pub unsafe extern "C" fn ts_subtree_eq(mut self_0: Subtree, mut other: Subtree) 
         {
             return 0 as libc::c_int != 0;
         }
-        let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut i: u32 = 0 as libc::c_int as u32;
         while i < (*self_0.ptr).child_count {
             if !ts_subtree_eq(
                 *(*self_0.ptr)
@@ -1313,8 +1312,8 @@ pub unsafe extern "C" fn ts_subtree_compare(mut left: Subtree, mut right: Subtre
     if ts_subtree_child_count(right) < ts_subtree_child_count(left) {
         return 1 as libc::c_int;
     }
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
-    let mut n: uint32_t = ts_subtree_child_count(left);
+    let mut i: u32 = 0 as libc::c_int as u32;
+    let mut n: u32 = ts_subtree_child_count(left);
     while i < n {
         let mut left_child: Subtree = *(*left.ptr)
             .c2rust_unnamed
@@ -1360,15 +1359,15 @@ pub unsafe extern "C" fn ts_subtree_edit(
     #[repr(C)]
     struct StackEntryArray {
         pub contents: *mut LocStackEntry,
-        pub size: uint32_t,
-        pub capacity: uint32_t,
+        pub size: u32,
+        pub capacity: u32,
     }
 
     let mut stack: StackEntryArray = {
         let mut init = StackEntryArray {
             contents: 0 as *mut LocStackEntry,
-            size: 0 as libc::c_int as uint32_t,
-            capacity: 0 as libc::c_int as uint32_t,
+            size: 0 as libc::c_int as u32,
+            capacity: 0 as libc::c_int as u32,
         };
         init
     };
@@ -1420,8 +1419,8 @@ pub unsafe extern "C" fn ts_subtree_edit(
         let mut is_pure_insertion: bool = edit_0.old_end.bytes == edit_0.start.bytes;
         let mut size: Length = ts_subtree_size(*entry.tree);
         let mut padding: Length = ts_subtree_padding(*entry.tree);
-        let mut lookahead_bytes: uint32_t = ts_subtree_lookahead_bytes(*entry.tree);
-        let mut end_byte: uint32_t = padding
+        let mut lookahead_bytes: u32 = ts_subtree_lookahead_bytes(*entry.tree);
+        let mut end_byte: u32 = padding
             .bytes
             .wrapping_add(size.bytes)
             .wrapping_add(lookahead_bytes);
@@ -1445,7 +1444,7 @@ pub unsafe extern "C" fn ts_subtree_edit(
             // If the edit is a pure insertion right at the start of the subtree,
             // shift the subtree over according to the insertion.
             // If the edit is within this subtree, resize the subtree to reflect the edit.
-            let mut total_bytes: uint32_t = padding.bytes.wrapping_add(size.bytes);
+            let mut total_bytes: u32 = padding.bytes.wrapping_add(size.bytes);
             if edit_0.start.bytes < total_bytes
                 || edit_0.start.bytes == total_bytes && is_pure_insertion as libc::c_int != 0
             {
@@ -1458,21 +1457,21 @@ pub unsafe extern "C" fn ts_subtree_edit(
         let mut result: MutableSubtree = ts_subtree_make_mut(pool, *entry.tree);
         if result.data.is_inline() {
             if ts_subtree_can_inline(padding, size, lookahead_bytes) {
-                result.data.padding_bytes = padding.bytes as uint8_t;
-                result.data.set_padding_rows(padding.extent.row as uint8_t);
-                result.data.padding_columns = padding.extent.column as uint8_t;
-                result.data.size_bytes = size.bytes as uint8_t
+                result.data.padding_bytes = padding.bytes as u8;
+                result.data.set_padding_rows(padding.extent.row as u8);
+                result.data.padding_columns = padding.extent.column as u8;
+                result.data.size_bytes = size.bytes as u8
             } else {
                 let mut data: *mut SubtreeHeapData = ts_subtree_pool_allocate(pool);
                 ::std::ptr::write_volatile(
-                    &mut (*data).ref_count as *mut uint32_t,
-                    1 as libc::c_int as uint32_t,
+                    &mut (*data).ref_count as *mut u32,
+                    1 as libc::c_int as u32,
                 );
                 (*data).padding = padding;
                 (*data).size = size;
                 (*data).lookahead_bytes = lookahead_bytes;
-                (*data).error_cost = 0 as libc::c_int as uint32_t;
-                (*data).child_count = 0 as libc::c_int as uint32_t;
+                (*data).error_cost = 0 as libc::c_int as u32;
+                (*data).child_count = 0 as libc::c_int as u32;
                 (*data).symbol = result.data.symbol as TSSymbol;
                 (*data).parse_state = result.data.parse_state;
                 (*data).set_visible(result.data.visible());
@@ -1497,8 +1496,8 @@ pub unsafe extern "C" fn ts_subtree_edit(
             extent: TSPoint { row: 0, column: 0 },
         };
         let mut child_right: Length = length_zero();
-        let mut i: uint32_t = 0 as libc::c_int as uint32_t;
-        let mut n: uint32_t = ts_subtree_child_count(*entry.tree);
+        let mut i: u32 = 0 as libc::c_int as u32;
+        let mut n: u32 = ts_subtree_child_count(*entry.tree);
         while i < n {
             let mut child: *mut Subtree = &mut *(*result.ptr)
                 .c2rust_unnamed
@@ -1587,7 +1586,7 @@ pub unsafe extern "C" fn ts_subtree_last_external_token(mut tree: Subtree) -> Su
         };
     }
     while (*tree.ptr).child_count > 0 as libc::c_int as libc::c_uint {
-        let mut i: uint32_t = (*tree.ptr)
+        let mut i: u32 = (*tree.ptr)
             .child_count
             .wrapping_sub(1 as libc::c_int as libc::c_uint);
         while i.wrapping_add(1 as libc::c_int as libc::c_uint) > 0 as libc::c_int as libc::c_uint {
@@ -1609,7 +1608,7 @@ pub unsafe extern "C" fn ts_subtree_last_external_token(mut tree: Subtree) -> Su
 unsafe extern "C" fn ts_subtree__write_char_to_string(
     mut s: *mut libc::c_char,
     mut n: size_t,
-    mut c: int32_t,
+    mut c: i32,
 ) -> size_t {
     if c == -(1 as libc::c_int) {
         return snprintf(
@@ -1793,18 +1792,18 @@ unsafe extern "C" fn ts_subtree__write_to_string(
     if ts_subtree_child_count(self_0) != 0 {
         let mut alias_sequence: *const TSSymbol = ts_language_alias_sequence(
             language,
-            (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.production_id as uint32_t,
+            (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.production_id as u32,
         );
         let mut field_map: *const TSFieldMapEntry = 0 as *const TSFieldMapEntry;
         let mut field_map_end: *const TSFieldMapEntry = 0 as *const TSFieldMapEntry;
         ts_language_field_map(
             language,
-            (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.production_id as uint32_t,
+            (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.production_id as u32,
             &mut field_map,
             &mut field_map_end,
         );
-        let mut structural_child_index: uint32_t = 0 as libc::c_int as uint32_t;
-        let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut structural_child_index: u32 = 0 as libc::c_int as u32;
+        let mut i: u32 = 0 as libc::c_int as u32;
         while i < (*self_0.ptr).child_count {
             let mut child: Subtree = *(*self_0.ptr)
                 .c2rust_unnamed
@@ -1910,7 +1909,7 @@ pub unsafe extern "C" fn ts_subtree_string(
 #[no_mangle]
 pub unsafe extern "C" fn ts_subtree__print_dot_graph(
     mut self_0: *const Subtree,
-    mut start_offset: uint32_t,
+    mut start_offset: u32,
     mut language: *const TSLanguage,
     mut alias_symbol: TSSymbol,
     mut f: *mut FILE,
@@ -1921,7 +1920,7 @@ pub unsafe extern "C" fn ts_subtree__print_dot_graph(
     } else {
         subtree_symbol as libc::c_int
     } as TSSymbol;
-    let mut end_offset: uint32_t = start_offset.wrapping_add(ts_subtree_total_bytes(*self_0));
+    let mut end_offset: u32 = start_offset.wrapping_add(ts_subtree_total_bytes(*self_0));
     fprintf(
         f,
         b"tree_%p [label=\"\x00" as *const u8 as *const libc::c_char,
@@ -1959,12 +1958,12 @@ pub unsafe extern "C" fn ts_subtree__print_dot_graph(
         );
     }
     fprintf(f, b"\"]\n\x00" as *const u8 as *const libc::c_char);
-    let mut child_start_offset: uint32_t = start_offset;
-    let mut child_info_offset: uint32_t = ((*language).max_alias_sequence_length as libc::c_int
+    let mut child_start_offset: u32 = start_offset;
+    let mut child_info_offset: u32 = ((*language).max_alias_sequence_length as libc::c_int
         * ts_subtree_production_id(*self_0) as libc::c_int)
-        as uint32_t;
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
-    let mut n: uint32_t = ts_subtree_child_count(*self_0);
+        as u32;
+    let mut i: u32 = 0 as libc::c_int as u32;
+    let mut n: u32 = ts_subtree_child_count(*self_0);
     while i < n {
         let mut child: *const Subtree = &mut *(*(*self_0).ptr)
             .c2rust_unnamed
@@ -1987,8 +1986,8 @@ pub unsafe extern "C" fn ts_subtree__print_dot_graph(
             i,
         );
         child_start_offset = (child_start_offset as libc::c_uint)
-            .wrapping_add(ts_subtree_total_bytes(*child)) as uint32_t
-            as uint32_t;
+            .wrapping_add(ts_subtree_total_bytes(*child)) as u32
+            as u32;
         i = i.wrapping_add(1)
     }
 }
@@ -2008,7 +2007,7 @@ pub unsafe extern "C" fn ts_subtree_print_dot_graph(
     );
     ts_subtree__print_dot_graph(
         &mut self_0,
-        0 as libc::c_int as uint32_t,
+        0 as libc::c_int as u32,
         language,
         0 as libc::c_int as TSSymbol,
         f,

@@ -40,7 +40,7 @@ pub type __uint32_t = libc::c_uint;
 pub type __off_t = libc::c_long;
 pub type __off64_t = libc::c_long;
 pub type __int64_t = libc::c_long;
-pub type int64_t = __int64_t;
+pub type i64 = __int64_t;
 
 pub type __uint64_t = libc::c_ulong;
 pub type __time_t = libc::c_long;
@@ -48,16 +48,16 @@ pub type __clockid_t = libc::c_int;
 pub type __syscall_slong_t = libc::c_long;
 
 pub type UnicodeDecodeFunction =
-    Option<unsafe extern "C" fn(_: *const uint8_t, _: uint32_t, _: *mut int32_t) -> uint32_t>;
+    Option<unsafe extern "C" fn(_: *const u8, _: u32, _: *mut i32) -> u32>;
 
-pub type UChar32 = int32_t;
+pub type UChar32 = i32;
 pub static mut LENGTH_UNDEFINED: Length = {
     let mut init = Length {
-        bytes: 0 as libc::c_int as uint32_t,
+        bytes: 0 as libc::c_int as u32,
         extent: {
             let mut init = TSPoint {
-                row: 0 as libc::c_int as uint32_t,
-                column: 1 as libc::c_int as uint32_t,
+                row: 0 as libc::c_int as u32,
+                column: 1 as libc::c_int as u32,
             };
             init
         },
@@ -65,7 +65,7 @@ pub static mut LENGTH_UNDEFINED: Length = {
     init
 };
 
-pub static mut TS_DECODE_ERROR: int32_t = -(1 as libc::c_int);
+pub static mut TS_DECODE_ERROR: i32 = -(1 as libc::c_int);
 
 pub static mut LENGTH_MAX: Length = {
     let mut init = Length {
@@ -82,9 +82,9 @@ pub static mut LENGTH_MAX: Length = {
 };
 
 pub type clockid_t = __clockid_t;
-pub type uint64_t = __uint64_t;
+pub type u64 = __uint64_t;
 
-pub type TSDuration = uint64_t;
+pub type TSDuration = u64;
 // POSIX with monotonic clock support (Linux)
 // * Represent a time as a monotonic (seconds, nanoseconds) pair.
 // * Represent a duration as a number of microseconds.
@@ -116,13 +116,13 @@ pub type wint_t = libc::c_uint;
 pub static mut TS_TREE_STATE_NONE: TSStateId =
     (32767 as libc::c_int * 2 as libc::c_int + 1 as libc::c_int) as TSStateId;
 
-pub type int16_t = __int16_t;
-pub type int32_t = __int32_t;
-pub type uint8_t = __uint8_t;
-pub type uint16_t = __uint16_t;
-pub type uint32_t = __uint32_t;
-pub type TSSymbol = uint16_t;
-pub type TSFieldId = uint16_t;
+pub type i16 = __int16_t;
+pub type i32 = __int32_t;
+pub type u8 = __uint8_t;
+pub type u16 = __uint16_t;
+pub type u32 = __uint32_t;
+pub type TSSymbol = u16;
+pub type TSFieldId = u16;
 pub type TSSymbolType = libc::c_uint;
 
 pub const TSSymbolTypeAuxiliary: TSSymbolType = 2;
@@ -142,7 +142,7 @@ pub type IteratorComparison = libc::c_uint;
 #[repr(C)]
 pub struct TSQueryCapture {
     pub node: TSNode,
-    pub index: uint32_t,
+    pub index: u32,
 }
 
 pub type TSQueryError = libc::c_uint;
@@ -161,15 +161,15 @@ pub const TSQueryPredicateStepTypeDone: TSQueryPredicateStepType = 0;
 #[repr(C)]
 pub struct TSQueryPredicateStep {
     pub type_0: TSQueryPredicateStepType,
-    pub value_id: uint32_t,
+    pub value_id: u32,
 }
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSQueryMatch {
-    pub id: uint32_t,
-    pub pattern_index: uint16_t,
-    pub capture_count: uint16_t,
+    pub id: u32,
+    pub pattern_index: u16,
+    pub capture_count: u16,
     pub captures: *const TSQueryCapture,
 }
 
@@ -193,9 +193,9 @@ pub struct Lexer {
     pub included_range_count: size_t,
     pub current_included_range_index: size_t,
     pub chunk: *const libc::c_char,
-    pub chunk_start: uint32_t,
-    pub chunk_size: uint32_t,
-    pub lookahead_size: uint32_t,
+    pub chunk_start: u32,
+    pub chunk_size: u32,
+    pub lookahead_size: u32,
     pub input: TSInput,
     pub logger: TSLogger,
     pub debug_buffer: [libc::c_char; 1024],
@@ -217,9 +217,9 @@ pub struct TSInput {
     pub read: Option<
         unsafe extern "C" fn(
             _: *mut libc::c_void,
-            _: uint32_t,
+            _: u32,
             _: TSPoint,
-            _: *mut uint32_t,
+            _: *mut u32,
         ) -> *const libc::c_char,
     >,
     pub encoding: TSInputEncoding,
@@ -229,7 +229,7 @@ pub struct TSInput {
 #[repr(C)]
 pub struct TableEntry {
     pub actions: *const TSParseAction,
-    pub action_count: uint32_t,
+    pub action_count: u32,
     pub is_reusable: bool,
 }
 
@@ -239,13 +239,13 @@ pub type StackVersion = libc::c_uint;
 #[repr(C)]
 pub struct ReduceActionSet {
     pub contents: *mut ReduceAction,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct ReduceAction {
-    pub count: uint32_t,
+    pub count: u32,
     pub symbol: TSSymbol,
     pub dynamic_precedence: libc::c_int,
     pub production_id: libc::c_ushort,
@@ -254,51 +254,51 @@ pub struct ReduceAction {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct U32Array {
-    pub contents: *mut uint32_t,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub contents: *mut u32,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSLanguage {
-    pub version: uint32_t,
-    pub symbol_count: uint32_t,
-    pub alias_count: uint32_t,
-    pub token_count: uint32_t,
-    pub external_token_count: uint32_t,
+    pub version: u32,
+    pub symbol_count: u32,
+    pub alias_count: u32,
+    pub token_count: u32,
+    pub external_token_count: u32,
     pub symbol_names: *mut *const libc::c_char,
     pub symbol_metadata: *const TSSymbolMetadata,
-    pub parse_table: *const uint16_t,
+    pub parse_table: *const u16,
     pub parse_actions: *const TSParseActionEntry,
     pub lex_modes: *const TSLexMode,
     pub alias_sequences: *const TSSymbol,
-    pub max_alias_sequence_length: uint16_t,
+    pub max_alias_sequence_length: u16,
     pub lex_fn: Option<unsafe extern "C" fn(_: *mut TSLexer, _: TSStateId) -> bool>,
     pub keyword_lex_fn: Option<unsafe extern "C" fn(_: *mut TSLexer, _: TSStateId) -> bool>,
     pub keyword_capture_token: TSSymbol,
     pub external_scanner: TSLanguageExternalScanner,
-    pub field_count: uint32_t,
+    pub field_count: u32,
     pub field_map_slices: *const TSFieldMapSlice,
     pub field_map_entries: *const TSFieldMapEntry,
     pub field_names: *mut *const libc::c_char,
-    pub large_state_count: uint32_t,
-    pub small_parse_table: *const uint16_t,
-    pub small_parse_table_map: *const uint32_t,
+    pub large_state_count: u32,
+    pub small_parse_table: *const u16,
+    pub small_parse_table_map: *const u32,
     pub public_symbol_map: *const TSSymbol,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSFieldMapEntry {
     pub field_id: TSFieldId,
-    pub child_index: uint8_t,
+    pub child_index: u8,
     pub inherited: bool,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSFieldMapSlice {
-    pub index: uint16_t,
-    pub length: uint16_t,
+    pub index: u16,
+    pub length: u16,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -318,20 +318,20 @@ pub struct TSLanguageExternalScanner {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSLexer {
-    pub lookahead: int32_t,
+    pub lookahead: i32,
     pub result_symbol: TSSymbol,
     pub advance: Option<unsafe extern "C" fn(_: *mut TSLexer, _: bool) -> ()>,
     pub mark_end: Option<unsafe extern "C" fn(_: *mut TSLexer) -> ()>,
-    pub get_column: Option<unsafe extern "C" fn(_: *mut TSLexer) -> uint32_t>,
+    pub get_column: Option<unsafe extern "C" fn(_: *mut TSLexer) -> u32>,
     pub is_at_included_range_start: Option<unsafe extern "C" fn(_: *const TSLexer) -> bool>,
     pub eof: Option<unsafe extern "C" fn(_: *const TSLexer) -> bool>,
 }
-pub type TSStateId = uint16_t;
+pub type TSStateId = u16;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSLexMode {
-    pub lex_state: uint16_t,
-    pub external_lex_state: uint16_t,
+    pub lex_state: u16,
+    pub external_lex_state: u16,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -342,7 +342,7 @@ pub union TSParseActionEntry {
 #[derive(Copy, Clone, BitfieldStruct)]
 #[repr(C)]
 pub struct TSParseActionEntryContent {
-    pub count: uint8_t,
+    pub count: u8,
     #[bitfield(name = "reusable", ty = "bool", bits = "0..=0")]
     pub reusable: [u8; 1],
 }
@@ -370,9 +370,9 @@ pub union TSParseActionParams {
 #[repr(C)]
 pub struct TSParseActionParamsSymbol {
     pub symbol: TSSymbol,
-    pub dynamic_precedence: int16_t,
-    pub child_count: uint8_t,
-    pub production_id: uint8_t,
+    pub dynamic_precedence: i16,
+    pub child_count: u8,
+    pub production_id: u8,
 }
 #[derive(Copy, Clone, BitfieldStruct)]
 #[repr(C)]
@@ -397,8 +397,8 @@ pub struct TSTree {
     pub root: Subtree,
     pub language: *const TSLanguage,
     pub parent_cache: *mut ParentCacheEntry,
-    pub parent_cache_start: uint32_t,
-    pub parent_cache_size: uint32_t,
+    pub parent_cache_start: u32,
+    pub parent_cache_size: u32,
     pub included_ranges: *mut TSRange,
     pub included_range_count: libc::c_uint,
 }
@@ -407,14 +407,14 @@ pub struct TSTree {
 pub struct TSRange {
     pub start_point: TSPoint,
     pub end_point: TSPoint,
-    pub start_byte: uint32_t,
-    pub end_byte: uint32_t,
+    pub start_byte: u32,
+    pub end_byte: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSPoint {
-    pub row: uint32_t,
-    pub column: uint32_t,
+    pub row: u32,
+    pub column: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -427,7 +427,7 @@ pub struct ParentCacheEntry {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct Length {
-    pub bytes: uint32_t,
+    pub bytes: u32,
     pub extent: TSPoint,
 }
 #[derive(Copy, Clone)]
@@ -439,12 +439,12 @@ pub union Subtree {
 #[derive(Copy, Clone, BitfieldStruct)]
 #[repr(C)]
 pub struct SubtreeHeapData {
-    pub ref_count: uint32_t,
+    pub ref_count: u32,
     pub padding: Length,
     pub size: Length,
-    pub lookahead_bytes: uint32_t,
-    pub error_cost: uint32_t,
-    pub child_count: uint32_t,
+    pub lookahead_bytes: u32,
+    pub error_cost: u32,
+    pub child_count: u32,
     pub symbol: TSSymbol,
     pub parse_state: TSStateId,
     #[bitfield(name = "visible", ty = "bool", bits = "0..=0")]
@@ -467,13 +467,13 @@ pub struct SubtreeHeapData {
 pub union SubtreeHeapDataContent {
     pub c2rust_unnamed: SubtreeHeapDataContentData,
     pub external_scanner_state: ExternalScannerState,
-    pub lookahead_char: int32_t,
+    pub lookahead_char: i32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct ExternalScannerState {
     pub c2rust_unnamed: ExternalScannerStateData,
-    pub length: uint32_t,
+    pub length: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -485,12 +485,12 @@ pub union ExternalScannerStateData {
 #[repr(C)]
 pub struct SubtreeHeapDataContentData {
     pub children: *mut Subtree,
-    pub visible_child_count: uint32_t,
-    pub named_child_count: uint32_t,
-    pub node_count: uint32_t,
-    pub repeat_depth: uint32_t,
-    pub dynamic_precedence: int32_t,
-    pub production_id: uint16_t,
+    pub visible_child_count: u32,
+    pub named_child_count: u32,
+    pub node_count: u32,
+    pub repeat_depth: u32,
+    pub dynamic_precedence: i32,
+    pub production_id: u16,
     pub first_leaf: SubtreeHeapDataContentDataFirstLeaf,
 }
 #[derive(Copy, Clone)]
@@ -510,21 +510,21 @@ pub struct SubtreeInlineData {
     #[bitfield(name = "is_missing", ty = "bool", bits = "5..=5")]
     #[bitfield(name = "is_keyword", ty = "bool", bits = "6..=6")]
     pub is_inline_visible_named_extra_has_changes_is_missing_is_keyword: [u8; 1],
-    pub symbol: uint8_t,
-    pub padding_bytes: uint8_t,
-    pub size_bytes: uint8_t,
-    pub padding_columns: uint8_t,
-    #[bitfield(name = "padding_rows", ty = "uint8_t", bits = "0..=3")]
-    #[bitfield(name = "lookahead_bytes", ty = "uint8_t", bits = "4..=7")]
+    pub symbol: u8,
+    pub padding_bytes: u8,
+    pub size_bytes: u8,
+    pub padding_columns: u8,
+    #[bitfield(name = "padding_rows", ty = "u8", bits = "0..=3")]
+    #[bitfield(name = "lookahead_bytes", ty = "u8", bits = "4..=7")]
     pub padding_rows_lookahead_bytes: [u8; 1],
-    pub parse_state: uint16_t,
+    pub parse_state: u16,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSInputEdit {
-    pub start_byte: uint32_t,
-    pub old_end_byte: uint32_t,
-    pub new_end_byte: uint32_t,
+    pub start_byte: u32,
+    pub old_end_byte: u32,
+    pub new_end_byte: u32,
     pub start_point: TSPoint,
     pub old_end_point: TSPoint,
     pub new_end_point: TSPoint,
@@ -532,7 +532,7 @@ pub struct TSInputEdit {
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSNode {
-    pub context: [uint32_t; 4],
+    pub context: [u32; 4],
     pub id: *const libc::c_void,
     pub tree: *const TSTree,
 }
@@ -541,15 +541,15 @@ pub struct TSNode {
 pub struct TreeCursorEntry {
     pub subtree: *const Subtree,
     pub position: Length,
-    pub child_index: uint32_t,
-    pub structural_child_index: uint32_t,
+    pub child_index: u32,
+    pub structural_child_index: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct SubtreeArray {
     pub contents: *mut Subtree,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -561,8 +561,8 @@ pub struct SubtreePool {
 #[repr(C)]
 pub struct MutableSubtreeArray {
     pub contents: *mut MutableSubtree,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -574,15 +574,15 @@ pub union MutableSubtree {
 #[repr(C)]
 pub struct VoidArray {
     pub contents: *mut libc::c_void,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSRangeArray {
     pub contents: *mut TSRange,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 #[derive(Copy, Clone)]
@@ -590,7 +590,7 @@ pub struct TSRangeArray {
 pub struct TSTreeCursor {
     pub tree: *const libc::c_void,
     pub id: *const libc::c_void,
-    pub context: [uint32_t; 2],
+    pub context: [u32; 2],
 }
 
 // Private
@@ -629,11 +629,11 @@ pub unsafe extern "C" fn ts_subtree_padding(mut self_0: Subtree) -> Length {
     if self_0.data.is_inline() {
         let mut result: Length = {
             let mut init = Length {
-                bytes: self_0.data.padding_bytes as uint32_t,
+                bytes: self_0.data.padding_bytes as u32,
                 extent: {
                     let mut init = TSPoint {
-                        row: self_0.data.padding_rows() as uint32_t,
-                        column: self_0.data.padding_columns as uint32_t,
+                        row: self_0.data.padding_rows() as u32,
+                        column: self_0.data.padding_columns as u32,
                     };
                     init
                 },
@@ -649,11 +649,11 @@ pub unsafe extern "C" fn ts_subtree_padding(mut self_0: Subtree) -> Length {
 pub unsafe extern "C" fn length_zero() -> Length {
     let mut result: Length = {
         let mut init = Length {
-            bytes: 0 as libc::c_int as uint32_t,
+            bytes: 0 as libc::c_int as u32,
             extent: {
                 let mut init = TSPoint {
-                    row: 0 as libc::c_int as uint32_t,
-                    column: 0 as libc::c_int as uint32_t,
+                    row: 0 as libc::c_int as u32,
+                    column: 0 as libc::c_int as u32,
                 };
                 init
             },
@@ -688,11 +688,11 @@ pub unsafe extern "C" fn ts_subtree_size(mut self_0: Subtree) -> Length {
     if self_0.data.is_inline() {
         let mut result: Length = {
             let mut init = Length {
-                bytes: self_0.data.size_bytes as uint32_t,
+                bytes: self_0.data.size_bytes as u32,
                 extent: {
                     let mut init = TSPoint {
-                        row: 0 as libc::c_int as uint32_t,
-                        column: self_0.data.size_bytes as uint32_t,
+                        row: 0 as libc::c_int as u32,
+                        column: self_0.data.size_bytes as u32,
                     };
                     init
                 },
@@ -757,9 +757,9 @@ pub unsafe extern "C" fn ts_subtree_has_changes(mut self_0: Subtree) -> bool {
     } != 0;
 }
 #[inline]
-pub unsafe extern "C" fn ts_subtree_error_cost(mut self_0: Subtree) -> uint32_t {
+pub unsafe extern "C" fn ts_subtree_error_cost(mut self_0: Subtree) -> u32 {
     if ts_subtree_missing(self_0) {
-        return (110 as libc::c_int + 500 as libc::c_int) as uint32_t;
+        return (110 as libc::c_int + 500 as libc::c_int) as u32;
     } else {
         return if self_0.data.is_inline() as libc::c_int != 0 {
             0 as libc::c_int as libc::c_uint
@@ -775,7 +775,7 @@ pub unsafe extern "C" fn ts_subtree_visible(mut self_0: Subtree) -> bool {
         (*self_0.ptr).visible() as libc::c_int
     } != 0;
 }
-pub unsafe extern "C" fn ts_subtree_child_count(mut self_0: Subtree) -> uint32_t {
+pub unsafe extern "C" fn ts_subtree_child_count(mut self_0: Subtree) -> u32 {
     return if self_0.data.is_inline() as libc::c_int != 0 {
         0 as libc::c_int as libc::c_uint
     } else {
@@ -791,7 +791,7 @@ pub unsafe extern "C" fn length_add(mut len1: Length, mut len2: Length) -> Lengt
     result.extent = point_add(len1.extent, len2.extent);
     return result;
 }
-pub unsafe extern "C" fn ts_subtree_total_bytes(mut self_0: Subtree) -> uint32_t {
+pub unsafe extern "C" fn ts_subtree_total_bytes(mut self_0: Subtree) -> u32 {
     return ts_subtree_total_size(self_0).bytes;
 }
 #[inline]
@@ -808,7 +808,7 @@ pub unsafe extern "C" fn point_lte(mut a: TSPoint, mut b: TSPoint) -> bool {
 
 pub unsafe extern "C" fn ts_language_alias_sequence(
     mut self_0: *const TSLanguage,
-    mut production_id: uint32_t,
+    mut production_id: u32,
 ) -> *const TSSymbol {
     return if production_id > 0 as libc::c_int as libc::c_uint {
         (*self_0).alias_sequences.offset(
@@ -822,7 +822,7 @@ pub unsafe extern "C" fn ts_language_alias_sequence(
 #[inline]
 pub unsafe extern "C" fn ts_language_field_map(
     mut self_0: *const TSLanguage,
-    mut production_id: uint32_t,
+    mut production_id: u32,
     mut start: *mut *const TSFieldMapEntry,
     mut end: *mut *const TSFieldMapEntry,
 ) {
@@ -858,14 +858,14 @@ pub unsafe extern "C" fn ts_realloc(
 }
 
 #[inline]
-pub unsafe extern "C" fn ts_subtree_visible_child_count(mut self_0: Subtree) -> uint32_t {
+pub unsafe extern "C" fn ts_subtree_visible_child_count(mut self_0: Subtree) -> u32 {
     if ts_subtree_child_count(self_0) > 0 as libc::c_int as libc::c_uint {
         return (*self_0.ptr)
             .c2rust_unnamed
             .c2rust_unnamed
             .visible_child_count;
     } else {
-        return 0 as libc::c_int as uint32_t;
+        return 0 as libc::c_int as u32;
     };
 }
 
@@ -873,17 +873,17 @@ pub unsafe extern "C" fn ts_subtree_visible_child_count(mut self_0: Subtree) -> 
 pub unsafe extern "C" fn array__splice(
     mut self_0: *mut VoidArray,
     mut element_size: size_t,
-    mut index: uint32_t,
-    mut old_count: uint32_t,
-    mut new_count: uint32_t,
+    mut index: u32,
+    mut old_count: u32,
+    mut new_count: u32,
     mut elements: *const libc::c_void,
 ) {
-    let mut new_size: uint32_t = (*self_0)
+    let mut new_size: u32 = (*self_0)
         .size
         .wrapping_add(new_count)
         .wrapping_sub(old_count);
-    let mut old_end: uint32_t = index.wrapping_add(old_count);
-    let mut new_end: uint32_t = index.wrapping_add(new_count);
+    let mut old_end: u32 = index.wrapping_add(old_count);
+    let mut new_end: u32 = index.wrapping_add(new_count);
     if old_end <= (*self_0).size {
     } else {
         __assert_fail(b"old_end <= self->size\x00" as *const u8 as
@@ -924,22 +924,21 @@ pub unsafe extern "C" fn array__splice(
         }
     }
     (*self_0).size = ((*self_0).size as libc::c_uint)
-        .wrapping_add(new_count.wrapping_sub(old_count)) as uint32_t
-        as uint32_t;
+        .wrapping_add(new_count.wrapping_sub(old_count)) as u32 as u32;
 }
 
 #[inline]
 pub unsafe extern "C" fn array__delete(mut self_0: *mut VoidArray) {
     ts_free((*self_0).contents);
     (*self_0).contents = 0 as *mut libc::c_void;
-    (*self_0).size = 0 as libc::c_int as uint32_t;
-    (*self_0).capacity = 0 as libc::c_int as uint32_t;
+    (*self_0).size = 0 as libc::c_int as u32;
+    (*self_0).capacity = 0 as libc::c_int as u32;
 }
 #[inline]
 pub unsafe extern "C" fn array__reserve(
     mut self_0: *mut VoidArray,
     mut element_size: size_t,
-    mut new_capacity: uint32_t,
+    mut new_capacity: u32,
 ) {
     if new_capacity > (*self_0).capacity {
         if !(*self_0).contents.is_null() {
@@ -971,21 +970,21 @@ pub unsafe extern "C" fn array__grow(
         if new_capacity < new_size {
             new_capacity = new_size
         }
-        array__reserve(self_0, element_size, new_capacity as uint32_t);
+        array__reserve(self_0, element_size, new_capacity as u32);
     };
 }
 
 // Subtree
 
 #[inline]
-pub unsafe extern "C" fn atomic_inc(p: *const uint32_t) -> uint32_t {
+pub unsafe extern "C" fn atomic_inc(p: *const u32) -> u32 {
     (&*(p as *const AtomicU32))
         .fetch_add(1, Ordering::SeqCst)
         .wrapping_add(1)
 }
 
 #[inline]
-pub unsafe extern "C" fn atomic_dec(mut p: *mut uint32_t) -> uint32_t {
+pub unsafe extern "C" fn atomic_dec(mut p: *mut u32) -> u32 {
     (&*(p as *const AtomicU32))
         .fetch_sub(1, Ordering::SeqCst)
         .wrapping_sub(1)
@@ -1012,7 +1011,7 @@ pub unsafe extern "C" fn ts_subtree_has_external_tokens(mut self_0: Subtree) -> 
 }
 
 #[inline]
-pub unsafe extern "C" fn ts_subtree_repeat_depth(mut self_0: Subtree) -> uint32_t {
+pub unsafe extern "C" fn ts_subtree_repeat_depth(mut self_0: Subtree) -> u32 {
     return if self_0.data.is_inline() as libc::c_int != 0 {
         0 as libc::c_int as libc::c_uint
     } else {
@@ -1076,7 +1075,7 @@ pub unsafe extern "C" fn ts_subtree_parse_state(mut self_0: Subtree) -> TSStateI
 }
 
 #[inline]
-pub unsafe extern "C" fn ts_subtree_node_count(mut self_0: Subtree) -> uint32_t {
+pub unsafe extern "C" fn ts_subtree_node_count(mut self_0: Subtree) -> u32 {
     return if self_0.data.is_inline() as libc::c_int != 0
         || (*self_0.ptr).child_count == 0 as libc::c_int as libc::c_uint
     {
@@ -1086,7 +1085,7 @@ pub unsafe extern "C" fn ts_subtree_node_count(mut self_0: Subtree) -> uint32_t 
     };
 }
 #[inline]
-pub unsafe extern "C" fn ts_subtree_dynamic_precedence(mut self_0: Subtree) -> int32_t {
+pub unsafe extern "C" fn ts_subtree_dynamic_precedence(mut self_0: Subtree) -> i32 {
     return if self_0.data.is_inline() as libc::c_int != 0
         || (*self_0.ptr).child_count == 0 as libc::c_int as libc::c_uint
     {
@@ -1100,7 +1099,7 @@ pub unsafe extern "C" fn ts_subtree_dynamic_precedence(mut self_0: Subtree) -> i
 }
 
 #[inline]
-pub unsafe extern "C" fn ts_subtree_lookahead_bytes(mut self_0: Subtree) -> uint32_t {
+pub unsafe extern "C" fn ts_subtree_lookahead_bytes(mut self_0: Subtree) -> u32 {
     return if self_0.data.is_inline() as libc::c_int != 0 {
         self_0.data.lookahead_bytes() as libc::c_uint
     } else {
@@ -1109,11 +1108,11 @@ pub unsafe extern "C" fn ts_subtree_lookahead_bytes(mut self_0: Subtree) -> uint
 }
 
 #[inline]
-pub unsafe extern "C" fn ts_subtree_production_id(mut self_0: Subtree) -> uint16_t {
+pub unsafe extern "C" fn ts_subtree_production_id(mut self_0: Subtree) -> u16 {
     if ts_subtree_child_count(self_0) > 0 as libc::c_int as libc::c_uint {
         return (*self_0.ptr).c2rust_unnamed.c2rust_unnamed.production_id;
     } else {
-        return 0 as libc::c_int as uint16_t;
+        return 0 as libc::c_int as u16;
     };
 }
 
@@ -1160,7 +1159,7 @@ pub unsafe extern "C" fn ts_subtree_to_mut_unsafe(mut self_0: Subtree) -> Mutabl
 pub unsafe extern "C" fn array__erase(
     mut self_0: *mut VoidArray,
     mut element_size: size_t,
-    mut index: uint32_t,
+    mut index: u32,
 ) {
     if index < (*self_0).size {
     } else {
@@ -1198,30 +1197,30 @@ pub unsafe extern "C" fn ts_toggle_allocation_recording(mut _value: bool) -> boo
 
 // Query
 #[inline]
-pub unsafe extern "C" fn count_leading_zeros(mut x: uint32_t) -> uint32_t {
+pub unsafe extern "C" fn count_leading_zeros(mut x: u32) -> u32 {
     if x == 0 as libc::c_int as libc::c_uint {
-        return 32 as libc::c_int as uint32_t;
+        return 32 as libc::c_int as u32;
     }
-    return x.leading_zeros() as i32 as uint32_t;
+    return x.leading_zeros() as i32 as u32;
 }
 
 #[inline]
-pub unsafe extern "C" fn bitmask_for_index(mut id: uint16_t) -> uint32_t {
+pub unsafe extern "C" fn bitmask_for_index(mut id: u16) -> u32 {
     return (1 as libc::c_uint) << 31 as libc::c_int - id as libc::c_int;
 }
 
 #[inline]
 pub unsafe extern "C" fn ts_decode_utf8(
-    mut string: *const uint8_t,
-    mut length: uint32_t,
-    mut code_point: *mut int32_t,
-) -> uint32_t {
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    mut string: *const u8,
+    mut length: u32,
+    mut code_point: *mut i32,
+) -> u32 {
+    let mut i: u32 = 0 as libc::c_int as u32;
     let fresh0 = i;
     i = i.wrapping_add(1);
-    *code_point = *string.offset(fresh0 as isize) as int32_t;
+    *code_point = *string.offset(fresh0 as isize) as i32;
     if !(*code_point & 0x80 as libc::c_int == 0 as libc::c_int) {
-        let mut __t: uint8_t = 0 as libc::c_int as uint8_t;
+        let mut __t: u8 = 0 as libc::c_int as u8;
         if !(i != length
             && (if *code_point >= 0xe0 as libc::c_int {
                 ((if *code_point < 0xf0 as libc::c_int {
@@ -1233,7 +1232,7 @@ pub unsafe extern "C" fn ts_decode_utf8(
                         & (1 as libc::c_int) << (__t as libc::c_int >> 5 as libc::c_int)
                         != 0
                         && {
-                            __t = (__t as libc::c_int & 0x3f as libc::c_int) as uint8_t;
+                            __t = (__t as libc::c_int & 0x3f as libc::c_int) as u8;
                             (1 as libc::c_int) != 0
                         }) as libc::c_int
                 } else {
@@ -1263,7 +1262,7 @@ pub unsafe extern "C" fn ts_decode_utf8(
                         }
                         && {
                             __t = (*string.offset(i as isize) as libc::c_int - 0x80 as libc::c_int)
-                                as uint8_t;
+                                as u8;
                             (__t as libc::c_int) <= 0x3f as libc::c_int
                         }) as libc::c_int
                 }) != 0
@@ -1279,7 +1278,7 @@ pub unsafe extern "C" fn ts_decode_utf8(
                 }) as libc::c_int
             }) != 0
             && {
-                __t = (*string.offset(i as isize) as libc::c_int - 0x80 as libc::c_int) as uint8_t;
+                __t = (*string.offset(i as isize) as libc::c_int - 0x80 as libc::c_int) as u8;
                 (__t as libc::c_int) <= 0x3f as libc::c_int
             }
             && {
@@ -1380,7 +1379,7 @@ pub unsafe extern "C" fn ts_language_actions(
     mut self_0: *const TSLanguage,
     mut state: TSStateId,
     mut symbol: TSSymbol,
-    mut count: *mut uint32_t,
+    mut count: *mut u32,
 ) -> *const TSParseAction {
     let mut entry: TableEntry = TableEntry {
         actions: 0 as *const TSParseAction,
@@ -1426,26 +1425,26 @@ pub unsafe extern "C" fn ts_language_lookup(
     mut self_0: *const TSLanguage,
     mut state: TSStateId,
     mut symbol: TSSymbol,
-) -> uint16_t {
+) -> u16 {
     if (*self_0).version >= 11 as libc::c_int as libc::c_uint
         && state as libc::c_uint >= (*self_0).large_state_count
     {
-        let mut index: uint32_t = *(*self_0)
+        let mut index: u32 = *(*self_0)
             .small_parse_table_map
             .offset((state as libc::c_uint).wrapping_sub((*self_0).large_state_count) as isize);
-        let mut data: *const uint16_t =
-            &*(*self_0).small_parse_table.offset(index as isize) as *const uint16_t;
+        let mut data: *const u16 =
+            &*(*self_0).small_parse_table.offset(index as isize) as *const u16;
         let fresh0 = data;
         data = data.offset(1);
-        let mut section_count: uint16_t = *fresh0;
+        let mut section_count: u16 = *fresh0;
         let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
         while i < section_count as libc::c_uint {
             let fresh1 = data;
             data = data.offset(1);
-            let mut section_value: uint16_t = *fresh1;
+            let mut section_value: u16 = *fresh1;
             let fresh2 = data;
             data = data.offset(1);
-            let mut symbol_count: uint16_t = *fresh2;
+            let mut symbol_count: u16 = *fresh2;
             let mut i_0: libc::c_uint = 0 as libc::c_int as libc::c_uint;
             while i_0 < symbol_count as libc::c_uint {
                 let fresh3 = data;
@@ -1457,7 +1456,7 @@ pub unsafe extern "C" fn ts_language_lookup(
             }
             i = i.wrapping_add(1)
         }
-        return 0 as libc::c_int as uint16_t;
+        return 0 as libc::c_int as u16;
     } else {
         return *(*self_0).parse_table.offset(
             (state as libc::c_uint)
@@ -1478,7 +1477,7 @@ pub unsafe extern "C" fn ts_language_next_state(
     {
         return 0 as libc::c_int as TSStateId;
     } else if (symbol as libc::c_uint) < (*self_0).token_count {
-        let mut count: uint32_t = 0;
+        let mut count: u32 = 0;
         let mut actions: *const TSParseAction =
             ts_language_actions(self_0, state, symbol, &mut count);
         if count > 0 as libc::c_int as libc::c_uint {
@@ -1517,7 +1516,7 @@ pub unsafe extern "C" fn ts_reduce_action_set_add(
     mut self_0: *mut ReduceActionSet,
     mut new_action: ReduceAction,
 ) {
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < (*self_0).size {
         let mut action: ReduceAction = *(*self_0).contents.offset(i as isize);
         if action.symbol as libc::c_int == new_action.symbol as libc::c_int
@@ -1538,12 +1537,12 @@ pub unsafe extern "C" fn ts_reduce_action_set_add(
 }
 
 #[inline]
-pub unsafe extern "C" fn duration_from_micros(mut micros: uint64_t) -> TSDuration {
+pub unsafe extern "C" fn duration_from_micros(mut micros: u64) -> TSDuration {
     return micros;
 }
 
 #[inline]
-pub unsafe extern "C" fn duration_to_micros(mut self_0: TSDuration) -> uint64_t {
+pub unsafe extern "C" fn duration_to_micros(mut self_0: TSDuration) -> u64 {
     return self_0;
 }
 
@@ -1556,25 +1555,25 @@ pub unsafe extern "C" fn atomic_load(mut p: *const size_t) -> size_t {
 
 #[inline]
 pub unsafe extern "C" fn ts_decode_utf16(
-    mut string: *const uint8_t,
-    mut length: uint32_t,
-    mut code_point: *mut int32_t,
-) -> uint32_t {
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    mut string: *const u8,
+    mut length: u32,
+    mut code_point: *mut i32,
+) -> u32 {
+    let mut i: u32 = 0 as libc::c_int as u32;
     let fresh1 = i;
     i = i.wrapping_add(1);
 
-    assert_eq!(string.align_offset(std::mem::align_of::<uint16_t>()), 0);
+    assert_eq!(string.align_offset(std::mem::align_of::<u16>()), 0);
     #[allow(clippy::cast_ptr_alignment)]
-    let string = string as *mut uint16_t;
+    let string = string as *mut u16;
 
-    *code_point = *(string as *mut uint16_t).offset(fresh1 as isize) as int32_t;
+    *code_point = *(string as *mut u16).offset(fresh1 as isize) as i32;
     if *code_point as libc::c_uint & 0xfffffc00 as libc::c_uint
         == 0xd800 as libc::c_int as libc::c_uint
     {
-        let mut __c2: uint16_t = 0;
+        let mut __c2: u16 = 0;
         if i != length && {
-            __c2 = *(string as *mut uint16_t).offset(i as isize);
+            __c2 = *(string as *mut u16).offset(i as isize);
             (__c2 as libc::c_uint & 0xfffffc00 as libc::c_uint)
                 == 0xdc00 as libc::c_int as libc::c_uint
         } {

@@ -3,7 +3,7 @@ use crate::*;
 use libc::strncmp;
 
 #[no_mangle]
-pub unsafe extern "C" fn ts_language_symbol_count(mut self_0: *const TSLanguage) -> uint32_t {
+pub unsafe extern "C" fn ts_language_symbol_count(mut self_0: *const TSLanguage) -> u32 {
     return (*self_0).symbol_count.wrapping_add((*self_0).alias_count);
 }
 /* *
@@ -14,15 +14,15 @@ pub unsafe extern "C" fn ts_language_symbol_count(mut self_0: *const TSLanguage)
  * See also `ts_parser_set_language`.
  */
 #[no_mangle]
-pub unsafe extern "C" fn ts_language_version(mut self_0: *const TSLanguage) -> uint32_t {
+pub unsafe extern "C" fn ts_language_version(mut self_0: *const TSLanguage) -> u32 {
     return (*self_0).version;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_language_field_count(mut self_0: *const TSLanguage) -> uint32_t {
+pub unsafe extern "C" fn ts_language_field_count(mut self_0: *const TSLanguage) -> u32 {
     if (*self_0).version >= 10 as libc::c_int as libc::c_uint {
         return (*self_0).field_count;
     } else {
-        return 0 as libc::c_int as uint32_t;
+        return 0 as libc::c_int as u32;
     };
 }
 #[no_mangle]
@@ -36,7 +36,7 @@ pub unsafe extern "C" fn ts_language_table_entry(
         || symbol as libc::c_int
             == -(1 as libc::c_int) as TSSymbol as libc::c_int - 1 as libc::c_int
     {
-        (*result).action_count = 0 as libc::c_int as uint32_t;
+        (*result).action_count = 0 as libc::c_int as u32;
         (*result).is_reusable = 0 as libc::c_int != 0;
         (*result).actions = 0 as *const TSParseAction
     } else {
@@ -50,10 +50,10 @@ pub unsafe extern "C" fn ts_language_table_entry(
                           (*::std::mem::transmute::<&[u8; 84],
                                                     &[libc::c_char; 84]>(b"void ts_language_table_entry(const TSLanguage *, TSStateId, TSSymbol, TableEntry *)\x00")).as_ptr());
         }
-        let mut action_index: uint32_t = ts_language_lookup(self_0, state, symbol) as uint32_t;
+        let mut action_index: u32 = ts_language_lookup(self_0, state, symbol) as u32;
         let mut entry: *const TSParseActionEntry =
             &*(*self_0).parse_actions.offset(action_index as isize) as *const TSParseActionEntry;
-        (*result).action_count = (*entry).c2rust_unnamed.count as uint32_t;
+        (*result).action_count = (*entry).c2rust_unnamed.count as u32;
         (*result).is_reusable = (*entry).c2rust_unnamed.reusable();
         (*result).actions = entry.offset(1 as libc::c_int as isize) as *const TSParseAction
     };
@@ -122,7 +122,7 @@ pub unsafe extern "C" fn ts_language_symbol_name(
 pub unsafe extern "C" fn ts_language_symbol_for_name(
     mut self_0: *const TSLanguage,
     mut string: *const libc::c_char,
-    mut length: uint32_t,
+    mut length: u32,
     mut is_named: bool,
 ) -> TSSymbol {
     if strncmp(
@@ -133,7 +133,7 @@ pub unsafe extern "C" fn ts_language_symbol_for_name(
     {
         return -(1 as libc::c_int) as TSSymbol;
     }
-    let mut count: uint32_t = ts_language_symbol_count(self_0);
+    let mut count: u32 = ts_language_symbol_count(self_0);
     let mut i: TSSymbol = 0 as libc::c_int as TSSymbol;
     while (i as libc::c_uint) < count {
         let mut metadata: TSSymbolMetadata = ts_language_symbol_metadata(self_0, i);
@@ -178,7 +178,7 @@ pub unsafe extern "C" fn ts_language_field_name_for_id(
     mut self_0: *const TSLanguage,
     mut id: TSFieldId,
 ) -> *const libc::c_char {
-    let mut count: uint32_t = ts_language_field_count(self_0);
+    let mut count: u32 = ts_language_field_count(self_0);
     if count != 0 && id as libc::c_uint <= count {
         return *(*self_0).field_names.offset(id as isize);
     } else {
@@ -190,9 +190,9 @@ pub unsafe extern "C" fn ts_language_field_name_for_id(
 pub unsafe extern "C" fn ts_language_field_id_for_name(
     mut self_0: *const TSLanguage,
     mut name: *const libc::c_char,
-    mut name_length: uint32_t,
+    mut name_length: u32,
 ) -> TSFieldId {
-    let mut count: uint32_t = ts_language_field_count(self_0);
+    let mut count: u32 = ts_language_field_count(self_0);
     let mut i: TSSymbol = 1 as libc::c_int as TSSymbol;
     while (i as libc::c_uint) < count.wrapping_add(1 as libc::c_int as libc::c_uint) {
         match strncmp(

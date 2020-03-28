@@ -27,33 +27,33 @@ pub struct SummarizeStackSession {
 #[repr(C)]
 pub struct StackIteratorArray {
     pub contents: *mut StackIterator,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct StackSliceArray {
     pub contents: *mut StackSlice,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct StackHeadArray {
     pub contents: *mut StackHead,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct StackNodeArray {
     pub contents: *mut *mut StackNode,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 pub type StackIterateCallback =
-    Option<unsafe extern "C" fn(_: *mut libc::c_void, _: TSStateId, _: uint32_t) -> ()>;
+    Option<unsafe extern "C" fn(_: *mut libc::c_void, _: TSStateId, _: u32) -> ()>;
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct StackIterateSession {
@@ -68,7 +68,7 @@ pub struct StackNode {
     pub position: Length,
     pub links: [StackLink; 8],
     pub link_count: libc::c_ushort,
-    pub ref_count: uint32_t,
+    pub ref_count: u32,
     pub error_cost: libc::c_uint,
     pub node_count: libc::c_uint,
     pub dynamic_precedence: libc::c_int,
@@ -98,8 +98,8 @@ pub type StackVersion = libc::c_uint;
 #[repr(C)]
 pub struct StackSummary {
     pub contents: *mut StackSummaryEntry,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
@@ -128,7 +128,7 @@ pub struct Stack {
 pub struct StackIterator {
     pub node: *mut StackNode,
     pub subtrees: SubtreeArray,
-    pub subtree_count: uint32_t,
+    pub subtree_count: u32,
     pub is_pending: bool,
 }
 
@@ -257,7 +257,7 @@ unsafe extern "C" fn stack_node_new(
                 is_pending: false,
             }; 8],
             link_count: 0 as libc::c_int as libc::c_ushort,
-            ref_count: 1 as libc::c_int as uint32_t,
+            ref_count: 1 as libc::c_int as u32,
             error_cost: 0,
             node_count: 0,
             dynamic_precedence: 0,
@@ -350,7 +350,7 @@ unsafe extern "C" fn stack_node_add_link(
                     );
                     j += 1
                 }
-                let mut dynamic_precedence: int32_t = (*link.node).dynamic_precedence;
+                let mut dynamic_precedence: i32 = (*link.node).dynamic_precedence;
                 if !link.subtree.ptr.is_null() {
                     dynamic_precedence += ts_subtree_dynamic_precedence(link.subtree)
                 }
@@ -440,7 +440,7 @@ unsafe extern "C" fn ts_stack__add_slice(
     mut node: *mut StackNode,
     mut subtrees: *mut SubtreeArray,
 ) {
-    let mut i: uint32_t = (*self_0)
+    let mut i: u32 = (*self_0)
         .slices
         .size
         .wrapping_sub(1 as libc::c_int as libc::c_uint);
@@ -458,8 +458,8 @@ unsafe extern "C" fn ts_stack__add_slice(
                 &mut (*self_0).slices as *mut StackSliceArray as *mut VoidArray,
                 ::std::mem::size_of::<StackSlice>() as libc::c_ulong,
                 i.wrapping_add(1 as libc::c_int as libc::c_uint),
-                0 as libc::c_int as uint32_t,
-                1 as libc::c_int as uint32_t,
+                0 as libc::c_int as u32,
+                1 as libc::c_int as u32,
                 &mut slice as *mut StackSlice as *const libc::c_void,
             );
             return;
@@ -491,11 +491,11 @@ unsafe extern "C" fn stack__iter(
     mut payload: *mut libc::c_void,
     mut goal_subtree_count: libc::c_int,
 ) -> StackSliceArray {
-    (*self_0).slices.size = 0 as libc::c_int as uint32_t;
-    (*self_0).iterators.size = 0 as libc::c_int as uint32_t;
+    (*self_0).slices.size = 0 as libc::c_int as u32;
+    (*self_0).iterators.size = 0 as libc::c_int as u32;
     if version < (*self_0).heads.size {
     } else {
-        __assert_fail(b"(uint32_t)version < (&self->heads)->size\x00" as
+        __assert_fail(b"(u32)version < (&self->heads)->size\x00" as
                           *const u8 as *const libc::c_char,
                       b"lib/src/stack.c\x00" as *const u8 as
                           *const libc::c_char,
@@ -511,12 +511,12 @@ unsafe extern "C" fn stack__iter(
             subtrees: {
                 let mut init = SubtreeArray {
                     contents: 0 as *mut Subtree,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
-            subtree_count: 0 as libc::c_int as uint32_t,
+            subtree_count: 0 as libc::c_int as u32,
             is_pending: 1 as libc::c_int != 0,
         };
         init
@@ -527,7 +527,7 @@ unsafe extern "C" fn stack__iter(
         array__reserve(
             &mut iterator.subtrees as *mut SubtreeArray as *mut VoidArray,
             ::std::mem::size_of::<Subtree>() as libc::c_ulong,
-            goal_subtree_count as uint32_t,
+            goal_subtree_count as u32,
         );
     }
     array__grow(
@@ -539,8 +539,8 @@ unsafe extern "C" fn stack__iter(
     (*self_0).iterators.size = (*self_0).iterators.size.wrapping_add(1);
     *(*self_0).iterators.contents.offset(fresh5 as isize) = iterator;
     while (*self_0).iterators.size > 0 as libc::c_int as libc::c_uint {
-        let mut i: uint32_t = 0 as libc::c_int as uint32_t;
-        let mut size: uint32_t = (*self_0).iterators.size;
+        let mut i: u32 = 0 as libc::c_int as u32;
+        let mut size: u32 = (*self_0).iterators.size;
         while i < size {
             let mut iterator_0: *mut StackIterator =
                 &mut *(*self_0).iterators.contents.offset(i as isize) as *mut StackIterator;
@@ -572,7 +572,7 @@ unsafe extern "C" fn stack__iter(
                 size = size.wrapping_sub(1)
             } else {
                 let mut current_block_39: u64;
-                let mut j: uint32_t = 1 as libc::c_int as uint32_t;
+                let mut j: u32 = 1 as libc::c_int as u32;
                 while j <= (*node).link_count as libc::c_uint {
                     let mut next_iterator: *mut StackIterator = 0 as *mut StackIterator;
                     let mut link: StackLink = StackLink {
@@ -617,7 +617,7 @@ unsafe extern "C" fn stack__iter(
                             < (*self_0).iterators.size
                         {
                         } else {
-                            __assert_fail(b"(uint32_t)(&self->iterators)->size - 1 < (&self->iterators)->size\x00"
+                            __assert_fail(b"(u32)(&self->iterators)->size - 1 < (&self->iterators)->size\x00"
                                               as *const u8 as
                                               *const libc::c_char,
                                           b"lib/src/stack.c\x00" as *const u8
@@ -687,37 +687,37 @@ pub unsafe extern "C" fn ts_stack_new(mut subtree_pool: *mut SubtreePool) -> *mu
         1 as libc::c_int as size_t,
         ::std::mem::size_of::<Stack>() as libc::c_ulong,
     ) as *mut Stack;
-    (*self_0).heads.size = 0 as libc::c_int as uint32_t;
-    (*self_0).heads.capacity = 0 as libc::c_int as uint32_t;
+    (*self_0).heads.size = 0 as libc::c_int as u32;
+    (*self_0).heads.capacity = 0 as libc::c_int as u32;
     (*self_0).heads.contents = 0 as *mut StackHead;
-    (*self_0).slices.size = 0 as libc::c_int as uint32_t;
-    (*self_0).slices.capacity = 0 as libc::c_int as uint32_t;
+    (*self_0).slices.size = 0 as libc::c_int as u32;
+    (*self_0).slices.capacity = 0 as libc::c_int as u32;
     (*self_0).slices.contents = 0 as *mut StackSlice;
-    (*self_0).iterators.size = 0 as libc::c_int as uint32_t;
-    (*self_0).iterators.capacity = 0 as libc::c_int as uint32_t;
+    (*self_0).iterators.size = 0 as libc::c_int as u32;
+    (*self_0).iterators.capacity = 0 as libc::c_int as u32;
     (*self_0).iterators.contents = 0 as *mut StackIterator;
-    (*self_0).node_pool.size = 0 as libc::c_int as uint32_t;
-    (*self_0).node_pool.capacity = 0 as libc::c_int as uint32_t;
+    (*self_0).node_pool.size = 0 as libc::c_int as u32;
+    (*self_0).node_pool.capacity = 0 as libc::c_int as u32;
     (*self_0).node_pool.contents = 0 as *mut *mut StackNode;
     array__reserve(
         &mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray,
         ::std::mem::size_of::<StackHead>() as libc::c_ulong,
-        4 as libc::c_int as uint32_t,
+        4 as libc::c_int as u32,
     );
     array__reserve(
         &mut (*self_0).slices as *mut StackSliceArray as *mut VoidArray,
         ::std::mem::size_of::<StackSlice>() as libc::c_ulong,
-        4 as libc::c_int as uint32_t,
+        4 as libc::c_int as u32,
     );
     array__reserve(
         &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
         ::std::mem::size_of::<StackIterator>() as libc::c_ulong,
-        4 as libc::c_int as uint32_t,
+        4 as libc::c_int as u32,
     );
     array__reserve(
         &mut (*self_0).node_pool as *mut StackNodeArray as *mut VoidArray,
         ::std::mem::size_of::<*mut StackNode>() as libc::c_ulong,
-        50 as libc::c_int as uint32_t,
+        50 as libc::c_int as u32,
     );
     (*self_0).subtree_pool = subtree_pool;
     (*self_0).base_node = stack_node_new(
@@ -746,7 +746,7 @@ pub unsafe extern "C" fn ts_stack_delete(mut self_0: *mut Stack) {
         &mut (*self_0).node_pool,
         (*self_0).subtree_pool,
     );
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < (*self_0).heads.size {
         stack_head_delete(
             &mut *(*self_0).heads.contents.offset(i as isize),
@@ -755,9 +755,9 @@ pub unsafe extern "C" fn ts_stack_delete(mut self_0: *mut Stack) {
         );
         i = i.wrapping_add(1)
     }
-    (*self_0).heads.size = 0 as libc::c_int as uint32_t;
+    (*self_0).heads.size = 0 as libc::c_int as u32;
     if !(*self_0).node_pool.contents.is_null() {
-        let mut i_0: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut i_0: u32 = 0 as libc::c_int as u32;
         while i_0 < (*self_0).node_pool.size {
             ts_free(*(*self_0).node_pool.contents.offset(i_0 as isize) as *mut libc::c_void);
             i_0 = i_0.wrapping_add(1)
@@ -769,7 +769,7 @@ pub unsafe extern "C" fn ts_stack_delete(mut self_0: *mut Stack) {
 }
 // Get the stack's current number of versions.
 #[no_mangle]
-pub unsafe extern "C" fn ts_stack_version_count(mut self_0: *const Stack) -> uint32_t {
+pub unsafe extern "C" fn ts_stack_version_count(mut self_0: *const Stack) -> u32 {
     return (*self_0).heads.size;
 }
 // Get the state at the top of the given version of the stack. If the stack is
@@ -782,7 +782,7 @@ pub unsafe extern "C" fn ts_stack_state(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             408 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 54], &[libc::c_char; 54]>(
@@ -803,7 +803,7 @@ pub unsafe extern "C" fn ts_stack_position(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             412 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 54], &[libc::c_char; 54]>(
@@ -824,7 +824,7 @@ pub unsafe extern "C" fn ts_stack_last_external_token(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             416 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 66], &[libc::c_char; 66]>(
@@ -846,7 +846,7 @@ pub unsafe extern "C" fn ts_stack_set_last_external_token(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             420 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 70], &[libc::c_char; 70]>(
@@ -874,7 +874,7 @@ pub unsafe extern "C" fn ts_stack_error_cost(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             427 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 62], &[libc::c_char; 62]>(
@@ -907,7 +907,7 @@ pub unsafe extern "C" fn ts_stack_node_count_since_error(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             438 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 74], &[libc::c_char; 74]>(
@@ -941,7 +941,7 @@ pub unsafe extern "C" fn ts_stack_push(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             447 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 69], &[libc::c_char; 69]>(
@@ -1026,7 +1026,7 @@ unsafe extern "C" fn pop_count_callback(
 pub unsafe extern "C" fn ts_stack_pop_count(
     mut self_0: *mut Stack,
     mut version: StackVersion,
-    mut count: uint32_t,
+    mut count: u32,
 ) -> StackSliceArray {
     return stack__iter(
         self_0,
@@ -1038,7 +1038,7 @@ pub unsafe extern "C" fn ts_stack_pop_count(
                     _: *const StackIterator,
                 ) -> StackAction,
         ),
-        &mut count as *mut uint32_t as *mut libc::c_void,
+        &mut count as *mut u32 as *mut libc::c_void,
         count as libc::c_int,
     );
 }
@@ -1120,7 +1120,7 @@ pub unsafe extern "C" fn ts_stack_pop_error(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             518 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 55], &[libc::c_char; 55]>(
@@ -1178,7 +1178,7 @@ pub unsafe extern "C" fn ts_stack_pop_error(
     return {
         let mut init = SubtreeArray {
             contents: 0 as *mut Subtree,
-            size: 0 as libc::c_int as uint32_t,
+            size: 0 as libc::c_int as u32,
             capacity: 0,
         };
         init
@@ -1272,8 +1272,8 @@ pub unsafe extern "C" fn ts_stack_record_summary(
         };
         init
     };
-    (*session.summary).size = 0 as libc::c_int as uint32_t;
-    (*session.summary).capacity = 0 as libc::c_int as uint32_t;
+    (*session.summary).size = 0 as libc::c_int as u32;
+    (*session.summary).capacity = 0 as libc::c_int as u32;
     (*session.summary).contents = 0 as *mut StackSummaryEntry;
     stack__iter(
         self_0,
@@ -1301,7 +1301,7 @@ pub unsafe extern "C" fn ts_stack_get_summary(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             576 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 58], &[libc::c_char; 58]>(
@@ -1320,7 +1320,7 @@ pub unsafe extern "C" fn ts_stack_dynamic_precedence(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             580 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 55], &[libc::c_char; 55]>(
@@ -1340,7 +1340,7 @@ pub unsafe extern "C" fn ts_stack_has_advanced_since_error(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             584 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 69], &[libc::c_char; 69]>(
@@ -1385,7 +1385,7 @@ pub unsafe extern "C" fn ts_stack_remove_version(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             608 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 52], &[libc::c_char; 52]>(
@@ -1429,7 +1429,7 @@ pub unsafe extern "C" fn ts_stack_renumber_version(
     if v1 < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)v1 < self->heads.size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)v1 < self->heads.size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             615 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 68], &[libc::c_char; 68]>(
@@ -1502,7 +1502,7 @@ pub unsafe extern "C" fn ts_stack_copy_version(
     {
     } else {
         __assert_fail(
-            b"(uint32_t)(&self->heads)->size - 1 < (&self->heads)->size\x00" as *const u8
+            b"(u32)(&self->heads)->size - 1 < (&self->heads)->size\x00" as *const u8
                 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             636 as libc::c_int as libc::c_uint,
@@ -1543,7 +1543,7 @@ pub unsafe extern "C" fn ts_stack_merge(
         &mut *(*self_0).heads.contents.offset(version1 as isize) as *mut StackHead;
     let mut head2: *mut StackHead =
         &mut *(*self_0).heads.contents.offset(version2 as isize) as *mut StackHead;
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < (*(*head2).node).link_count as libc::c_uint {
         stack_node_add_link(
             (*head1).node,
@@ -1585,7 +1585,7 @@ pub unsafe extern "C" fn ts_stack_halt(mut self_0: *mut Stack, mut version: Stac
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             670 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 42], &[libc::c_char; 42]>(
@@ -1606,7 +1606,7 @@ pub unsafe extern "C" fn ts_stack_pause(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             674 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 53], &[libc::c_char; 53]>(
@@ -1629,7 +1629,7 @@ pub unsafe extern "C" fn ts_stack_is_active(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             681 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 54], &[libc::c_char; 54]>(
@@ -1650,7 +1650,7 @@ pub unsafe extern "C" fn ts_stack_is_halted(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             685 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 54], &[libc::c_char; 54]>(
@@ -1671,7 +1671,7 @@ pub unsafe extern "C" fn ts_stack_is_paused(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             689 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 54], &[libc::c_char; 54]>(
@@ -1692,7 +1692,7 @@ pub unsafe extern "C" fn ts_stack_resume(
     if version < (*self_0).heads.size {
     } else {
         __assert_fail(
-            b"(uint32_t)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
+            b"(u32)version < (&self->heads)->size\x00" as *const u8 as *const libc::c_char,
             b"lib/src/stack.c\x00" as *const u8 as *const libc::c_char,
             693 as libc::c_int as libc::c_uint,
             (*::std::mem::transmute::<&[u8; 48], &[libc::c_char; 48]>(
@@ -1723,7 +1723,7 @@ pub unsafe extern "C" fn ts_stack_resume(
 #[no_mangle]
 pub unsafe extern "C" fn ts_stack_clear(mut self_0: *mut Stack) {
     stack_node_retain((*self_0).base_node);
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < (*self_0).heads.size {
         stack_head_delete(
             &mut *(*self_0).heads.contents.offset(i as isize),
@@ -1732,7 +1732,7 @@ pub unsafe extern "C" fn ts_stack_clear(mut self_0: *mut Stack) {
         );
         i = i.wrapping_add(1)
     }
-    (*self_0).heads.size = 0 as libc::c_int as uint32_t;
+    (*self_0).heads.size = 0 as libc::c_int as u32;
     array__grow(
         &mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray,
         1 as libc::c_int as size_t,
@@ -1763,7 +1763,7 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
     array__reserve(
         &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
         ::std::mem::size_of::<StackIterator>() as libc::c_ulong,
-        32 as libc::c_int as uint32_t,
+        32 as libc::c_int as u32,
     );
     let mut was_recording_allocations: bool = ts_toggle_allocation_recording(0 as libc::c_int != 0);
     if f.is_null() {
@@ -1784,13 +1784,13 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
     let mut visited_nodes: StackNodeArray = {
         let mut init = StackNodeArray {
             contents: 0 as *mut *mut StackNode,
-            size: 0 as libc::c_int as uint32_t,
-            capacity: 0 as libc::c_int as uint32_t,
+            size: 0 as libc::c_int as u32,
+            capacity: 0 as libc::c_int as u32,
         };
         init
     };
-    (*self_0).iterators.size = 0 as libc::c_int as uint32_t;
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    (*self_0).iterators.size = 0 as libc::c_int as u32;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < (*self_0).heads.size {
         let mut head: *mut StackHead =
             &mut *(*self_0).heads.contents.offset(i as isize) as *mut StackHead;
@@ -1823,7 +1823,7 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
                     f,
                     b"\nexternal_scanner_state:\x00" as *const u8 as *const libc::c_char,
                 );
-                let mut j: uint32_t = 0 as libc::c_int as uint32_t;
+                let mut j: u32 = 0 as libc::c_int as u32;
                 while j < (*state).length {
                     fprintf(
                         f,
@@ -1860,11 +1860,11 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
     let mut all_iterators_done: bool = 0 as libc::c_int != 0;
     while !all_iterators_done {
         all_iterators_done = 1 as libc::c_int != 0;
-        let mut i_0: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut i_0: u32 = 0 as libc::c_int as u32;
         while i_0 < (*self_0).iterators.size {
             let mut iterator: StackIterator = *(*self_0).iterators.contents.offset(i_0 as isize);
             let mut node: *mut StackNode = iterator.node;
-            let mut j_0: uint32_t = 0 as libc::c_int as uint32_t;
+            let mut j_0: u32 = 0 as libc::c_int as u32;
             while j_0 < visited_nodes.size {
                 if *visited_nodes.contents.offset(j_0 as isize) == node {
                     node = 0 as *mut StackNode;
@@ -1988,7 +1988,7 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
                             < (*self_0).iterators.size
                         {
                         } else {
-                            __assert_fail(b"(uint32_t)(&self->iterators)->size - 1 < (&self->iterators)->size\x00"
+                            __assert_fail(b"(u32)(&self->iterators)->size - 1 < (&self->iterators)->size\x00"
                                               as *const u8 as
                                               *const libc::c_char,
                                           b"lib/src/stack.c\x00" as *const u8

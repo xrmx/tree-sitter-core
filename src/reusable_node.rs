@@ -10,15 +10,15 @@ pub struct ReusableNode {
 #[repr(C)]
 pub struct StackEntryArray {
     pub contents: *mut StackEntry,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct StackEntry {
     pub tree: Subtree,
-    pub child_index: uint32_t,
-    pub byte_offset: uint32_t,
+    pub child_index: u32,
+    pub byte_offset: u32,
 }
 
 #[inline]
@@ -28,8 +28,8 @@ pub unsafe extern "C" fn reusable_node_new() -> ReusableNode {
             stack: {
                 let mut init = StackEntryArray {
                     contents: 0 as *mut StackEntry,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
@@ -42,7 +42,7 @@ pub unsafe extern "C" fn reusable_node_new() -> ReusableNode {
 }
 #[inline]
 pub unsafe extern "C" fn reusable_node_clear(mut self_0: *mut ReusableNode) {
-    (*self_0).stack.size = 0 as libc::c_int as uint32_t;
+    (*self_0).stack.size = 0 as libc::c_int as u32;
     (*self_0).last_external_token = Subtree {
         ptr: 0 as *const SubtreeHeapData,
     };
@@ -60,8 +60,8 @@ pub unsafe extern "C" fn reusable_node_reset(mut self_0: *mut ReusableNode, mut 
     *(*self_0).stack.contents.offset(fresh5 as isize) = {
         let mut init = StackEntry {
             tree: tree,
-            child_index: 0 as libc::c_int as uint32_t,
-            byte_offset: 0 as libc::c_int as uint32_t,
+            child_index: 0 as libc::c_int as u32,
+            byte_offset: 0 as libc::c_int as u32,
         };
         init
     };
@@ -83,7 +83,7 @@ pub unsafe extern "C" fn reusable_node_tree(mut self_0: *mut ReusableNode) -> Su
     };
 }
 #[inline]
-pub unsafe extern "C" fn reusable_node_byte_offset(mut self_0: *mut ReusableNode) -> uint32_t {
+pub unsafe extern "C" fn reusable_node_byte_offset(mut self_0: *mut ReusableNode) -> u32 {
     return if (*self_0).stack.size > 0 as libc::c_int as libc::c_uint {
         (*(*self_0).stack.contents.offset(
             (*self_0)
@@ -110,7 +110,7 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
     {
     } else {
         __assert_fail(
-            b"(uint32_t)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
+            b"(u32)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
                 as *const libc::c_char,
             b"lib/src/./reusable_node.h\x00" as *const u8 as *const libc::c_char,
             49 as libc::c_int as libc::c_uint,
@@ -126,7 +126,7 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
             .size
             .wrapping_sub(1 as libc::c_int as libc::c_uint) as isize,
     ) as *mut StackEntry);
-    let mut byte_offset: uint32_t = last_entry
+    let mut byte_offset: u32 = last_entry
         .byte_offset
         .wrapping_add(ts_subtree_total_bytes(last_entry.tree));
     if ts_subtree_has_external_tokens(last_entry.tree) {
@@ -143,7 +143,7 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
             parse_state: 0,
         },
     };
-    let mut next_index: uint32_t = 0;
+    let mut next_index: u32 = 0;
     loop {
         (*self_0).stack.size = (*self_0).stack.size.wrapping_sub(1);
         let mut popped_entry: StackEntry = *(*self_0)
@@ -164,7 +164,7 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
         {
         } else {
             __assert_fail(
-                b"(uint32_t)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
+                b"(u32)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
                     as *const libc::c_char,
                 b"lib/src/./reusable_node.h\x00" as *const u8 as *const libc::c_char,
                 61 as libc::c_int as libc::c_uint,
@@ -215,7 +215,7 @@ pub unsafe extern "C" fn reusable_node_descend(mut self_0: *mut ReusableNode) ->
     {
     } else {
         __assert_fail(
-            b"(uint32_t)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
+            b"(u32)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
                 as *const libc::c_char,
             b"lib/src/./reusable_node.h\x00" as *const u8 as *const libc::c_char,
             72 as libc::c_int as libc::c_uint,
@@ -246,7 +246,7 @@ pub unsafe extern "C" fn reusable_node_descend(mut self_0: *mut ReusableNode) ->
                     .c2rust_unnamed
                     .children
                     .offset(0 as libc::c_int as isize),
-                child_index: 0 as libc::c_int as uint32_t,
+                child_index: 0 as libc::c_int as u32,
                 byte_offset: last_entry.byte_offset,
             };
             init

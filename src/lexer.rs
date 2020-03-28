@@ -2,14 +2,14 @@ use crate::*;
 
 use libc::{memcpy, snprintf};
 
-static mut BYTE_ORDER_MARK: int32_t = 0xfeff as libc::c_int;
+static mut BYTE_ORDER_MARK: i32 = 0xfeff as libc::c_int;
 
 static mut DEFAULT_RANGE: TSRange = {
     let mut init = TSRange {
         start_point: {
             let mut init = TSPoint {
-                row: 0 as libc::c_int as uint32_t,
-                column: 0 as libc::c_int as uint32_t,
+                row: 0 as libc::c_int as u32,
+                column: 0 as libc::c_int as u32,
             };
             init
         },
@@ -20,7 +20,7 @@ static mut DEFAULT_RANGE: TSRange = {
             };
             init
         },
-        start_byte: 0 as libc::c_int as uint32_t,
+        start_byte: 0 as libc::c_int as u32,
         end_byte: 4294967295 as libc::c_uint,
     };
     init
@@ -37,8 +37,8 @@ unsafe extern "C" fn ts_lexer__eof(mut _self: *const TSLexer) -> bool {
 // position has changed.
 unsafe extern "C" fn ts_lexer__clear_chunk(mut self_0: *mut Lexer) {
     (*self_0).chunk = 0 as *const libc::c_char;
-    (*self_0).chunk_size = 0 as libc::c_int as uint32_t;
-    (*self_0).chunk_start = 0 as libc::c_int as uint32_t;
+    (*self_0).chunk_size = 0 as libc::c_int as u32;
+    (*self_0).chunk_start = 0 as libc::c_int as u32;
 }
 // Call the lexer's input callback to obtain a new chunk of source code
 // for the current position.
@@ -59,15 +59,15 @@ unsafe extern "C" fn ts_lexer__get_chunk(mut self_0: *mut Lexer) {
 // This assumes that the lexer has already retrieved a chunk of source
 // code that spans the current position.
 unsafe extern "C" fn ts_lexer__get_lookahead(mut self_0: *mut Lexer) {
-    let mut position_in_chunk: uint32_t = (*self_0)
+    let mut position_in_chunk: u32 = (*self_0)
         .current_position
         .bytes
         .wrapping_sub((*self_0).chunk_start);
-    let mut chunk: *const uint8_t =
-        ((*self_0).chunk as *const uint8_t).offset(position_in_chunk as isize);
-    let mut size: uint32_t = (*self_0).chunk_size.wrapping_sub(position_in_chunk);
+    let mut chunk: *const u8 =
+        ((*self_0).chunk as *const u8).offset(position_in_chunk as isize);
+    let mut size: u32 = (*self_0).chunk_size.wrapping_sub(position_in_chunk);
     if size == 0 as libc::c_int as libc::c_uint {
-        (*self_0).lookahead_size = 1 as libc::c_int as uint32_t;
+        (*self_0).lookahead_size = 1 as libc::c_int as u32;
         (*self_0).data.lookahead = '\u{0}' as i32;
         return;
     }
@@ -77,19 +77,19 @@ unsafe extern "C" fn ts_lexer__get_lookahead(mut self_0: *mut Lexer) {
         Some(
             ts_decode_utf8
                 as unsafe extern "C" fn(
-                    _: *const uint8_t,
-                    _: uint32_t,
-                    _: *mut int32_t,
-                ) -> uint32_t,
+                    _: *const u8,
+                    _: u32,
+                    _: *mut i32,
+                ) -> u32,
         )
     } else {
         Some(
             ts_decode_utf16
                 as unsafe extern "C" fn(
-                    _: *const uint8_t,
-                    _: uint32_t,
-                    _: *mut int32_t,
-                ) -> uint32_t,
+                    _: *const u8,
+                    _: u32,
+                    _: *mut i32,
+                ) -> u32,
         )
     };
     (*self_0).lookahead_size =
@@ -98,13 +98,13 @@ unsafe extern "C" fn ts_lexer__get_lookahead(mut self_0: *mut Lexer) {
     // try again with a fresh chunk.
     if (*self_0).data.lookahead == TS_DECODE_ERROR && size < 4 as libc::c_int as libc::c_uint {
         ts_lexer__get_chunk(self_0);
-        chunk = (*self_0).chunk as *const uint8_t;
+        chunk = (*self_0).chunk as *const u8;
         size = (*self_0).chunk_size;
         (*self_0).lookahead_size =
             decode.expect("non-null function pointer")(chunk, size, &mut (*self_0).data.lookahead)
     }
     if (*self_0).data.lookahead == TS_DECODE_ERROR {
-        (*self_0).lookahead_size = 1 as libc::c_int as uint32_t
+        (*self_0).lookahead_size = 1 as libc::c_int as u32
     };
 }
 // Advance to the next character in the source code, retrieving a new
@@ -156,15 +156,15 @@ unsafe extern "C" fn ts_lexer__advance(mut _self: *mut TSLexer, mut skip: bool) 
     if (*self_0).lookahead_size != 0 {
         (*self_0).current_position.bytes = ((*self_0).current_position.bytes as libc::c_uint)
             .wrapping_add((*self_0).lookahead_size)
-            as uint32_t as uint32_t;
+            as u32 as u32;
         if (*self_0).data.lookahead == '\n' as i32 {
             (*self_0).current_position.extent.row =
                 (*self_0).current_position.extent.row.wrapping_add(1);
-            (*self_0).current_position.extent.column = 0 as libc::c_int as uint32_t
+            (*self_0).current_position.extent.column = 0 as libc::c_int as u32
         } else {
             (*self_0).current_position.extent.column =
                 ((*self_0).current_position.extent.column as libc::c_uint)
-                    .wrapping_add((*self_0).lookahead_size) as uint32_t as uint32_t
+                    .wrapping_add((*self_0).lookahead_size) as u32 as u32
         }
     }
     let mut current_range: *const TSRange = 0 as *const TSRange;
@@ -203,7 +203,7 @@ unsafe extern "C" fn ts_lexer__advance(mut _self: *mut TSLexer, mut skip: bool) 
     } else {
         ts_lexer__clear_chunk(self_0);
         (*self_0).data.lookahead = '\u{0}' as i32;
-        (*self_0).lookahead_size = 1 as libc::c_int as uint32_t
+        (*self_0).lookahead_size = 1 as libc::c_int as u32
     };
 }
 // Mark that a token match has completed. This can be called multiple
@@ -235,17 +235,17 @@ unsafe extern "C" fn ts_lexer__mark_end(mut _self: *mut TSLexer) {
     }
     (*self_0).token_end_position = (*self_0).current_position;
 }
-unsafe extern "C" fn ts_lexer__get_column(mut _self: *mut TSLexer) -> uint32_t {
+unsafe extern "C" fn ts_lexer__get_column(mut _self: *mut TSLexer) -> u32 {
     let mut self_0: *mut Lexer = _self as *mut Lexer;
-    let mut goal_byte: uint32_t = (*self_0).current_position.bytes;
+    let mut goal_byte: u32 = (*self_0).current_position.bytes;
     (*self_0).current_position.bytes = ((*self_0).current_position.bytes as libc::c_uint)
         .wrapping_sub((*self_0).current_position.extent.column)
-        as uint32_t as uint32_t;
-    (*self_0).current_position.extent.column = 0 as libc::c_int as uint32_t;
+        as u32 as u32;
+    (*self_0).current_position.extent.column = 0 as libc::c_int as u32;
     if (*self_0).current_position.bytes < (*self_0).chunk_start {
         ts_lexer__get_chunk(self_0);
     }
-    let mut result: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut result: u32 = 0 as libc::c_int as u32;
     while (*self_0).current_position.bytes < goal_byte {
         ts_lexer__advance(&mut (*self_0).data, 0 as libc::c_int != 0);
         result = result.wrapping_add(1)
@@ -282,7 +282,7 @@ pub unsafe extern "C" fn ts_lexer_init(mut self_0: *mut Lexer) {
                         ts_lexer__mark_end as unsafe extern "C" fn(_: *mut TSLexer) -> (),
                     ),
                     get_column: Some(
-                        ts_lexer__get_column as unsafe extern "C" fn(_: *mut TSLexer) -> uint32_t,
+                        ts_lexer__get_column as unsafe extern "C" fn(_: *mut TSLexer) -> u32,
                     ),
                     is_at_included_range_start: Some(
                         ts_lexer__is_at_included_range_start
@@ -294,11 +294,11 @@ pub unsafe extern "C" fn ts_lexer_init(mut self_0: *mut Lexer) {
             },
             current_position: {
                 let mut init = Length {
-                    bytes: 0 as libc::c_int as uint32_t,
+                    bytes: 0 as libc::c_int as u32,
                     extent: {
                         let mut init = TSPoint {
-                            row: 0 as libc::c_int as uint32_t,
-                            column: 0 as libc::c_int as uint32_t,
+                            row: 0 as libc::c_int as u32,
+                            column: 0 as libc::c_int as u32,
                         };
                         init
                     },
@@ -317,8 +317,8 @@ pub unsafe extern "C" fn ts_lexer_init(mut self_0: *mut Lexer) {
             included_range_count: 0 as libc::c_int as size_t,
             current_included_range_index: 0 as libc::c_int as size_t,
             chunk: 0 as *const libc::c_char,
-            chunk_start: 0 as libc::c_int as uint32_t,
-            chunk_size: 0 as libc::c_int as uint32_t,
+            chunk_start: 0 as libc::c_int as u32,
+            chunk_size: 0 as libc::c_int as u32,
             lookahead_size: 0,
             input: TSInput {
                 payload: 0 as *mut libc::c_void,
@@ -336,7 +336,7 @@ pub unsafe extern "C" fn ts_lexer_init(mut self_0: *mut Lexer) {
         };
         init
     };
-    ts_lexer_set_included_ranges(self_0, 0 as *const TSRange, 0 as libc::c_int as uint32_t);
+    ts_lexer_set_included_ranges(self_0, 0 as *const TSRange, 0 as libc::c_int as u32);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_lexer_delete(mut self_0: *mut Lexer) {
@@ -376,7 +376,7 @@ unsafe extern "C" fn ts_lexer_goto(mut self_0: *mut Lexer, mut position: Length)
         {
             ts_lexer__clear_chunk(self_0);
         }
-        (*self_0).lookahead_size = 0 as libc::c_int as uint32_t;
+        (*self_0).lookahead_size = 0 as libc::c_int as u32;
         (*self_0).data.lookahead = '\u{0}' as i32
     } else {
         // If the given position is beyond any of included ranges, move to the EOF
@@ -395,7 +395,7 @@ unsafe extern "C" fn ts_lexer_goto(mut self_0: *mut Lexer, mut position: Length)
             init
         };
         ts_lexer__clear_chunk(self_0);
-        (*self_0).lookahead_size = 1 as libc::c_int as uint32_t;
+        (*self_0).lookahead_size = 1 as libc::c_int as u32;
         (*self_0).data.lookahead = '\u{0}' as i32
     };
 }
@@ -435,12 +435,12 @@ pub unsafe extern "C" fn ts_lexer_start(mut self_0: *mut Lexer) {
 #[no_mangle]
 pub unsafe extern "C" fn ts_lexer_finish(
     mut self_0: *mut Lexer,
-    mut lookahead_end_byte: *mut uint32_t,
+    mut lookahead_end_byte: *mut u32,
 ) {
     if length_is_undefined((*self_0).token_end_position) {
         ts_lexer__mark_end(&mut (*self_0).data);
     }
-    let mut current_lookahead_end_byte: uint32_t = (*self_0)
+    let mut current_lookahead_end_byte: u32 = (*self_0)
         .current_position
         .bytes
         .wrapping_add(1 as libc::c_int as libc::c_uint);
@@ -469,13 +469,13 @@ pub unsafe extern "C" fn ts_lexer_mark_end(mut self_0: *mut Lexer) {
 pub unsafe extern "C" fn ts_lexer_set_included_ranges(
     mut self_0: *mut Lexer,
     mut ranges: *const TSRange,
-    mut count: uint32_t,
+    mut count: u32,
 ) -> bool {
     if count == 0 as libc::c_int as libc::c_uint || ranges.is_null() {
         ranges = &DEFAULT_RANGE;
-        count = 1 as libc::c_int as uint32_t
+        count = 1 as libc::c_int as u32
     } else {
-        let mut previous_byte: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut previous_byte: u32 = 0 as libc::c_int as u32;
         let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
         while i < count {
             let mut range: *const TSRange = &*ranges.offset(i as isize) as *const TSRange;
@@ -502,8 +502,8 @@ pub unsafe extern "C" fn ts_lexer_set_included_ranges(
 #[no_mangle]
 pub unsafe extern "C" fn ts_lexer_included_ranges(
     mut self_0: *const Lexer,
-    mut count: *mut uint32_t,
+    mut count: *mut u32,
 ) -> *mut TSRange {
-    *count = (*self_0).included_range_count as uint32_t;
+    *count = (*self_0).included_range_count as u32;
     return (*self_0).included_ranges;
 }

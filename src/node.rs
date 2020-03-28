@@ -6,8 +6,8 @@ pub struct NodeChildIterator {
     pub parent: Subtree,
     pub tree: *const TSTree,
     pub position: Length,
-    pub child_index: uint32_t,
-    pub structural_child_index: uint32_t,
+    pub child_index: u32,
+    pub structural_child_index: u32,
     pub alias_sequence: *const TSSymbol,
 }
 
@@ -25,7 +25,7 @@ pub unsafe extern "C" fn ts_node_new(
                 position.bytes,
                 position.extent.row,
                 position.extent.column,
-                alias as uint32_t,
+                alias as u32,
             ],
             id: subtree as *const libc::c_void,
             tree: tree,
@@ -44,7 +44,7 @@ unsafe extern "C" fn ts_node__null() -> TSNode {
 }
 // TSNode - accessors
 #[no_mangle]
-pub unsafe extern "C" fn ts_node_start_byte(mut self_0: TSNode) -> uint32_t {
+pub unsafe extern "C" fn ts_node_start_byte(mut self_0: TSNode) -> u32 {
     return self_0.context[0 as libc::c_int as usize];
 }
 #[no_mangle]
@@ -58,7 +58,7 @@ pub unsafe extern "C" fn ts_node_start_point(mut self_0: TSNode) -> TSPoint {
     };
 }
 #[inline]
-unsafe extern "C" fn ts_node__alias(mut self_0: *const TSNode) -> uint32_t {
+unsafe extern "C" fn ts_node__alias(mut self_0: *const TSNode) -> u32 {
     return (*self_0).context[3 as libc::c_int as usize];
 }
 #[inline]
@@ -77,8 +77,8 @@ unsafe extern "C" fn ts_node_iterate_children(mut node: *const TSNode) -> NodeCh
                 },
                 tree: (*node).tree,
                 position: length_zero(),
-                child_index: 0 as libc::c_int as uint32_t,
-                structural_child_index: 0 as libc::c_int as uint32_t,
+                child_index: 0 as libc::c_int as u32,
+                structural_child_index: 0 as libc::c_int as u32,
                 alias_sequence: 0 as *const TSSymbol,
             };
             init
@@ -86,7 +86,7 @@ unsafe extern "C" fn ts_node_iterate_children(mut node: *const TSNode) -> NodeCh
     }
     let mut alias_sequence: *const TSSymbol = ts_language_alias_sequence(
         (*(*node).tree).language,
-        (*subtree.ptr).c2rust_unnamed.c2rust_unnamed.production_id as uint32_t,
+        (*subtree.ptr).c2rust_unnamed.c2rust_unnamed.production_id as u32,
     );
     return {
         let mut init = NodeChildIterator {
@@ -99,8 +99,8 @@ unsafe extern "C" fn ts_node_iterate_children(mut node: *const TSNode) -> NodeCh
                 };
                 init
             },
-            child_index: 0 as libc::c_int as uint32_t,
-            structural_child_index: 0 as libc::c_int as uint32_t,
+            child_index: 0 as libc::c_int as u32,
+            structural_child_index: 0 as libc::c_int as u32,
             alias_sequence: alias_sequence,
         };
         init
@@ -160,7 +160,7 @@ unsafe extern "C" fn ts_node__is_relevant(mut self_0: TSNode, mut include_anonym
 unsafe extern "C" fn ts_node__relevant_child_count(
     mut self_0: TSNode,
     mut include_anonymous: bool,
-) -> uint32_t {
+) -> u32 {
     let mut tree: Subtree = ts_node__subtree(self_0);
     if ts_subtree_child_count(tree) > 0 as libc::c_int as libc::c_uint {
         if include_anonymous {
@@ -172,13 +172,13 @@ unsafe extern "C" fn ts_node__relevant_child_count(
             return (*tree.ptr).c2rust_unnamed.c2rust_unnamed.named_child_count;
         }
     } else {
-        return 0 as libc::c_int as uint32_t;
+        return 0 as libc::c_int as u32;
     };
 }
 #[inline]
 unsafe extern "C" fn ts_node__child(
     mut self_0: TSNode,
-    mut child_index: uint32_t,
+    mut child_index: u32,
     mut include_anonymous: bool,
 ) -> TSNode {
     let mut result: TSNode = self_0;
@@ -190,7 +190,7 @@ unsafe extern "C" fn ts_node__child(
             id: 0 as *const libc::c_void,
             tree: 0 as *const TSTree,
         };
-        let mut index: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut index: u32 = 0 as libc::c_int as u32;
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut result);
         while ts_node_child_iterator_next(&mut iterator, &mut child) {
             if ts_node__is_relevant(child, include_anonymous) {
@@ -200,8 +200,8 @@ unsafe extern "C" fn ts_node__child(
                 }
                 index = index.wrapping_add(1)
             } else {
-                let mut grandchild_index: uint32_t = child_index.wrapping_sub(index);
-                let mut grandchild_count: uint32_t =
+                let mut grandchild_index: u32 = child_index.wrapping_sub(index);
+                let mut grandchild_count: u32 =
                     ts_node__relevant_child_count(child, include_anonymous);
                 if grandchild_index < grandchild_count {
                     did_descend = 1 as libc::c_int != 0;
@@ -209,8 +209,8 @@ unsafe extern "C" fn ts_node__child(
                     child_index = grandchild_index;
                     break;
                 } else {
-                    index = (index as libc::c_uint).wrapping_add(grandchild_count) as uint32_t
-                        as uint32_t
+                    index = (index as libc::c_uint).wrapping_add(grandchild_count) as u32
+                        as u32
                 }
             }
         }
@@ -249,7 +249,7 @@ unsafe extern "C" fn ts_node__prev_sibling(
     let mut self_subtree: Subtree = ts_node__subtree(self_0);
     let mut self_is_empty: bool =
         ts_subtree_total_bytes(self_subtree) == 0 as libc::c_int as libc::c_uint;
-    let mut target_end_byte: uint32_t = ts_node_end_byte(self_0);
+    let mut target_end_byte: u32 = ts_node_end_byte(self_0);
     let mut node: TSNode = ts_node_parent(self_0);
     let mut earlier_node: TSNode = ts_node__null();
     let mut earlier_node_is_relevant: bool = 0 as libc::c_int != 0;
@@ -313,7 +313,7 @@ unsafe extern "C" fn ts_node__next_sibling(
     mut self_0: TSNode,
     mut include_anonymous: bool,
 ) -> TSNode {
-    let mut target_end_byte: uint32_t = ts_node_end_byte(self_0);
+    let mut target_end_byte: u32 = ts_node_end_byte(self_0);
     let mut node: TSNode = ts_node_parent(self_0);
     let mut later_node: TSNode = ts_node__null();
     let mut later_node_is_relevant: bool = 0 as libc::c_int != 0;
@@ -373,7 +373,7 @@ unsafe extern "C" fn ts_node__next_sibling(
 #[inline]
 unsafe extern "C" fn ts_node__first_child_for_byte(
     mut self_0: TSNode,
-    mut goal: uint32_t,
+    mut goal: u32,
     mut include_anonymous: bool,
 ) -> TSNode {
     let mut node: TSNode = self_0;
@@ -407,8 +407,8 @@ unsafe extern "C" fn ts_node__first_child_for_byte(
 #[inline]
 unsafe extern "C" fn ts_node__descendant_for_byte_range(
     mut self_0: TSNode,
-    mut range_start: uint32_t,
-    mut range_end: uint32_t,
+    mut range_start: u32,
+    mut range_end: u32,
     mut include_anonymous: bool,
 ) -> TSNode {
     let mut node: TSNode = self_0;
@@ -423,7 +423,7 @@ unsafe extern "C" fn ts_node__descendant_for_byte_range(
         };
         let mut iterator: NodeChildIterator = ts_node_iterate_children(&mut node);
         while ts_node_child_iterator_next(&mut iterator, &mut child) {
-            let mut node_end: uint32_t = iterator.position.bytes;
+            let mut node_end: u32 = iterator.position.bytes;
             // The end of this node must extend far enough forward to touch
             // the end of the range and exceed the start of the range.
             if node_end < range_end {
@@ -494,7 +494,7 @@ unsafe extern "C" fn ts_node__descendant_for_point_range(
 }
 // TSNode - public
 #[no_mangle]
-pub unsafe extern "C" fn ts_node_end_byte(mut self_0: TSNode) -> uint32_t {
+pub unsafe extern "C" fn ts_node_end_byte(mut self_0: TSNode) -> u32 {
     return ts_node_start_byte(self_0)
         .wrapping_add(ts_subtree_size(ts_node__subtree(self_0)).bytes);
 }
@@ -572,7 +572,7 @@ pub unsafe extern "C" fn ts_node_parent(mut self_0: TSNode) -> TSNode {
         return node;
     }
     node = ts_tree_root_node(self_0.tree);
-    let mut end_byte: uint32_t = ts_node_end_byte(self_0);
+    let mut end_byte: u32 = ts_node_end_byte(self_0);
     if node.id == self_0.id {
         return ts_node__null();
     }
@@ -605,13 +605,13 @@ pub unsafe extern "C" fn ts_node_parent(mut self_0: TSNode) -> TSNode {
     return last_visible_node;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_node_child(mut self_0: TSNode, mut child_index: uint32_t) -> TSNode {
+pub unsafe extern "C" fn ts_node_child(mut self_0: TSNode, mut child_index: u32) -> TSNode {
     return ts_node__child(self_0, child_index, 1 as libc::c_int != 0);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_node_named_child(
     mut self_0: TSNode,
-    mut child_index: uint32_t,
+    mut child_index: u32,
 ) -> TSNode {
     return ts_node__child(self_0, child_index, 0 as libc::c_int != 0);
 }
@@ -631,7 +631,7 @@ pub unsafe extern "C" fn ts_node_child_by_field_id(
             (*ts_node__subtree(self_0).ptr)
                 .c2rust_unnamed
                 .c2rust_unnamed
-                .production_id as uint32_t,
+                .production_id as u32,
             &mut field_map,
             &mut field_map_end,
         );
@@ -664,7 +664,7 @@ pub unsafe extern "C" fn ts_node_child_by_field_id(
             if ts_subtree_extra(ts_node__subtree(child)) {
                 continue;
             }
-            let mut index: uint32_t = iterator
+            let mut index: u32 = iterator
                 .structural_child_index
                 .wrapping_sub(1 as libc::c_int as libc::c_uint);
             if index < (*field_map).child_index as libc::c_uint {
@@ -694,7 +694,7 @@ pub unsafe extern "C" fn ts_node_child_by_field_id(
             } else {
                 // If the field refers to a hidden node, return its first visible
                 // child.
-                return ts_node_child(child, 0 as libc::c_int as uint32_t);
+                return ts_node_child(child, 0 as libc::c_int as u32);
             }
         }
         return ts_node__null();
@@ -704,14 +704,14 @@ pub unsafe extern "C" fn ts_node_child_by_field_id(
 pub unsafe extern "C" fn ts_node_child_by_field_name(
     mut self_0: TSNode,
     mut name: *const libc::c_char,
-    mut name_length: uint32_t,
+    mut name_length: u32,
 ) -> TSNode {
     let mut field_id: TSFieldId =
         ts_language_field_id_for_name((*self_0.tree).language, name, name_length);
     return ts_node_child_by_field_id(self_0, field_id);
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_node_child_count(mut self_0: TSNode) -> uint32_t {
+pub unsafe extern "C" fn ts_node_child_count(mut self_0: TSNode) -> u32 {
     let mut tree: Subtree = ts_node__subtree(self_0);
     if ts_subtree_child_count(tree) > 0 as libc::c_int as libc::c_uint {
         return (*tree.ptr)
@@ -719,16 +719,16 @@ pub unsafe extern "C" fn ts_node_child_count(mut self_0: TSNode) -> uint32_t {
             .c2rust_unnamed
             .visible_child_count;
     } else {
-        return 0 as libc::c_int as uint32_t;
+        return 0 as libc::c_int as u32;
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_node_named_child_count(mut self_0: TSNode) -> uint32_t {
+pub unsafe extern "C" fn ts_node_named_child_count(mut self_0: TSNode) -> u32 {
     let mut tree: Subtree = ts_node__subtree(self_0);
     if ts_subtree_child_count(tree) > 0 as libc::c_int as libc::c_uint {
         return (*tree.ptr).c2rust_unnamed.c2rust_unnamed.named_child_count;
     } else {
-        return 0 as libc::c_int as uint32_t;
+        return 0 as libc::c_int as u32;
     };
 }
 #[no_mangle]
@@ -750,30 +750,30 @@ pub unsafe extern "C" fn ts_node_prev_named_sibling(mut self_0: TSNode) -> TSNod
 #[no_mangle]
 pub unsafe extern "C" fn ts_node_first_child_for_byte(
     mut self_0: TSNode,
-    mut byte: uint32_t,
+    mut byte: u32,
 ) -> TSNode {
     return ts_node__first_child_for_byte(self_0, byte, 1 as libc::c_int != 0);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_node_first_named_child_for_byte(
     mut self_0: TSNode,
-    mut byte: uint32_t,
+    mut byte: u32,
 ) -> TSNode {
     return ts_node__first_child_for_byte(self_0, byte, 0 as libc::c_int != 0);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_node_descendant_for_byte_range(
     mut self_0: TSNode,
-    mut start: uint32_t,
-    mut end: uint32_t,
+    mut start: u32,
+    mut end: u32,
 ) -> TSNode {
     return ts_node__descendant_for_byte_range(self_0, start, end, 1 as libc::c_int != 0);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_node_named_descendant_for_byte_range(
     mut self_0: TSNode,
-    mut start: uint32_t,
-    mut end: uint32_t,
+    mut start: u32,
+    mut end: u32,
 ) -> TSNode {
     return ts_node__descendant_for_byte_range(self_0, start, end, 0 as libc::c_int != 0);
 }
@@ -796,7 +796,7 @@ pub unsafe extern "C" fn ts_node_named_descendant_for_point_range(
 
 #[no_mangle]
 pub unsafe extern "C" fn ts_node_edit(mut self_0: *mut TSNode, mut edit: *const TSInputEdit) {
-    let mut start_byte: uint32_t = ts_node_start_byte(*self_0);
+    let mut start_byte: u32 = ts_node_start_byte(*self_0);
     let mut start_point: TSPoint = ts_node_start_point(*self_0);
     if start_byte >= (*edit).old_end_byte {
         start_byte = (*edit)

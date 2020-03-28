@@ -14,7 +14,7 @@ static mut OP_COUNT_PER_TIMEOUT_CHECK: libc::c_uint = 100 as libc::c_int as libc
 pub struct TokenCache {
     pub token: Subtree,
     pub last_external_token: Subtree,
-    pub byte_index: uint32_t,
+    pub byte_index: u32,
 }
 
 #[derive(Copy, Clone)]
@@ -62,19 +62,19 @@ pub struct ErrorStatus {
 #[repr(C)]
 pub struct TSStringInput {
     pub string: *const libc::c_char,
-    pub length: uint32_t,
+    pub length: u32,
 }
 
 // StringInput
 unsafe extern "C" fn ts_string_input_read(
     mut _self: *mut libc::c_void,
-    mut byte: uint32_t,
+    mut byte: u32,
     mut _id: TSPoint,
-    mut length: *mut uint32_t,
+    mut length: *mut u32,
 ) -> *const libc::c_char {
     let mut self_0: *mut TSStringInput = _self as *mut TSStringInput;
     if byte >= (*self_0).length {
-        *length = 0 as libc::c_int as uint32_t;
+        *length = 0 as libc::c_int as u32;
         return b"\x00" as *const u8 as *const libc::c_char;
     } else {
         *length = (*self_0).length.wrapping_sub(byte);
@@ -131,14 +131,14 @@ unsafe extern "C" fn ts_parser__breakdown_top_of_stack(
         }
         did_break_down = 1 as libc::c_int != 0;
         pending = 0 as libc::c_int != 0;
-        let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut i: u32 = 0 as libc::c_int as u32;
         while i < pop.size {
             let mut slice: StackSlice = *pop.contents.offset(i as isize);
             let mut state: TSStateId = ts_stack_state((*self_0).stack, slice.version);
-            if (0 as libc::c_int as uint32_t) < slice.subtrees.size {
+            if (0 as libc::c_int as u32) < slice.subtrees.size {
             } else {
                 __assert_fail(
-                    b"(uint32_t)0 < (&slice.subtrees)->size\x00" as *const u8
+                    b"(u32)0 < (&slice.subtrees)->size\x00" as *const u8
                         as *const libc::c_char,
                     b"lib/src/parser.c\x00" as *const u8 as *const libc::c_char,
                     154 as libc::c_int as libc::c_uint,
@@ -150,8 +150,8 @@ unsafe extern "C" fn ts_parser__breakdown_top_of_stack(
             }
             let mut parent: Subtree =
                 *(&mut *slice.subtrees.contents.offset(0 as libc::c_int as isize) as *mut Subtree);
-            let mut j: uint32_t = 0 as libc::c_int as uint32_t;
-            let mut n: uint32_t = ts_subtree_child_count(parent);
+            let mut j: u32 = 0 as libc::c_int as u32;
+            let mut n: u32 = ts_subtree_child_count(parent);
             while j < n {
                 let mut child: Subtree = *(*parent.ptr)
                     .c2rust_unnamed
@@ -169,7 +169,7 @@ unsafe extern "C" fn ts_parser__breakdown_top_of_stack(
                 ts_stack_push((*self_0).stack, slice.version, child, pending, state);
                 j = j.wrapping_add(1)
             }
-            let mut j_0: uint32_t = 1 as libc::c_int as uint32_t;
+            let mut j_0: u32 = 1 as libc::c_int as u32;
             while j_0 < slice.subtrees.size {
                 let mut tree: Subtree = *slice.subtrees.contents.offset(j_0 as isize);
                 ts_stack_push(
@@ -396,7 +396,7 @@ unsafe extern "C" fn ts_parser__can_reuse_first_leaf(
     // NULL, which indicates that the parser should look for a reduce action
     // at symbol `0`. Avoid reusing tokens in this situation to ensure that
     // the same thing happens when incrementally reparsing.
-    if current_lex_mode.lex_state as libc::c_int == -(1 as libc::c_int) as uint16_t as libc::c_int {
+    if current_lex_mode.lex_state as libc::c_int == -(1 as libc::c_int) as u16 as libc::c_int {
         return 0 as libc::c_int != 0;
     }
     // If the token was created in a state with the same set of lookaheads, it is reusable.
@@ -432,7 +432,7 @@ unsafe extern "C" fn ts_parser__lex(
     let mut start_position: Length = ts_stack_position((*self_0).stack, version);
     let mut external_token: Subtree = ts_stack_last_external_token((*self_0).stack, version);
     let mut lex_mode: TSLexMode = *(*(*self_0).language).lex_modes.offset(parse_state as isize);
-    if lex_mode.lex_state as libc::c_int == -(1 as libc::c_int) as uint16_t as libc::c_int {
+    if lex_mode.lex_state as libc::c_int == -(1 as libc::c_int) as u16 as libc::c_int {
         return Subtree {
             ptr: 0 as *const SubtreeHeapData,
         };
@@ -444,10 +444,10 @@ unsafe extern "C" fn ts_parser__lex(
     let mut found_external_token: bool = 0 as libc::c_int != 0;
     let mut error_mode: bool = parse_state as libc::c_int == 0 as libc::c_int;
     let mut skipped_error: bool = 0 as libc::c_int != 0;
-    let mut first_error_character: int32_t = 0 as libc::c_int;
+    let mut first_error_character: i32 = 0 as libc::c_int;
     let mut error_start_position: Length = length_zero();
     let mut error_end_position: Length = length_zero();
-    let mut lookahead_end_byte: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut lookahead_end_byte: u32 = 0 as libc::c_int as u32;
     ts_lexer_reset(&mut (*self_0).lexer, start_position);
     loop {
         let mut current_position: Length = (*self_0).lexer.current_position;
@@ -586,7 +586,7 @@ unsafe extern "C" fn ts_parser__lex(
     if skipped_error {
         let mut padding: Length = length_sub(error_start_position, start_position);
         let mut size: Length = length_sub(error_end_position, error_start_position);
-        let mut lookahead_bytes: uint32_t =
+        let mut lookahead_bytes: u32 =
             lookahead_end_byte.wrapping_sub(error_end_position.bytes);
         result = ts_subtree_new_error(
             &mut (*self_0).tree_pool,
@@ -621,7 +621,7 @@ unsafe extern "C" fn ts_parser__lex(
             (*self_0).lexer.token_end_position,
             (*self_0).lexer.token_start_position,
         );
-        let mut lookahead_bytes_0: uint32_t =
+        let mut lookahead_bytes_0: u32 =
             lookahead_end_byte.wrapping_sub((*self_0).lexer.token_end_position.bytes);
         if found_external_token {
             symbol = *(*(*self_0).language)
@@ -632,7 +632,7 @@ unsafe extern "C" fn ts_parser__lex(
             == (*(*self_0).language).keyword_capture_token as libc::c_int
             && symbol as libc::c_int != 0 as libc::c_int
         {
-            let mut end_byte: uint32_t = (*self_0).lexer.token_end_position.bytes;
+            let mut end_byte: u32 = (*self_0).lexer.token_end_position.bytes;
             ts_lexer_reset(&mut (*self_0).lexer, (*self_0).lexer.token_start_position);
             ts_lexer_start(&mut (*self_0).lexer);
             if (*(*self_0).language)
@@ -743,13 +743,13 @@ unsafe extern "C" fn ts_parser__set_cached_token(
         ts_subtree_release(&mut (*self_0).tree_pool, (*cache).last_external_token);
     }
     (*cache).token = token;
-    (*cache).byte_index = byte_index as uint32_t;
+    (*cache).byte_index = byte_index as u32;
     (*cache).last_external_token = last_external_token;
 }
 unsafe extern "C" fn ts_parser__has_included_range_difference(
     mut self_0: *const TSParser,
-    mut start_position: uint32_t,
-    mut end_position: uint32_t,
+    mut start_position: u32,
+    mut end_position: u32,
 ) -> bool {
     return ts_range_array_intersects(
         &(*self_0).included_range_differences,
@@ -762,7 +762,7 @@ unsafe extern "C" fn ts_parser__reuse_node(
     mut self_0: *mut TSParser,
     mut version: StackVersion,
     mut state: *mut TSStateId,
-    mut position: uint32_t,
+    mut position: u32,
     mut last_external_token: Subtree,
     mut table_entry: *mut TableEntry,
 ) -> Subtree {
@@ -782,8 +782,8 @@ unsafe extern "C" fn ts_parser__reuse_node(
         if result.ptr.is_null() {
             break;
         }
-        let mut byte_offset: uint32_t = reusable_node_byte_offset(&mut (*self_0).reusable_node);
-        let mut end_byte_offset: uint32_t =
+        let mut byte_offset: u32 = reusable_node_byte_offset(&mut (*self_0).reusable_node);
+        let mut end_byte_offset: u32 =
             byte_offset.wrapping_add(ts_subtree_total_bytes(result));
         // Do not reuse an EOF node if the included ranges array has changes
         // later on in the file.
@@ -1059,7 +1059,7 @@ unsafe extern "C" fn ts_parser__replace_children(
     mut children: *mut SubtreeArray,
 ) -> bool {
     *(*self_0).scratch_tree.ptr = *(*tree).ptr;
-    (*(*self_0).scratch_tree.ptr).child_count = 0 as libc::c_int as uint32_t;
+    (*(*self_0).scratch_tree.ptr).child_count = 0 as libc::c_int as u32;
     ts_subtree_set_children(
         (*self_0).scratch_tree,
         (*children).contents,
@@ -1081,16 +1081,16 @@ unsafe extern "C" fn ts_parser__reduce(
     mut self_0: *mut TSParser,
     mut version: StackVersion,
     mut symbol: TSSymbol,
-    mut count: uint32_t,
+    mut count: u32,
     mut dynamic_precedence: libc::c_int,
-    mut production_id: uint16_t,
+    mut production_id: u16,
     mut is_fragile: bool,
     mut is_extra: bool,
 ) -> StackVersion {
-    let mut initial_version_count: uint32_t = ts_stack_version_count((*self_0).stack);
-    let mut removed_version_count: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut initial_version_count: u32 = ts_stack_version_count((*self_0).stack);
+    let mut removed_version_count: u32 = 0 as libc::c_int as u32;
     let mut pop: StackSliceArray = ts_stack_pop_count((*self_0).stack, version, count);
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < pop.size {
         let mut slice: StackSlice = *pop.contents.offset(i as isize);
         let mut slice_version: StackVersion = slice.version.wrapping_sub(removed_version_count);
@@ -1198,7 +1198,7 @@ unsafe extern "C" fn ts_parser__reduce(
                 0 as libc::c_int != 0,
                 next_state,
             );
-            let mut j: uint32_t = (*parent.ptr).child_count;
+            let mut j: u32 = (*parent.ptr).child_count;
             while j < slice.subtrees.size {
                 ts_stack_push(
                     (*self_0).stack,
@@ -1254,13 +1254,13 @@ unsafe extern "C" fn ts_parser__accept(
         1 as libc::c_int as TSStateId,
     );
     let mut pop: StackSliceArray = ts_stack_pop_all((*self_0).stack, version);
-    let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut i: u32 = 0 as libc::c_int as u32;
     while i < pop.size {
         let mut trees: SubtreeArray = (*pop.contents.offset(i as isize)).subtrees;
         let mut root: Subtree = Subtree {
             ptr: 0 as *const SubtreeHeapData,
         };
-        let mut j: uint32_t = trees.size.wrapping_sub(1 as libc::c_int as libc::c_uint);
+        let mut j: u32 = trees.size.wrapping_sub(1 as libc::c_int as libc::c_uint);
         while j.wrapping_add(1 as libc::c_int as libc::c_uint) > 0 as libc::c_int as libc::c_uint {
             let mut child: Subtree = *trees.contents.offset(j as isize);
             if !ts_subtree_extra(child) {
@@ -1276,8 +1276,8 @@ unsafe extern "C" fn ts_parser__accept(
                         .as_ptr(),
                     );
                 }
-                let mut child_count: uint32_t = ts_subtree_child_count(child);
-                let mut k: uint32_t = 0 as libc::c_int as uint32_t;
+                let mut child_count: u32 = ts_subtree_child_count(child);
+                let mut k: u32 = 0 as libc::c_int as u32;
                 while k < child_count {
                     ts_subtree_retain(
                         *(*child.ptr)
@@ -1292,7 +1292,7 @@ unsafe extern "C" fn ts_parser__accept(
                     &mut trees as *mut SubtreeArray as *mut VoidArray,
                     ::std::mem::size_of::<Subtree>() as libc::c_ulong,
                     j,
-                    1 as libc::c_int as uint32_t,
+                    1 as libc::c_int as u32,
                     child_count,
                     (*child.ptr).c2rust_unnamed.c2rust_unnamed.children as *const libc::c_void,
                 );
@@ -1345,13 +1345,13 @@ unsafe extern "C" fn ts_parser__do_all_potential_reductions(
     mut starting_version: StackVersion,
     mut lookahead_symbol: TSSymbol,
 ) -> bool {
-    let mut initial_version_count: uint32_t = ts_stack_version_count((*self_0).stack);
+    let mut initial_version_count: u32 = ts_stack_version_count((*self_0).stack);
     let mut can_shift_lookahead_symbol: bool = 0 as libc::c_int != 0;
     let mut version: StackVersion = starting_version;
     let mut current_block_33: u64;
     let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
     loop {
-        let mut version_count: uint32_t = ts_stack_version_count((*self_0).stack);
+        let mut version_count: u32 = ts_stack_version_count((*self_0).stack);
         if version >= version_count {
             break;
         }
@@ -1368,7 +1368,7 @@ unsafe extern "C" fn ts_parser__do_all_potential_reductions(
         if !merged {
             let mut state: TSStateId = ts_stack_state((*self_0).stack, version);
             let mut has_shift_action: bool = 0 as libc::c_int != 0;
-            (*self_0).reduce_actions.size = 0 as libc::c_int as uint32_t;
+            (*self_0).reduce_actions.size = 0 as libc::c_int as u32;
             let mut first_symbol: TSSymbol = 0;
             let mut end_symbol: TSSymbol = 0;
             if lookahead_symbol as libc::c_int != 0 as libc::c_int {
@@ -1386,7 +1386,7 @@ unsafe extern "C" fn ts_parser__do_all_potential_reductions(
                     is_reusable: false,
                 };
                 ts_language_table_entry((*self_0).language, state, symbol, &mut entry);
-                let mut i_1: uint32_t = 0 as libc::c_int as uint32_t;
+                let mut i_1: u32 = 0 as libc::c_int as u32;
                 while i_1 < entry.action_count {
                     let mut action: TSParseAction = *entry.actions.offset(i_1 as isize);
                     match action.type_0() as libc::c_int {
@@ -1404,7 +1404,7 @@ unsafe extern "C" fn ts_parser__do_all_potential_reductions(
                                 ts_reduce_action_set_add(&mut (*self_0).reduce_actions, {
                                     let mut init = ReduceAction {
                                         count: action.params.c2rust_unnamed_0.child_count
-                                            as uint32_t,
+                                            as u32,
                                         symbol: action.params.c2rust_unnamed_0.symbol,
                                         dynamic_precedence: action
                                             .params
@@ -1425,7 +1425,7 @@ unsafe extern "C" fn ts_parser__do_all_potential_reductions(
                 symbol = symbol.wrapping_add(1)
             }
             let mut reduction_version: StackVersion = -(1 as libc::c_int) as StackVersion;
-            let mut i_2: uint32_t = 0 as libc::c_int as uint32_t;
+            let mut i_2: u32 = 0 as libc::c_int as u32;
             while i_2 < (*self_0).reduce_actions.size {
                 let mut action_0: ReduceAction =
                     *(*self_0).reduce_actions.contents.offset(i_2 as isize);
@@ -1475,12 +1475,12 @@ unsafe extern "C" fn ts_parser__handle_error(
     mut version: StackVersion,
     mut lookahead_symbol: TSSymbol,
 ) {
-    let mut previous_version_count: uint32_t = ts_stack_version_count((*self_0).stack);
+    let mut previous_version_count: u32 = ts_stack_version_count((*self_0).stack);
     // Perform any reductions that can happen in this state, regardless of the lookahead. After
     // skipping one or more invalid tokens, the parser might find a token that would have allowed
     // a reduction to take place.
     ts_parser__do_all_potential_reductions(self_0, version, 0 as libc::c_int as TSSymbol);
-    let mut version_count: uint32_t = ts_stack_version_count((*self_0).stack);
+    let mut version_count: u32 = ts_stack_version_count((*self_0).stack);
     let mut position: Length = ts_stack_position((*self_0).stack, version);
     // Push a discontinuity onto the stack. Merge all of the stack versions that
     // were created in the previous step.
@@ -1642,13 +1642,13 @@ unsafe extern "C" fn ts_parser__recover_to_state(
                 }
                 let mut error_tree: Subtree =
                     *error_trees.contents.offset(0 as libc::c_int as isize);
-                let mut error_child_count: uint32_t = ts_subtree_child_count(error_tree);
+                let mut error_child_count: u32 = ts_subtree_child_count(error_tree);
                 if error_child_count > 0 as libc::c_int as libc::c_uint {
                     array__splice(
                         &mut slice.subtrees as *mut SubtreeArray as *mut VoidArray,
                         ::std::mem::size_of::<Subtree>() as libc::c_ulong,
-                        0 as libc::c_int as uint32_t,
-                        0 as libc::c_int as uint32_t,
+                        0 as libc::c_int as u32,
+                        0 as libc::c_int as u32,
                         error_child_count,
                         (*error_tree.ptr).c2rust_unnamed.c2rust_unnamed.children
                             as *const libc::c_void,
@@ -1852,8 +1852,8 @@ unsafe extern "C" fn ts_parser__recover(
         let mut children: SubtreeArray = {
             let mut init = SubtreeArray {
                 contents: 0 as *mut Subtree,
-                size: 0 as libc::c_int as uint32_t,
-                capacity: 0 as libc::c_int as uint32_t,
+                size: 0 as libc::c_int as u32,
+                capacity: 0 as libc::c_int as u32,
             };
             init
         };
@@ -1927,15 +1927,15 @@ unsafe extern "C" fn ts_parser__recover(
     let mut children_0: SubtreeArray = {
         let mut init = SubtreeArray {
             contents: 0 as *mut Subtree,
-            size: 0 as libc::c_int as uint32_t,
-            capacity: 0 as libc::c_int as uint32_t,
+            size: 0 as libc::c_int as u32,
+            capacity: 0 as libc::c_int as u32,
         };
         init
     };
     array__reserve(
         &mut children_0 as *mut SubtreeArray as *mut VoidArray,
         ::std::mem::size_of::<Subtree>() as libc::c_ulong,
-        1 as libc::c_int as uint32_t,
+        1 as libc::c_int as u32,
     );
     array__grow(
         &mut children_0 as *mut SubtreeArray as *mut VoidArray,
@@ -1957,7 +1957,7 @@ unsafe extern "C" fn ts_parser__recover(
     // ERROR.
     if node_count_since_error > 0 as libc::c_int as libc::c_uint {
         let mut pop: StackSliceArray =
-            ts_stack_pop_count((*self_0).stack, version, 1 as libc::c_int as uint32_t);
+            ts_stack_pop_count((*self_0).stack, version, 1 as libc::c_int as u32);
         // TODO: Figure out how to make this condition occur.
         // See https://github.com/atom/atom/issues/18450#issuecomment-439579778
         // If multiple stack versions have merged at this point, just pick one of the errors
@@ -2034,7 +2034,7 @@ unsafe extern "C" fn ts_parser__advance(
     mut allow_node_reuse: bool,
 ) -> bool {
     let mut state: TSStateId = ts_stack_state((*self_0).stack, version);
-    let mut position: uint32_t = ts_stack_position((*self_0).stack, version).bytes;
+    let mut position: u32 = ts_stack_position((*self_0).stack, version).bytes;
     let mut last_external_token: Subtree = ts_stack_last_external_token((*self_0).stack, version);
     let mut did_reuse: bool = 1 as libc::c_int != 0;
     let mut lookahead: Subtree = Subtree {
@@ -2043,7 +2043,7 @@ unsafe extern "C" fn ts_parser__advance(
     let mut table_entry: TableEntry = {
         let mut init = TableEntry {
             actions: 0 as *const TSParseAction,
-            action_count: 0 as libc::c_int as uint32_t,
+            action_count: 0 as libc::c_int as u32,
             is_reusable: false,
         };
         init
@@ -2117,7 +2117,7 @@ unsafe extern "C" fn ts_parser__advance(
         // and terminate this loop.
         let mut last_reduction_version: StackVersion = -(1 as libc::c_int) as StackVersion;
         let mut current_block_67: u64;
-        let mut i: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut i: u32 = 0 as libc::c_int as u32;
         while i < table_entry.action_count {
             let mut action: TSParseAction = *table_entry.actions.offset(i as isize);
             match action.type_0() as libc::c_int {
@@ -2212,9 +2212,9 @@ unsafe extern "C" fn ts_parser__advance(
                         self_0,
                         version,
                         action.params.c2rust_unnamed_0.symbol,
-                        action.params.c2rust_unnamed_0.child_count as uint32_t,
+                        action.params.c2rust_unnamed_0.child_count as u32,
                         action.params.c2rust_unnamed_0.dynamic_precedence as libc::c_int,
-                        action.params.c2rust_unnamed_0.production_id as uint16_t,
+                        action.params.c2rust_unnamed_0.production_id as u16,
                         is_fragile,
                         is_extra,
                     );
@@ -2499,15 +2499,15 @@ pub unsafe extern "C" fn ts_parser_new() -> *mut TSParser {
         ::std::mem::size_of::<TSParser>() as libc::c_ulong,
     ) as *mut TSParser;
     ts_lexer_init(&mut (*self_0).lexer);
-    (*self_0).reduce_actions.size = 0 as libc::c_int as uint32_t;
-    (*self_0).reduce_actions.capacity = 0 as libc::c_int as uint32_t;
+    (*self_0).reduce_actions.size = 0 as libc::c_int as u32;
+    (*self_0).reduce_actions.capacity = 0 as libc::c_int as u32;
     (*self_0).reduce_actions.contents = 0 as *mut ReduceAction;
     array__reserve(
         &mut (*self_0).reduce_actions as *mut ReduceActionSet as *mut VoidArray,
         ::std::mem::size_of::<ReduceAction>() as libc::c_ulong,
-        4 as libc::c_int as uint32_t,
+        4 as libc::c_int as u32,
     );
-    (*self_0).tree_pool = ts_subtree_pool_new(32 as libc::c_int as uint32_t);
+    (*self_0).tree_pool = ts_subtree_pool_new(32 as libc::c_int as u32);
     (*self_0).stack = ts_stack_new(&mut (*self_0).tree_pool);
     (*self_0).finished_tree = Subtree {
         ptr: 0 as *const SubtreeHeapData,
@@ -2525,8 +2525,8 @@ pub unsafe extern "C" fn ts_parser_new() -> *mut TSParser {
     (*self_0).included_range_differences = {
         let mut init = TSRangeArray {
             contents: 0 as *mut TSRange,
-            size: 0 as libc::c_int as uint32_t,
-            capacity: 0 as libc::c_int as uint32_t,
+            size: 0 as libc::c_int as u32,
+            capacity: 0 as libc::c_int as u32,
         };
         init
     };
@@ -2650,13 +2650,13 @@ pub unsafe extern "C" fn ts_parser_set_cancellation_flag(
     (*self_0).cancellation_flag = flag as *const size_t;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_parser_timeout_micros(mut self_0: *const TSParser) -> uint64_t {
+pub unsafe extern "C" fn ts_parser_timeout_micros(mut self_0: *const TSParser) -> u64 {
     return duration_to_micros((*self_0).timeout_duration);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_parser_set_timeout_micros(
     mut self_0: *mut TSParser,
-    mut timeout_micros: uint64_t,
+    mut timeout_micros: u64,
 ) {
     (*self_0).timeout_duration = duration_from_micros(timeout_micros);
 }
@@ -2664,14 +2664,14 @@ pub unsafe extern "C" fn ts_parser_set_timeout_micros(
 pub unsafe extern "C" fn ts_parser_set_included_ranges(
     mut self_0: *mut TSParser,
     mut ranges: *const TSRange,
-    mut count: uint32_t,
+    mut count: u32,
 ) -> bool {
     return ts_lexer_set_included_ranges(&mut (*self_0).lexer, ranges, count);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_parser_included_ranges(
     mut self_0: *const TSParser,
-    mut count: *mut uint32_t,
+    mut count: *mut u32,
 ) -> *const TSRange {
     return ts_lexer_included_ranges(&(*self_0).lexer, count);
 }
@@ -2725,7 +2725,7 @@ pub unsafe extern "C" fn ts_parser_parse(
         return 0 as *mut TSTree;
     }
     ts_lexer_set_input(&mut (*self_0).lexer, input);
-    (*self_0).included_range_differences.size = 0 as libc::c_int as uint32_t;
+    (*self_0).included_range_differences.size = 0 as libc::c_int as u32;
     (*self_0).included_range_difference_index = 0 as libc::c_int as libc::c_uint;
     if ts_parser_has_outstanding_parse(self_0) {
         if (*self_0).lexer.logger.log.is_some() || !(*self_0).dot_graph_file.is_null() {
@@ -2795,9 +2795,9 @@ pub unsafe extern "C" fn ts_parser_parse(
             ts_parser__log(self_0);
         }
     }
-    let mut position: uint32_t = 0 as libc::c_int as uint32_t;
-    let mut last_position: uint32_t = 0 as libc::c_int as uint32_t;
-    let mut version_count: uint32_t = 0 as libc::c_int as uint32_t;
+    let mut position: u32 = 0 as libc::c_int as u32;
+    let mut last_position: u32 = 0 as libc::c_int as u32;
+    let mut version_count: u32 = 0 as libc::c_int as u32;
     (*self_0).operation_count = 0 as libc::c_int as libc::c_uint;
     if (*self_0).timeout_duration != 0 {
         (*self_0).end_clock = clock_after(clock_now(), (*self_0).timeout_duration)
@@ -2919,7 +2919,7 @@ pub unsafe extern "C" fn ts_parser_parse_string(
     mut self_0: *mut TSParser,
     mut old_tree: *const TSTree,
     mut string: *const libc::c_char,
-    mut length: uint32_t,
+    mut length: u32,
 ) -> *mut TSTree {
     return ts_parser_parse_string_encoding(self_0, old_tree, string, length, TSInputEncodingUTF8);
 }
@@ -2928,7 +2928,7 @@ pub unsafe extern "C" fn ts_parser_parse_string_encoding(
     mut self_0: *mut TSParser,
     mut old_tree: *const TSTree,
     mut string: *const libc::c_char,
-    mut length: uint32_t,
+    mut length: u32,
     mut encoding: TSInputEncoding,
 ) -> *mut TSTree {
     let mut input: TSStringInput = {
@@ -2945,9 +2945,9 @@ pub unsafe extern "C" fn ts_parser_parse_string_encoding(
                 ts_string_input_read
                     as unsafe extern "C" fn(
                         _: *mut libc::c_void,
-                        _: uint32_t,
+                        _: u32,
                         _: TSPoint,
-                        _: *mut uint32_t,
+                        _: *mut u32,
                     ) -> *const libc::c_char,
             ),
             encoding: encoding,

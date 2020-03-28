@@ -3,24 +3,24 @@ use crate::{util::WrappingOffsetFromExt, *};
 use libc::{memcpy, memset, strcmp, strncmp};
 
 static mut PARENT_DONE: TSQueryError = 4294967295 as TSQueryError;
-static mut PATTERN_DONE_MARKER: uint8_t = 255 as libc::c_int as uint8_t;
-static mut NONE: uint16_t = 65535 as libc::c_int as uint16_t;
+static mut PATTERN_DONE_MARKER: u8 = 255 as libc::c_int as u8;
+static mut NONE: u16 = 65535 as libc::c_int as u16;
 static mut WILDCARD_SYMBOL: TSSymbol = 0 as libc::c_int as TSSymbol;
 static mut NAMED_WILDCARD_SYMBOL: TSSymbol = (65535 as libc::c_int - 1 as libc::c_int) as TSSymbol;
-static mut MAX_STATE_COUNT: uint16_t = 32 as libc::c_int as uint16_t;
+static mut MAX_STATE_COUNT: u16 = 32 as libc::c_int as u16;
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct CaptureListPool {
     pub list: TSQueryCaptureArray,
-    pub usage_map: uint32_t,
+    pub usage_map: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSQueryCaptureArray {
     pub contents: *mut TSQueryCapture,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 /*
@@ -34,10 +34,10 @@ pub struct TSQueryCursor {
     pub states: TSQueryCursorStates,
     pub finished_states: TsQueryCursorFinishedStated,
     pub capture_list_pool: CaptureListPool,
-    pub depth: uint32_t,
-    pub start_byte: uint32_t,
-    pub end_byte: uint32_t,
-    pub next_state_id: uint32_t,
+    pub depth: u32,
+    pub start_byte: u32,
+    pub end_byte: u32,
+    pub next_state_id: u32,
     pub start_point: TSPoint,
     pub end_point: TSPoint,
     pub ascending: bool,
@@ -48,8 +48,8 @@ pub struct TSQueryCursor {
 pub struct Stream {
     pub input: *const libc::c_char,
     pub end: *const libc::c_char,
-    pub next: int32_t,
-    pub next_size: uint8_t,
+    pub next: i32,
+    pub next_size: u8,
 }
 
 #[derive(Copy, Clone, BitfieldStruct)]
@@ -57,8 +57,8 @@ pub struct Stream {
 pub struct QueryStep {
     pub symbol: TSSymbol,
     pub field: TSFieldId,
-    pub capture_ids: [uint16_t; 4],
-    #[bitfield(name = "depth", ty = "uint16_t", bits = "0..=12")]
+    pub capture_ids: [u16; 4],
+    #[bitfield(name = "depth", ty = "u16", bits = "0..=12")]
     #[bitfield(name = "contains_captures", ty = "bool", bits = "13..=13")]
     #[bitfield(name = "is_immediate", ty = "bool", bits = "14..=14")]
     #[bitfield(name = "is_last", ty = "bool", bits = "15..=15")]
@@ -81,22 +81,22 @@ pub struct TSQuery {
     pub predicates_by_pattern: TSQueryPredicatesByPattern,
     pub start_bytes_by_pattern: TSQueryStartBytesByPattern,
     pub language: *const TSLanguage,
-    pub max_capture_count: uint16_t,
-    pub wildcard_root_pattern_count: uint16_t,
+    pub max_capture_count: u16,
+    pub wildcard_root_pattern_count: u16,
     pub symbol_map: *mut TSSymbol,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSQueryStartBytesByPattern {
-    pub contents: *mut uint32_t,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub contents: *mut u32,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct Slice {
-    pub offset: uint32_t,
-    pub length: uint32_t,
+    pub offset: u32,
+    pub length: u32,
 }
 
 #[derive(Copy, Clone)]
@@ -109,78 +109,78 @@ pub struct SymbolTable {
 #[repr(C)]
 pub struct SymbolTableSlices {
     pub contents: *mut Slice,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct SymbolTableCharacters {
     pub contents: *mut libc::c_char,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSQueryPredicatesByPattern {
     pub contents: *mut Slice,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSQueryPredicateSteps {
     pub contents: *mut TSQueryPredicateStep,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSQueryPatternMap {
     pub contents: *mut PatternEntry,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct PatternEntry {
-    pub step_index: uint16_t,
-    pub pattern_index: uint16_t,
+    pub step_index: u16,
+    pub pattern_index: u16,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSQuerySteps {
     pub contents: *mut QueryStep,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TsQueryCursorFinishedStated {
     pub contents: *mut QueryState,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct QueryState {
-    pub start_depth: uint16_t,
-    pub pattern_index: uint16_t,
-    pub step_index: uint16_t,
-    pub capture_count: uint16_t,
-    pub capture_list_id: uint16_t,
-    pub consumed_capture_count: uint16_t,
-    pub id: uint32_t,
+    pub start_depth: u16,
+    pub pattern_index: u16,
+    pub step_index: u16,
+    pub capture_count: u16,
+    pub capture_list_id: u16,
+    pub consumed_capture_count: u16,
+    pub id: u32,
 }
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct TSQueryCursorStates {
     pub contents: *mut QueryState,
-    pub size: uint32_t,
-    pub capacity: uint32_t,
+    pub size: u32,
+    pub capacity: u32,
 }
 
 /* *********
@@ -192,17 +192,17 @@ unsafe extern "C" fn stream_advance(mut self_0: *mut Stream) -> bool {
         .input
         .offset((*self_0).next_size as libc::c_int as isize);
     if (*self_0).input < (*self_0).end {
-        let mut size: uint32_t = ts_decode_utf8(
-            (*self_0).input as *const uint8_t,
-            (*self_0).end.wrapping_offset_from_((*self_0).input) as libc::c_long as uint32_t,
+        let mut size: u32 = ts_decode_utf8(
+            (*self_0).input as *const u8,
+            (*self_0).end.wrapping_offset_from_((*self_0).input) as libc::c_long as u32,
             &mut (*self_0).next,
         );
         if size > 0 as libc::c_int as libc::c_uint {
-            (*self_0).next_size = size as uint8_t;
+            (*self_0).next_size = size as u8;
             return 1 as libc::c_int != 0;
         }
     } else {
-        (*self_0).next_size = 0 as libc::c_int as uint8_t;
+        (*self_0).next_size = 0 as libc::c_int as u8;
         (*self_0).next = '\u{0}' as i32
     }
     return 0 as libc::c_int != 0;
@@ -211,10 +211,10 @@ unsafe extern "C" fn stream_advance(mut self_0: *mut Stream) -> bool {
 // into the input string.
 unsafe extern "C" fn stream_reset(mut self_0: *mut Stream, mut input: *const libc::c_char) {
     (*self_0).input = input;
-    (*self_0).next_size = 0 as libc::c_int as uint8_t;
+    (*self_0).next_size = 0 as libc::c_int as u8;
     stream_advance(self_0);
 }
-unsafe extern "C" fn stream_new(mut string: *const libc::c_char, mut length: uint32_t) -> Stream {
+unsafe extern "C" fn stream_new(mut string: *const libc::c_char, mut length: u32) -> Stream {
     let mut self_0: Stream = {
         let mut init = Stream {
             input: string,
@@ -275,8 +275,8 @@ unsafe extern "C" fn capture_list_pool_new() -> CaptureListPool {
             list: {
                 let mut init = TSQueryCaptureArray {
                     contents: 0 as *mut TSQueryCapture,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
@@ -287,11 +287,11 @@ unsafe extern "C" fn capture_list_pool_new() -> CaptureListPool {
 }
 unsafe extern "C" fn capture_list_pool_reset(
     mut self_0: *mut CaptureListPool,
-    mut list_size: uint16_t,
+    mut list_size: u16,
 ) {
     (*self_0).usage_map = 4294967295 as libc::c_uint;
-    let mut total_size: uint32_t =
-        (MAX_STATE_COUNT as libc::c_int * list_size as libc::c_int) as uint32_t;
+    let mut total_size: u32 =
+        (MAX_STATE_COUNT as libc::c_int * list_size as libc::c_int) as u32;
     array__reserve(
         &mut (*self_0).list as *mut TSQueryCaptureArray as *mut VoidArray,
         ::std::mem::size_of::<TSQueryCapture>() as libc::c_ulong,
@@ -304,7 +304,7 @@ unsafe extern "C" fn capture_list_pool_delete(mut self_0: *mut CaptureListPool) 
 }
 unsafe extern "C" fn capture_list_pool_get(
     mut self_0: *mut CaptureListPool,
-    mut id: uint16_t,
+    mut id: u16,
 ) -> *mut TSQueryCapture {
     return &mut *(*self_0).list.contents.offset(
         (id as libc::c_uint).wrapping_mul(
@@ -318,19 +318,19 @@ unsafe extern "C" fn capture_list_pool_get(
 unsafe extern "C" fn capture_list_pool_is_empty(mut self_0: *const CaptureListPool) -> bool {
     return (*self_0).usage_map == 0 as libc::c_int as libc::c_uint;
 }
-unsafe extern "C" fn capture_list_pool_acquire(mut self_0: *mut CaptureListPool) -> uint16_t {
+unsafe extern "C" fn capture_list_pool_acquire(mut self_0: *mut CaptureListPool) -> u16 {
     // In the usage_map bitmask, ones represent free lists, and zeros represent
     // lists that are in use. A free list id can quickly be found by counting
     // the leading zeros in the usage map. An id of zero corresponds to the
     // highest-order bit in the bitmask.
-    let mut id: uint16_t = count_leading_zeros((*self_0).usage_map) as uint16_t;
+    let mut id: u16 = count_leading_zeros((*self_0).usage_map) as u16;
     if id as libc::c_int == 32 as libc::c_int {
         return NONE;
     }
     (*self_0).usage_map &= !bitmask_for_index(id);
     return id;
 }
-unsafe extern "C" fn capture_list_pool_release(mut self_0: *mut CaptureListPool, mut id: uint16_t) {
+unsafe extern "C" fn capture_list_pool_release(mut self_0: *mut CaptureListPool, mut id: u16) {
     (*self_0).usage_map |= bitmask_for_index(id);
 }
 
@@ -343,16 +343,16 @@ unsafe extern "C" fn symbol_table_new() -> SymbolTable {
             characters: {
                 let mut init = SymbolTableCharacters {
                     contents: 0 as *mut libc::c_char,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
             slices: {
                 let mut init = SymbolTableSlices {
                     contents: 0 as *mut Slice,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
@@ -367,7 +367,7 @@ unsafe extern "C" fn symbol_table_delete(mut self_0: *mut SymbolTable) {
 unsafe extern "C" fn symbol_table_id_for_name(
     mut self_0: *const SymbolTable,
     mut name: *const libc::c_char,
-    mut length: uint32_t,
+    mut length: u32,
 ) -> libc::c_int {
     let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
     while i < (*self_0).slices.size {
@@ -387,8 +387,8 @@ unsafe extern "C" fn symbol_table_id_for_name(
 }
 unsafe extern "C" fn symbol_table_name_for_id(
     mut self_0: *const SymbolTable,
-    mut id: uint16_t,
-    mut length: *mut uint32_t,
+    mut id: u16,
+    mut length: *mut u32,
 ) -> *const libc::c_char {
     let mut slice: Slice = *(*self_0).slices.contents.offset(id as isize);
     *length = slice.length;
@@ -397,11 +397,11 @@ unsafe extern "C" fn symbol_table_name_for_id(
 unsafe extern "C" fn symbol_table_insert_name(
     mut self_0: *mut SymbolTable,
     mut name: *const libc::c_char,
-    mut length: uint32_t,
-) -> uint16_t {
+    mut length: u32,
+) -> u16 {
     let mut id: libc::c_int = symbol_table_id_for_name(self_0, name, length);
     if id >= 0 as libc::c_int {
-        return id as uint16_t;
+        return id as u16;
     }
     let mut slice: Slice = {
         let mut init = Slice {
@@ -426,7 +426,7 @@ unsafe extern "C" fn symbol_table_insert_name(
     );
     (*self_0).characters.size = ((*self_0).characters.size as libc::c_uint)
         .wrapping_add(length.wrapping_add(1 as libc::c_int as libc::c_uint))
-        as uint32_t as uint32_t;
+        as u32 as u32;
     memcpy(
         &mut *(*self_0).characters.contents.offset(slice.offset as isize) as *mut libc::c_char
             as *mut libc::c_void,
@@ -450,17 +450,17 @@ unsafe extern "C" fn symbol_table_insert_name(
     return (*self_0)
         .slices
         .size
-        .wrapping_sub(1 as libc::c_int as libc::c_uint) as uint16_t;
+        .wrapping_sub(1 as libc::c_int as libc::c_uint) as u16;
 }
 unsafe extern "C" fn symbol_table_insert_name_with_escapes(
     mut self_0: *mut SymbolTable,
     mut escaped_name: *const libc::c_char,
-    mut escaped_length: uint32_t,
-) -> uint16_t {
+    mut escaped_length: u32,
+) -> u16 {
     let mut slice: Slice = {
         let mut init = Slice {
             offset: (*self_0).characters.size,
-            length: 0 as libc::c_int as uint32_t,
+            length: 0 as libc::c_int as u32,
         };
         init
     };
@@ -480,7 +480,7 @@ unsafe extern "C" fn symbol_table_insert_name_with_escapes(
     );
     (*self_0).characters.size = ((*self_0).characters.size as libc::c_uint)
         .wrapping_add(escaped_length.wrapping_add(1 as libc::c_int as libc::c_uint))
-        as uint32_t as uint32_t;
+        as u32 as u32;
     // Copy the contents of the literal into the characters buffer, processing escape
     // sequences like \n and \". This needs to be done before checking if the literal
     // is already present, in order to do the string comparison.
@@ -521,8 +521,8 @@ unsafe extern "C" fn symbol_table_insert_name_with_escapes(
     if id >= 0 as libc::c_int {
         (*self_0).characters.size = ((*self_0).characters.size as libc::c_uint)
             .wrapping_sub(escaped_length.wrapping_add(1 as libc::c_int as libc::c_uint))
-            as uint32_t as uint32_t;
-        return id as uint16_t;
+            as u32 as u32;
+        return id as u16;
     }
     *(*self_0)
         .characters
@@ -540,7 +540,7 @@ unsafe extern "C" fn symbol_table_insert_name_with_escapes(
     return (*self_0)
         .slices
         .size
-        .wrapping_sub(1 as libc::c_int as libc::c_uint) as uint16_t;
+        .wrapping_sub(1 as libc::c_int as libc::c_uint) as u16;
 }
 
 /* ***********
@@ -548,7 +548,7 @@ unsafe extern "C" fn symbol_table_insert_name_with_escapes(
  ************/
 unsafe extern "C" fn query_step__new(
     mut symbol: TSSymbol,
-    mut depth: uint16_t,
+    mut depth: u16,
     mut is_immediate: bool,
 ) -> QueryStep {
     return {
@@ -565,7 +565,7 @@ unsafe extern "C" fn query_step__new(
         init
     };
 }
-unsafe extern "C" fn query_step__add_capture(mut self_0: *mut QueryStep, mut capture_id: uint16_t) {
+unsafe extern "C" fn query_step__add_capture(mut self_0: *mut QueryStep, mut capture_id: u16) {
     let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
     while i < 4 as libc::c_int as libc::c_uint {
         if (*self_0).capture_ids[i as usize] as libc::c_int == NONE as libc::c_int {
@@ -578,7 +578,7 @@ unsafe extern "C" fn query_step__add_capture(mut self_0: *mut QueryStep, mut cap
 }
 unsafe extern "C" fn query_step__remove_capture(
     mut self_0: *mut QueryStep,
-    mut capture_id: uint16_t,
+    mut capture_id: u16,
 ) {
     let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
     while i < 4 as libc::c_int as libc::c_uint {
@@ -627,17 +627,17 @@ unsafe extern "C" fn query_step__remove_capture(
 unsafe extern "C" fn ts_query__pattern_map_search(
     mut self_0: *const TSQuery,
     mut needle: TSSymbol,
-    mut result: *mut uint32_t,
+    mut result: *mut u32,
 ) -> bool {
-    let mut base_index: uint32_t = (*self_0).wildcard_root_pattern_count as uint32_t;
-    let mut size: uint32_t = (*self_0).pattern_map.size.wrapping_sub(base_index);
+    let mut base_index: u32 = (*self_0).wildcard_root_pattern_count as u32;
+    let mut size: u32 = (*self_0).pattern_map.size.wrapping_sub(base_index);
     if size == 0 as libc::c_int as libc::c_uint {
         *result = base_index;
         return 0 as libc::c_int != 0;
     }
     while size > 1 as libc::c_int as libc::c_uint {
-        let mut half_size: uint32_t = size.wrapping_div(2 as libc::c_int as libc::c_uint);
-        let mut mid_index: uint32_t = base_index.wrapping_add(half_size);
+        let mut half_size: u32 = size.wrapping_div(2 as libc::c_int as libc::c_uint);
+        let mut mid_index: u32 = base_index.wrapping_add(half_size);
         let mut mid_symbol: TSSymbol = (*(*self_0).steps.contents.offset(
             (*(*self_0).pattern_map.contents.offset(mid_index as isize)).step_index as isize,
         ))
@@ -645,7 +645,7 @@ unsafe extern "C" fn ts_query__pattern_map_search(
         if needle as libc::c_int > mid_symbol as libc::c_int {
             base_index = mid_index
         }
-        size = (size as libc::c_uint).wrapping_sub(half_size) as uint32_t as uint32_t
+        size = (size as libc::c_uint).wrapping_sub(half_size) as u32 as u32
     }
     let mut symbol: TSSymbol = (*(*self_0)
         .steps
@@ -670,20 +670,20 @@ unsafe extern "C" fn ts_query__pattern_map_search(
 unsafe extern "C" fn ts_query__pattern_map_insert(
     mut self_0: *mut TSQuery,
     mut symbol: TSSymbol,
-    mut start_step_index: uint32_t,
+    mut start_step_index: u32,
 ) {
-    let mut index: uint32_t = 0;
+    let mut index: u32 = 0;
     ts_query__pattern_map_search(self_0, symbol, &mut index);
     array__splice(
         &mut (*self_0).pattern_map as *mut TSQueryPatternMap as *mut VoidArray,
         ::std::mem::size_of::<PatternEntry>() as libc::c_ulong,
         index,
-        0 as libc::c_int as uint32_t,
-        1 as libc::c_int as uint32_t,
+        0 as libc::c_int as u32,
+        1 as libc::c_int as u32,
         &mut {
             let mut init = PatternEntry {
-                step_index: start_step_index as uint16_t,
-                pattern_index: (*self_0).pattern_map.size as uint16_t,
+                step_index: start_step_index as u16,
+                pattern_index: (*self_0).pattern_map.size as u16,
             };
             init
         } as *mut PatternEntry as *const libc::c_void,
@@ -694,7 +694,7 @@ unsafe extern "C" fn ts_query__finalize_steps(mut self_0: *mut TSQuery) {
     while i < (*self_0).steps.size {
         let mut step: *mut QueryStep =
             &mut *(*self_0).steps.contents.offset(i as isize) as *mut QueryStep;
-        let mut depth: uint32_t = (*step).depth() as uint32_t;
+        let mut depth: u32 = (*step).depth() as u32;
         if (*step).capture_ids[0 as libc::c_int as usize] as libc::c_int != NONE as libc::c_int {
             (*step).set_contains_captures(1 as libc::c_int != 0)
         } else {
@@ -748,7 +748,7 @@ unsafe extern "C" fn ts_query__parse_predicate(
                 < (*self_0).predicates_by_pattern.size
             {
             } else {
-                __assert_fail(b"(uint32_t)(&self->predicates_by_pattern)->size - 1 < (&self->predicates_by_pattern)->size\x00"
+                __assert_fail(b"(u32)(&self->predicates_by_pattern)->size - 1 < (&self->predicates_by_pattern)->size\x00"
                                   as *const u8 as *const libc::c_char,
                               b"lib/src/query.c\x00" as *const u8 as
                                   *const libc::c_char,
@@ -774,7 +774,7 @@ unsafe extern "C" fn ts_query__parse_predicate(
             *(*self_0).predicate_steps.contents.offset(fresh4 as isize) = {
                 let mut init = TSQueryPredicateStep {
                     type_0: TSQueryPredicateStepTypeDone,
-                    value_id: 0 as libc::c_int as uint32_t,
+                    value_id: 0 as libc::c_int as u32,
                 };
                 init
             };
@@ -789,8 +789,8 @@ unsafe extern "C" fn ts_query__parse_predicate(
                 }
                 let mut capture_name: *const libc::c_char = (*stream).input;
                 stream_scan_identifier(stream);
-                let mut length: uint32_t =
-                    (*stream).input.wrapping_offset_from_(capture_name) as libc::c_long as uint32_t;
+                let mut length: u32 =
+                    (*stream).input.wrapping_offset_from_(capture_name) as libc::c_long as u32;
                 // Add the capture id to the first step of the pattern
                 let mut capture_id: libc::c_int =
                     symbol_table_id_for_name(&mut (*self_0).captures, capture_name, length);
@@ -805,7 +805,7 @@ unsafe extern "C" fn ts_query__parse_predicate(
                     < (*self_0).predicates_by_pattern.size
                 {
                 } else {
-                    __assert_fail(b"(uint32_t)(&self->predicates_by_pattern)->size - 1 < (&self->predicates_by_pattern)->size\x00"
+                    __assert_fail(b"(u32)(&self->predicates_by_pattern)->size - 1 < (&self->predicates_by_pattern)->size\x00"
                                       as *const u8 as *const libc::c_char,
                                   b"lib/src/query.c\x00" as *const u8 as
                                       *const libc::c_char,
@@ -832,7 +832,7 @@ unsafe extern "C" fn ts_query__parse_predicate(
                 *(*self_0).predicate_steps.contents.offset(fresh6 as isize) = {
                     let mut init = TSQueryPredicateStep {
                         type_0: TSQueryPredicateStepTypeCapture,
-                        value_id: capture_id as uint32_t,
+                        value_id: capture_id as u32,
                     };
                     init
                 }
@@ -864,10 +864,10 @@ unsafe extern "C" fn ts_query__parse_predicate(
                         return TSQueryErrorSyntax;
                     }
                 }
-                let mut length_0: uint32_t = (*stream).input.wrapping_offset_from_(string_content)
-                    as libc::c_long as uint32_t;
+                let mut length_0: u32 = (*stream).input.wrapping_offset_from_(string_content)
+                    as libc::c_long as u32;
                 // Add a step for the node
-                let mut id: uint16_t = symbol_table_insert_name_with_escapes(
+                let mut id: u16 = symbol_table_insert_name_with_escapes(
                     &mut (*self_0).predicate_values,
                     string_content,
                     length_0,
@@ -879,7 +879,7 @@ unsafe extern "C" fn ts_query__parse_predicate(
                     < (*self_0).predicates_by_pattern.size
                 {
                 } else {
-                    __assert_fail(b"(uint32_t)(&self->predicates_by_pattern)->size - 1 < (&self->predicates_by_pattern)->size\x00"
+                    __assert_fail(b"(u32)(&self->predicates_by_pattern)->size - 1 < (&self->predicates_by_pattern)->size\x00"
                                       as *const u8 as *const libc::c_char,
                                   b"lib/src/query.c\x00" as *const u8 as
                                       *const libc::c_char,
@@ -906,7 +906,7 @@ unsafe extern "C" fn ts_query__parse_predicate(
                 *(*self_0).predicate_steps.contents.offset(fresh8 as isize) = {
                     let mut init = TSQueryPredicateStep {
                         type_0: TSQueryPredicateStepTypeString,
-                        value_id: id as uint32_t,
+                        value_id: id as u32,
                     };
                     init
                 };
@@ -917,9 +917,9 @@ unsafe extern "C" fn ts_query__parse_predicate(
             } else if stream_is_ident_start(stream) {
                 let mut symbol_start: *const libc::c_char = (*stream).input;
                 stream_scan_identifier(stream);
-                let mut length_1: uint32_t =
-                    (*stream).input.wrapping_offset_from_(symbol_start) as libc::c_long as uint32_t;
-                let mut id_0: uint16_t = symbol_table_insert_name(
+                let mut length_1: u32 =
+                    (*stream).input.wrapping_offset_from_(symbol_start) as libc::c_long as u32;
+                let mut id_0: u16 = symbol_table_insert_name(
                     &mut (*self_0).predicate_values,
                     symbol_start,
                     length_1,
@@ -931,7 +931,7 @@ unsafe extern "C" fn ts_query__parse_predicate(
                     < (*self_0).predicates_by_pattern.size
                 {
                 } else {
-                    __assert_fail(b"(uint32_t)(&self->predicates_by_pattern)->size - 1 < (&self->predicates_by_pattern)->size\x00"
+                    __assert_fail(b"(u32)(&self->predicates_by_pattern)->size - 1 < (&self->predicates_by_pattern)->size\x00"
                                       as *const u8 as *const libc::c_char,
                                   b"lib/src/query.c\x00" as *const u8 as
                                       *const libc::c_char,
@@ -958,7 +958,7 @@ unsafe extern "C" fn ts_query__parse_predicate(
                 *(*self_0).predicate_steps.contents.offset(fresh10 as isize) = {
                     let mut init = TSQueryPredicateStep {
                         type_0: TSQueryPredicateStepTypeString,
-                        value_id: id_0 as uint32_t,
+                        value_id: id_0 as u32,
                     };
                     init
                 }
@@ -978,11 +978,11 @@ unsafe extern "C" fn ts_query__parse_predicate(
 unsafe extern "C" fn ts_query__parse_pattern(
     mut self_0: *mut TSQuery,
     mut stream: *mut Stream,
-    mut depth: uint32_t,
-    mut capture_count: *mut uint32_t,
+    mut depth: u32,
+    mut capture_count: *mut u32,
     mut is_immediate: bool,
 ) -> TSQueryError {
-    let mut starting_step_index: uint16_t = (*self_0).steps.size as uint16_t;
+    let mut starting_step_index: u16 = (*self_0).steps.size as u16;
     if (*stream).next == 0 as libc::c_int {
         return TSQueryErrorSyntax;
     }
@@ -1000,7 +1000,7 @@ unsafe extern "C" fn ts_query__parse_pattern(
                 let mut e: TSQueryError = ts_query__parse_pattern(
                     self_0,
                     stream,
-                    0 as libc::c_int as uint32_t,
+                    0 as libc::c_int as u32,
                     capture_count,
                     is_immediate,
                 );
@@ -1034,8 +1034,8 @@ unsafe extern "C" fn ts_query__parse_pattern(
             } else if stream_is_ident_start(stream) {
                 let mut node_name: *const libc::c_char = (*stream).input;
                 stream_scan_identifier(stream);
-                let mut length: uint32_t =
-                    (*stream).input.wrapping_offset_from_(node_name) as libc::c_long as uint32_t;
+                let mut length: u32 =
+                    (*stream).input.wrapping_offset_from_(node_name) as libc::c_long as u32;
                 symbol = ts_language_symbol_for_name(
                     (*self_0).language,
                     node_name,
@@ -1059,11 +1059,11 @@ unsafe extern "C" fn ts_query__parse_pattern(
             let fresh11 = (*self_0).steps.size;
             (*self_0).steps.size = (*self_0).steps.size.wrapping_add(1);
             *(*self_0).steps.contents.offset(fresh11 as isize) =
-                query_step__new(symbol, depth as uint16_t, is_immediate);
+                query_step__new(symbol, depth as u16, is_immediate);
             // Parse the child patterns
             stream_skip_whitespace(stream);
             let mut child_is_immediate: bool = 0 as libc::c_int != 0;
-            let mut child_start_step_index: uint16_t = (*self_0).steps.size as uint16_t;
+            let mut child_start_step_index: u16 = (*self_0).steps.size as u16;
             loop {
                 if (*stream).next == '.' as i32 {
                     child_is_immediate = 1 as libc::c_int != 0;
@@ -1106,8 +1106,8 @@ unsafe extern "C" fn ts_query__parse_pattern(
                     return TSQueryErrorSyntax;
                 }
             }
-            let mut length_0: uint32_t =
-                (*stream).input.wrapping_offset_from_(string_content) as libc::c_long as uint32_t;
+            let mut length_0: u32 =
+                (*stream).input.wrapping_offset_from_(string_content) as libc::c_long as u32;
             // Add a step for the node
             let mut symbol_0: TSSymbol = ts_language_symbol_for_name(
                 (*self_0).language,
@@ -1127,7 +1127,7 @@ unsafe extern "C" fn ts_query__parse_pattern(
             let fresh13 = (*self_0).steps.size;
             (*self_0).steps.size = (*self_0).steps.size.wrapping_add(1);
             *(*self_0).steps.contents.offset(fresh13 as isize) =
-                query_step__new(symbol_0, depth as uint16_t, is_immediate);
+                query_step__new(symbol_0, depth as u16, is_immediate);
             if (*stream).next != '\"' as i32 {
                 return TSQueryErrorSyntax;
             }
@@ -1137,8 +1137,8 @@ unsafe extern "C" fn ts_query__parse_pattern(
             // Parse the field name
             let mut field_name: *const libc::c_char = (*stream).input;
             stream_scan_identifier(stream);
-            let mut length_1: uint32_t =
-                (*stream).input.wrapping_offset_from_(field_name) as libc::c_long as uint32_t;
+            let mut length_1: u32 =
+                (*stream).input.wrapping_offset_from_(field_name) as libc::c_long as u32;
             stream_skip_whitespace(stream);
             if (*stream).next != ':' as i32 {
                 stream_reset(stream, field_name);
@@ -1147,7 +1147,7 @@ unsafe extern "C" fn ts_query__parse_pattern(
             stream_advance(stream);
             stream_skip_whitespace(stream);
             // Parse the pattern
-            let mut step_index: uint32_t = (*self_0).steps.size;
+            let mut step_index: u32 = (*self_0).steps.size;
             let mut e_2: TSQueryError =
                 ts_query__parse_pattern(self_0, stream, depth, capture_count, is_immediate);
             if e_2 as libc::c_uint == PARENT_DONE as libc::c_uint {
@@ -1177,7 +1177,7 @@ unsafe extern "C" fn ts_query__parse_pattern(
             let fresh14 = (*self_0).steps.size;
             (*self_0).steps.size = (*self_0).steps.size.wrapping_add(1);
             *(*self_0).steps.contents.offset(fresh14 as isize) =
-                query_step__new(WILDCARD_SYMBOL, depth as uint16_t, is_immediate)
+                query_step__new(WILDCARD_SYMBOL, depth as u16, is_immediate)
         } else {
             return TSQueryErrorSyntax;
         }
@@ -1193,10 +1193,10 @@ unsafe extern "C" fn ts_query__parse_pattern(
         }
         let mut capture_name: *const libc::c_char = (*stream).input;
         stream_scan_identifier(stream);
-        let mut length_2: uint32_t =
-            (*stream).input.wrapping_offset_from_(capture_name) as libc::c_long as uint32_t;
+        let mut length_2: u32 =
+            (*stream).input.wrapping_offset_from_(capture_name) as libc::c_long as u32;
         // Add the capture id to the first step of the pattern
-        let mut capture_id: uint16_t =
+        let mut capture_id: u16 =
             symbol_table_insert_name(&mut (*self_0).captures, capture_name, length_2);
         let mut step: *mut QueryStep = &mut *(*self_0)
             .steps
@@ -1213,8 +1213,8 @@ unsafe extern "C" fn ts_query__parse_pattern(
 pub unsafe extern "C" fn ts_query_new(
     mut language: *const TSLanguage,
     mut source: *const libc::c_char,
-    mut source_len: uint32_t,
-    mut error_offset: *mut uint32_t,
+    mut source_len: u32,
+    mut error_offset: *mut u32,
     mut error_type: *mut TSQueryError,
 ) -> *mut TSQuery {
     let mut symbol_map: *mut TSSymbol = 0 as *mut TSSymbol;
@@ -1225,7 +1225,7 @@ pub unsafe extern "C" fn ts_query_new(
         // associated with the same name, due to "simple aliases".
         // In the next language ABI version, this map will be contained
         // in the language's `public_symbol_map` field.
-        let mut symbol_count: uint32_t = ts_language_symbol_count(language);
+        let mut symbol_count: u32 = ts_language_symbol_count(language);
         symbol_map = ts_malloc(
             (::std::mem::size_of::<TSSymbol>() as libc::c_ulong)
                 .wrapping_mul(symbol_count as libc::c_ulong),
@@ -1259,43 +1259,43 @@ pub unsafe extern "C" fn ts_query_new(
             steps: {
                 let mut init = TSQuerySteps {
                     contents: 0 as *mut QueryStep,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
             pattern_map: {
                 let mut init = TSQueryPatternMap {
                     contents: 0 as *mut PatternEntry,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
             predicate_steps: {
                 let mut init = TSQueryPredicateSteps {
                     contents: 0 as *mut TSQueryPredicateStep,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
             predicates_by_pattern: {
                 let mut init = TSQueryPredicatesByPattern {
                     contents: 0 as *mut Slice,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
             start_bytes_by_pattern: TSQueryStartBytesByPattern {
-                contents: 0 as *mut uint32_t,
+                contents: 0 as *mut u32,
                 size: 0,
                 capacity: 0,
             },
             language: language,
-            max_capture_count: 0 as libc::c_int as uint16_t,
-            wildcard_root_pattern_count: 0 as libc::c_int as uint16_t,
+            max_capture_count: 0 as libc::c_int as u16,
+            wildcard_root_pattern_count: 0 as libc::c_int as u16,
             symbol_map: symbol_map,
         };
         init
@@ -1303,15 +1303,15 @@ pub unsafe extern "C" fn ts_query_new(
     // Parse all of the S-expressions in the given string.
     let mut stream: Stream = stream_new(source, source_len);
     stream_skip_whitespace(&mut stream);
-    let mut start_step_index: uint32_t = 0;
+    let mut start_step_index: u32 = 0;
     while stream.input < stream.end {
         start_step_index = (*self_0).steps.size;
-        let mut capture_count: uint32_t = 0 as libc::c_int as uint32_t;
+        let mut capture_count: u32 = 0 as libc::c_int as u32;
         array__grow(
             &mut (*self_0).start_bytes_by_pattern as *mut TSQueryStartBytesByPattern
                 as *mut VoidArray,
             1 as libc::c_int as size_t,
-            ::std::mem::size_of::<uint32_t>() as libc::c_ulong,
+            ::std::mem::size_of::<u32>() as libc::c_ulong,
         );
         let fresh15 = (*self_0).start_bytes_by_pattern.size;
         (*self_0).start_bytes_by_pattern.size =
@@ -1320,7 +1320,7 @@ pub unsafe extern "C" fn ts_query_new(
             .start_bytes_by_pattern
             .contents
             .offset(fresh15 as isize) =
-            stream.input.wrapping_offset_from_(source) as libc::c_long as uint32_t;
+            stream.input.wrapping_offset_from_(source) as libc::c_long as u32;
         array__grow(
             &mut (*self_0).predicates_by_pattern as *mut TSQueryPredicatesByPattern
                 as *mut VoidArray,
@@ -1335,14 +1335,14 @@ pub unsafe extern "C" fn ts_query_new(
             .offset(fresh16 as isize) = {
             let mut init = Slice {
                 offset: (*self_0).predicate_steps.size,
-                length: 0 as libc::c_int as uint32_t,
+                length: 0 as libc::c_int as u32,
             };
             init
         };
         *error_type = ts_query__parse_pattern(
             self_0,
             &mut stream,
-            0 as libc::c_int as uint32_t,
+            0 as libc::c_int as u32,
             &mut capture_count,
             0 as libc::c_int != 0,
         );
@@ -1355,13 +1355,13 @@ pub unsafe extern "C" fn ts_query_new(
         (*self_0).steps.size = (*self_0).steps.size.wrapping_add(1);
         *(*self_0).steps.contents.offset(fresh17 as isize) = query_step__new(
             0 as libc::c_int as TSSymbol,
-            PATTERN_DONE_MARKER as uint16_t,
+            PATTERN_DONE_MARKER as u16,
             0 as libc::c_int != 0,
         );
         // If any pattern could not be parsed, then report the error information
         // and terminate.
         if *error_type as u64 != 0 {
-            *error_offset = stream.input.wrapping_offset_from_(source) as libc::c_long as uint32_t;
+            *error_offset = stream.input.wrapping_offset_from_(source) as libc::c_long as u32;
             ts_query_delete(self_0);
             return 0 as *mut TSQuery;
         }
@@ -1381,7 +1381,7 @@ pub unsafe extern "C" fn ts_query_new(
         // that numer determines how much space is needed to store each capture
         // list.
         if capture_count > (*self_0).max_capture_count as libc::c_uint {
-            (*self_0).max_capture_count = capture_count as uint16_t
+            (*self_0).max_capture_count = capture_count as u16
         }
     }
     ts_query__finalize_steps(self_0);
@@ -1410,38 +1410,38 @@ pub unsafe extern "C" fn ts_query_delete(mut self_0: *mut TSQuery) {
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_query_pattern_count(mut self_0: *const TSQuery) -> uint32_t {
+pub unsafe extern "C" fn ts_query_pattern_count(mut self_0: *const TSQuery) -> u32 {
     return (*self_0).predicates_by_pattern.size;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_query_capture_count(mut self_0: *const TSQuery) -> uint32_t {
+pub unsafe extern "C" fn ts_query_capture_count(mut self_0: *const TSQuery) -> u32 {
     return (*self_0).captures.slices.size;
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_query_string_count(mut self_0: *const TSQuery) -> uint32_t {
+pub unsafe extern "C" fn ts_query_string_count(mut self_0: *const TSQuery) -> u32 {
     return (*self_0).predicate_values.slices.size;
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_query_capture_name_for_id(
     mut self_0: *const TSQuery,
-    mut index: uint32_t,
-    mut length: *mut uint32_t,
+    mut index: u32,
+    mut length: *mut u32,
 ) -> *const libc::c_char {
-    return symbol_table_name_for_id(&(*self_0).captures, index as uint16_t, length);
+    return symbol_table_name_for_id(&(*self_0).captures, index as u16, length);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_query_string_value_for_id(
     mut self_0: *const TSQuery,
-    mut index: uint32_t,
-    mut length: *mut uint32_t,
+    mut index: u32,
+    mut length: *mut u32,
 ) -> *const libc::c_char {
-    return symbol_table_name_for_id(&(*self_0).predicate_values, index as uint16_t, length);
+    return symbol_table_name_for_id(&(*self_0).predicate_values, index as u16, length);
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_query_predicates_for_pattern(
     mut self_0: *const TSQuery,
-    mut pattern_index: uint32_t,
-    mut step_count: *mut uint32_t,
+    mut pattern_index: u32,
+    mut step_count: *mut u32,
 ) -> *const TSQueryPredicateStep {
     let mut slice: Slice = *(*self_0)
         .predicates_by_pattern
@@ -1456,8 +1456,8 @@ pub unsafe extern "C" fn ts_query_predicates_for_pattern(
 #[no_mangle]
 pub unsafe extern "C" fn ts_query_start_byte_for_pattern(
     mut self_0: *const TSQuery,
-    mut pattern_index: uint32_t,
-) -> uint32_t {
+    mut pattern_index: u32,
+) -> u32 {
     return *(*self_0)
         .start_bytes_by_pattern
         .contents
@@ -1467,7 +1467,7 @@ pub unsafe extern "C" fn ts_query_start_byte_for_pattern(
 pub unsafe extern "C" fn ts_query_disable_capture(
     mut self_0: *mut TSQuery,
     mut name: *const libc::c_char,
-    mut length: uint32_t,
+    mut length: u32,
 ) {
     // Remove capture information for any pattern step that previously
     // captured with the given name.
@@ -1477,7 +1477,7 @@ pub unsafe extern "C" fn ts_query_disable_capture(
         while i < (*self_0).steps.size {
             let mut step: *mut QueryStep =
                 &mut *(*self_0).steps.contents.offset(i as isize) as *mut QueryStep;
-            query_step__remove_capture(step, id as uint16_t);
+            query_step__remove_capture(step, id as u16);
             i = i.wrapping_add(1)
         }
         ts_query__finalize_steps(self_0);
@@ -1486,7 +1486,7 @@ pub unsafe extern "C" fn ts_query_disable_capture(
 #[no_mangle]
 pub unsafe extern "C" fn ts_query_disable_pattern(
     mut self_0: *mut TSQuery,
-    mut pattern_index: uint32_t,
+    mut pattern_index: u32,
 ) {
     // Remove the given pattern from the pattern map. Its steps will still
     // be in the `steps` array, but they will never be read.
@@ -1524,28 +1524,28 @@ pub unsafe extern "C" fn ts_query_cursor_new() -> *mut TSQueryCursor {
             states: {
                 let mut init = TSQueryCursorStates {
                     contents: 0 as *mut QueryState,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
             finished_states: {
                 let mut init = TsQueryCursorFinishedStated {
                     contents: 0 as *mut QueryState,
-                    size: 0 as libc::c_int as uint32_t,
-                    capacity: 0 as libc::c_int as uint32_t,
+                    size: 0 as libc::c_int as u32,
+                    capacity: 0 as libc::c_int as u32,
                 };
                 init
             },
             capture_list_pool: capture_list_pool_new(),
             depth: 0,
-            start_byte: 0 as libc::c_int as uint32_t,
+            start_byte: 0 as libc::c_int as u32,
             end_byte: 4294967295 as libc::c_uint,
             next_state_id: 0,
             start_point: {
                 let mut init = TSPoint {
-                    row: 0 as libc::c_int as uint32_t,
-                    column: 0 as libc::c_int as uint32_t,
+                    row: 0 as libc::c_int as u32,
+                    column: 0 as libc::c_int as u32,
                 };
                 init
             },
@@ -1563,12 +1563,12 @@ pub unsafe extern "C" fn ts_query_cursor_new() -> *mut TSQueryCursor {
     array__reserve(
         &mut (*self_0).states as *mut TSQueryCursorStates as *mut VoidArray,
         ::std::mem::size_of::<QueryState>() as libc::c_ulong,
-        MAX_STATE_COUNT as uint32_t,
+        MAX_STATE_COUNT as u32,
     );
     array__reserve(
         &mut (*self_0).finished_states as *mut TsQueryCursorFinishedStated as *mut VoidArray,
         ::std::mem::size_of::<QueryState>() as libc::c_ulong,
-        MAX_STATE_COUNT as uint32_t,
+        MAX_STATE_COUNT as u32,
     );
     return self_0;
 }
@@ -1588,23 +1588,23 @@ pub unsafe extern "C" fn ts_query_cursor_exec(
     mut query: *const TSQuery,
     mut node: TSNode,
 ) {
-    (*self_0).states.size = 0 as libc::c_int as uint32_t;
-    (*self_0).finished_states.size = 0 as libc::c_int as uint32_t;
+    (*self_0).states.size = 0 as libc::c_int as u32;
+    (*self_0).finished_states.size = 0 as libc::c_int as u32;
     ts_tree_cursor_reset(&mut (*self_0).cursor, node);
     capture_list_pool_reset(&mut (*self_0).capture_list_pool, (*query).max_capture_count);
-    (*self_0).next_state_id = 0 as libc::c_int as uint32_t;
-    (*self_0).depth = 0 as libc::c_int as uint32_t;
+    (*self_0).next_state_id = 0 as libc::c_int as u32;
+    (*self_0).depth = 0 as libc::c_int as u32;
     (*self_0).ascending = 0 as libc::c_int != 0;
     (*self_0).query = query;
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_query_cursor_set_byte_range(
     mut self_0: *mut TSQueryCursor,
-    mut start_byte: uint32_t,
-    mut end_byte: uint32_t,
+    mut start_byte: u32,
+    mut end_byte: u32,
 ) {
     if end_byte == 0 as libc::c_int as libc::c_uint {
-        start_byte = 0 as libc::c_int as uint32_t;
+        start_byte = 0 as libc::c_int as u32;
         end_byte = 4294967295 as libc::c_uint
     }
     (*self_0).start_byte = start_byte;
@@ -1621,8 +1621,8 @@ pub unsafe extern "C" fn ts_query_cursor_set_point_range(
     {
         start_point = {
             let mut init = TSPoint {
-                row: 0 as libc::c_int as uint32_t,
-                column: 0 as libc::c_int as uint32_t,
+                row: 0 as libc::c_int as u32,
+                column: 0 as libc::c_int as u32,
             };
             init
         };
@@ -1641,9 +1641,9 @@ pub unsafe extern "C" fn ts_query_cursor_set_point_range(
 // node that occurs earliest in the document.
 unsafe extern "C" fn ts_query_cursor__first_in_progress_capture(
     mut self_0: *mut TSQueryCursor,
-    mut state_index: *mut uint32_t,
-    mut byte_offset: *mut uint32_t,
-    mut pattern_index: *mut uint32_t,
+    mut state_index: *mut u32,
+    mut byte_offset: *mut u32,
+    mut pattern_index: *mut u32,
 ) -> bool {
     let mut result: bool = 0 as libc::c_int != 0;
     let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
@@ -1653,7 +1653,7 @@ unsafe extern "C" fn ts_query_cursor__first_in_progress_capture(
         if (*state).capture_count as libc::c_int > 0 as libc::c_int {
             let mut captures: *const TSQueryCapture =
                 capture_list_pool_get(&mut (*self_0).capture_list_pool, (*state).capture_list_id);
-            let mut capture_byte: uint32_t =
+            let mut capture_byte: u32 =
                 ts_node_start_byte((*captures.offset(0 as libc::c_int as isize)).node);
             if !result
                 || capture_byte < *byte_offset
@@ -1663,7 +1663,7 @@ unsafe extern "C" fn ts_query_cursor__first_in_progress_capture(
                 result = 1 as libc::c_int != 0;
                 *state_index = i;
                 *byte_offset = capture_byte;
-                *pattern_index = (*state).pattern_index as uint32_t
+                *pattern_index = (*state).pattern_index as u32
             }
         }
         i = i.wrapping_add(1)
@@ -1674,15 +1674,15 @@ unsafe extern "C" fn ts_query__cursor_add_state(
     mut self_0: *mut TSQueryCursor,
     mut pattern: *const PatternEntry,
 ) -> bool {
-    let mut list_id: uint32_t =
-        capture_list_pool_acquire(&mut (*self_0).capture_list_pool) as uint32_t;
+    let mut list_id: u32 =
+        capture_list_pool_acquire(&mut (*self_0).capture_list_pool) as u32;
     // If there are no capture lists left in the pool, then terminate whichever
     // state has captured the earliest node in the document, and steal its
     // capture list.
     if list_id == NONE as libc::c_uint {
-        let mut state_index: uint32_t = 0;
-        let mut byte_offset: uint32_t = 0;
-        let mut pattern_index: uint32_t = 0;
+        let mut state_index: u32 = 0;
+        let mut byte_offset: u32 = 0;
+        let mut pattern_index: u32 = 0;
         if ts_query_cursor__first_in_progress_capture(
             self_0,
             &mut state_index,
@@ -1690,7 +1690,7 @@ unsafe extern "C" fn ts_query__cursor_add_state(
             &mut pattern_index,
         ) {
             list_id = (*(*self_0).states.contents.offset(state_index as isize)).capture_list_id
-                as uint32_t;
+                as u32;
             array__erase(
                 &mut (*self_0).states as *mut TSQueryCursorStates as *mut VoidArray,
                 ::std::mem::size_of::<QueryState>() as libc::c_ulong,
@@ -1709,12 +1709,12 @@ unsafe extern "C" fn ts_query__cursor_add_state(
     (*self_0).states.size = (*self_0).states.size.wrapping_add(1);
     *(*self_0).states.contents.offset(fresh18 as isize) = {
         let mut init = QueryState {
-            start_depth: (*self_0).depth as uint16_t,
+            start_depth: (*self_0).depth as u16,
             pattern_index: (*pattern).pattern_index,
             step_index: (*pattern).step_index,
-            capture_count: 0 as libc::c_int as uint16_t,
-            capture_list_id: list_id as uint16_t,
-            consumed_capture_count: 0 as libc::c_int as uint16_t,
+            capture_count: 0 as libc::c_int as u16,
+            capture_list_id: list_id as u16,
+            consumed_capture_count: 0 as libc::c_int as u16,
             id: 0,
         };
         init
@@ -1725,8 +1725,8 @@ unsafe extern "C" fn ts_query__cursor_copy_state(
     mut self_0: *mut TSQueryCursor,
     mut state: *const QueryState,
 ) -> *mut QueryState {
-    let mut new_list_id: uint32_t =
-        capture_list_pool_acquire(&mut (*self_0).capture_list_pool) as uint32_t;
+    let mut new_list_id: u32 =
+        capture_list_pool_acquire(&mut (*self_0).capture_list_pool) as u32;
     if new_list_id == NONE as libc::c_uint {
         return 0 as *mut QueryState;
     }
@@ -1746,7 +1746,7 @@ unsafe extern "C" fn ts_query__cursor_copy_state(
     {
     } else {
         __assert_fail(
-            b"(uint32_t)(&self->states)->size - 1 < (&self->states)->size\x00" as *const u8
+            b"(u32)(&self->states)->size - 1 < (&self->states)->size\x00" as *const u8
                 as *const libc::c_char,
             b"lib/src/query.c\x00" as *const u8 as *const libc::c_char,
             1208 as libc::c_int as libc::c_uint,
@@ -1762,11 +1762,11 @@ unsafe extern "C" fn ts_query__cursor_copy_state(
             .size
             .wrapping_sub(1 as libc::c_int as libc::c_uint) as isize,
     ) as *mut QueryState;
-    (*new_state).capture_list_id = new_list_id as uint16_t;
+    (*new_state).capture_list_id = new_list_id as u16;
     let mut old_captures: *mut TSQueryCapture =
         capture_list_pool_get(&mut (*self_0).capture_list_pool, (*state).capture_list_id);
     let mut new_captures: *mut TSQueryCapture =
-        capture_list_pool_get(&mut (*self_0).capture_list_pool, new_list_id as uint16_t);
+        capture_list_pool_get(&mut (*self_0).capture_list_pool, new_list_id as u16);
     memcpy(
         new_captures as *mut libc::c_void,
         old_captures as *const libc::c_void,
@@ -1785,7 +1785,7 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
         if (*self_0).ascending {
             // When leaving a node, remove any unfinished states whose next step
             // needed to match something within that node.
-            let mut deleted_count: uint32_t = 0 as libc::c_int as uint32_t;
+            let mut deleted_count: u32 = 0 as libc::c_int as u32;
             let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
             let mut n: libc::c_uint = (*self_0).states.size;
             while i < n {
@@ -1796,7 +1796,7 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
                     .contents
                     .offset((*state).step_index as isize)
                     as *mut QueryStep;
-                if ((*state).start_depth as uint32_t).wrapping_add((*step).depth() as uint32_t)
+                if ((*state).start_depth as u32).wrapping_add((*step).depth() as u32)
                     > (*self_0).depth
                 {
                     capture_list_pool_release(
@@ -1813,8 +1813,8 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
                 i = i.wrapping_add(1)
             }
             (*self_0).states.size = ((*self_0).states.size as libc::c_uint)
-                .wrapping_sub(deleted_count) as uint32_t
-                as uint32_t;
+                .wrapping_sub(deleted_count) as u32
+                as u32;
             if ts_tree_cursor_goto_next_sibling(&mut (*self_0).cursor) {
                 (*self_0).ascending = 0 as libc::c_int != 0
             } else if ts_tree_cursor_goto_parent(&mut (*self_0).cursor) {
@@ -1928,8 +1928,8 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
                         as *mut QueryStep;
                     // Check that the node matches all of the criteria for the next
                     // step of the pattern.
-                    if !(((*state_0).start_depth as uint32_t)
-                        .wrapping_add((*step_2).depth() as uint32_t)
+                    if !(((*state_0).start_depth as u32)
+                        .wrapping_add((*step_2).depth() as u32)
                         != (*self_0).depth)
                     {
                         // Determine if this node matches this step of the pattern, and also
@@ -1999,7 +1999,7 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
                             // capture list.
                             let mut j: libc::c_uint = 0 as libc::c_int as libc::c_uint;
                             while j < 4 as libc::c_int as libc::c_uint {
-                                let mut capture_id: uint16_t = (*step_2).capture_ids[j as usize];
+                                let mut capture_id: u16 = (*step_2).capture_ids[j as usize];
                                 if (*step_2).capture_ids[j as usize] as libc::c_int
                                     == NONE as libc::c_int
                                 {
@@ -2015,7 +2015,7 @@ unsafe extern "C" fn ts_query_cursor__advance(mut self_0: *mut TSQueryCursor) ->
                                 *capture_list.offset(fresh20 as isize) = {
                                     let mut init = TSQueryCapture {
                                         node: node,
-                                        index: capture_id as uint32_t,
+                                        index: capture_id as u32,
                                     };
                                     init
                                 };
@@ -2098,14 +2098,14 @@ pub unsafe extern "C" fn ts_query_cursor_next_match(
     array__erase(
         &mut (*self_0).finished_states as *mut TsQueryCursorFinishedStated as *mut VoidArray,
         ::std::mem::size_of::<QueryState>() as libc::c_ulong,
-        0 as libc::c_int as uint32_t,
+        0 as libc::c_int as u32,
     );
     return 1 as libc::c_int != 0;
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_query_cursor_remove_match(
     mut self_0: *mut TSQueryCursor,
-    mut match_id: uint32_t,
+    mut match_id: u32,
 ) {
     let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
     while i < (*self_0).finished_states.size {
@@ -2129,7 +2129,7 @@ pub unsafe extern "C" fn ts_query_cursor_remove_match(
 pub unsafe extern "C" fn ts_query_cursor_next_capture(
     mut self_0: *mut TSQueryCursor,
     mut match_0: *mut TSQueryMatch,
-    mut capture_index: *mut uint32_t,
+    mut capture_index: *mut u32,
 ) -> bool {
     loop {
         // The goal here is to return captures in order, even though they may not
@@ -2140,9 +2140,9 @@ pub unsafe extern "C" fn ts_query_cursor_next_capture(
             // First, identify the position of the earliest capture in an unfinished
             // match. For a finished capture to be returned, it must be *before*
             // this position.
-            let mut first_unfinished_capture_byte: uint32_t = 4294967295 as libc::c_uint;
-            let mut first_unfinished_pattern_index: uint32_t = 4294967295 as libc::c_uint;
-            let mut first_unfinished_state_index: uint32_t = 0;
+            let mut first_unfinished_capture_byte: u32 = 4294967295 as libc::c_uint;
+            let mut first_unfinished_pattern_index: u32 = 4294967295 as libc::c_uint;
+            let mut first_unfinished_state_index: u32 = 0;
             ts_query_cursor__first_in_progress_capture(
                 self_0,
                 &mut first_unfinished_state_index,
@@ -2151,8 +2151,8 @@ pub unsafe extern "C" fn ts_query_cursor_next_capture(
             );
             // Find the earliest capture in a finished match.
             let mut first_finished_state_index: libc::c_int = -(1 as libc::c_int);
-            let mut first_finished_capture_byte: uint32_t = first_unfinished_capture_byte;
-            let mut first_finished_pattern_index: uint32_t = first_unfinished_pattern_index;
+            let mut first_finished_capture_byte: u32 = first_unfinished_capture_byte;
+            let mut first_finished_pattern_index: u32 = first_unfinished_pattern_index;
             let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
             while i < (*self_0).finished_states.size {
                 let mut state: *const QueryState =
@@ -2164,7 +2164,7 @@ pub unsafe extern "C" fn ts_query_cursor_next_capture(
                         &mut (*self_0).capture_list_pool,
                         (*state).capture_list_id,
                     );
-                    let mut capture_byte: uint32_t = ts_node_start_byte(
+                    let mut capture_byte: u32 = ts_node_start_byte(
                         (*captures.offset((*state).consumed_capture_count as isize)).node,
                     );
                     if capture_byte < first_finished_capture_byte
@@ -2174,7 +2174,7 @@ pub unsafe extern "C" fn ts_query_cursor_next_capture(
                     {
                         first_finished_state_index = i as libc::c_int;
                         first_finished_capture_byte = capture_byte;
-                        first_finished_pattern_index = (*state).pattern_index as uint32_t
+                        first_finished_pattern_index = (*state).pattern_index as u32
                     }
                 } else {
                     capture_list_pool_release(
@@ -2207,7 +2207,7 @@ pub unsafe extern "C" fn ts_query_cursor_next_capture(
                     &mut (*self_0).capture_list_pool,
                     (*state_0).capture_list_id,
                 );
-                *capture_index = (*state_0).consumed_capture_count as uint32_t;
+                *capture_index = (*state_0).consumed_capture_count as u32;
                 (*state_0).consumed_capture_count =
                     (*state_0).consumed_capture_count.wrapping_add(1);
                 return 1 as libc::c_int != 0;
