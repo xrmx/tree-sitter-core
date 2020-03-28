@@ -1,26 +1,27 @@
 use crate::*;
 
 use libc::{memcpy, FILE};
+use std::os;
 
-static mut PARENT_CACHE_CAPACITY: libc::c_uint = 32 as libc::c_int as libc::c_uint;
+static mut PARENT_CACHE_CAPACITY: os::raw::c_uint = 32 as os::raw::c_int as os::raw::c_uint;
 
 #[no_mangle]
 pub unsafe extern "C" fn ts_tree_new(
     mut root: Subtree,
     mut language: *const TSLanguage,
     mut included_ranges: *const TSRange,
-    mut included_range_count: libc::c_uint,
+    mut included_range_count: os::raw::c_uint,
 ) -> *mut TSTree {
     let mut result: *mut TSTree =
-        ts_malloc(::std::mem::size_of::<TSTree>() as libc::c_ulong) as *mut TSTree;
+        ts_malloc(::std::mem::size_of::<TSTree>() as os::raw::c_ulong) as *mut TSTree;
     (*result).root = root;
     (*result).language = language;
     (*result).parent_cache = 0 as *mut ParentCacheEntry;
-    (*result).parent_cache_start = 0 as libc::c_int as u32;
-    (*result).parent_cache_size = 0 as libc::c_int as u32;
+    (*result).parent_cache_start = 0 as os::raw::c_int as u32;
+    (*result).parent_cache_size = 0 as os::raw::c_int as u32;
     (*result).included_ranges = ts_calloc(
         included_range_count as size_t,
-        ::std::mem::size_of::<TSRange>() as libc::c_ulong,
+        ::std::mem::size_of::<TSRange>() as os::raw::c_ulong,
     ) as *mut TSRange;
     memcpy(
         (*result).included_ranges as *mut libc::c_void,
@@ -46,7 +47,7 @@ pub unsafe extern "C" fn ts_tree_delete(mut self_0: *mut TSTree) {
     if self_0.is_null() {
         return;
     }
-    let mut pool: SubtreePool = ts_subtree_pool_new(0 as libc::c_int as u32);
+    let mut pool: SubtreePool = ts_subtree_pool_new(0 as os::raw::c_int as u32);
     ts_subtree_release(&mut pool, (*self_0).root);
     ts_subtree_pool_delete(&mut pool);
     ts_free((*self_0).included_ranges as *mut libc::c_void);
@@ -61,7 +62,7 @@ pub unsafe extern "C" fn ts_tree_root_node(mut self_0: *const TSTree) -> TSNode 
         self_0,
         &(*self_0).root,
         ts_subtree_padding((*self_0).root),
-        0 as libc::c_int as TSSymbol,
+        0 as os::raw::c_int as TSSymbol,
     );
 }
 #[no_mangle]
@@ -70,12 +71,12 @@ pub unsafe extern "C" fn ts_tree_language(mut self_0: *const TSTree) -> *const T
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_tree_edit(mut self_0: *mut TSTree, mut edit: *const TSInputEdit) {
-    let mut i: libc::c_uint = 0 as libc::c_int as libc::c_uint;
+    let mut i: os::raw::c_uint = 0 as os::raw::c_int as os::raw::c_uint;
     while i < (*self_0).included_range_count {
         let mut range: *mut TSRange =
             &mut *(*self_0).included_ranges.offset(i as isize) as *mut TSRange;
         if (*range).end_byte >= (*edit).old_end_byte {
-            if (*range).end_byte != 4294967295 as libc::c_uint {
+            if (*range).end_byte != 4294967295 as os::raw::c_uint {
                 (*range).end_byte = (*edit)
                     .new_end_byte
                     .wrapping_add((*range).end_byte.wrapping_sub((*edit).old_end_byte));
@@ -84,11 +85,11 @@ pub unsafe extern "C" fn ts_tree_edit(mut self_0: *mut TSTree, mut edit: *const 
                     point_sub((*range).end_point, (*edit).old_end_point),
                 );
                 if (*range).end_byte < (*edit).new_end_byte {
-                    (*range).end_byte = 4294967295 as libc::c_uint;
+                    (*range).end_byte = 4294967295 as os::raw::c_uint;
                     (*range).end_point = {
                         let mut init = TSPoint {
-                            row: 4294967295 as libc::c_uint,
-                            column: 4294967295 as libc::c_uint,
+                            row: 4294967295 as os::raw::c_uint,
+                            column: 4294967295 as os::raw::c_uint,
                         };
                         init
                     }
@@ -103,11 +104,11 @@ pub unsafe extern "C" fn ts_tree_edit(mut self_0: *mut TSTree, mut edit: *const 
                     point_sub((*range).start_point, (*edit).old_end_point),
                 );
                 if (*range).start_byte < (*edit).new_end_byte {
-                    (*range).start_byte = 4294967295 as libc::c_uint;
+                    (*range).start_byte = 4294967295 as os::raw::c_uint;
                     (*range).start_point = {
                         let mut init = TSPoint {
-                            row: 4294967295 as libc::c_uint,
-                            column: 4294967295 as libc::c_uint,
+                            row: 4294967295 as os::raw::c_uint,
+                            column: 4294967295 as os::raw::c_uint,
                         };
                         init
                     }
@@ -116,10 +117,10 @@ pub unsafe extern "C" fn ts_tree_edit(mut self_0: *mut TSTree, mut edit: *const 
         }
         i = i.wrapping_add(1)
     }
-    let mut pool: SubtreePool = ts_subtree_pool_new(0 as libc::c_int as u32);
+    let mut pool: SubtreePool = ts_subtree_pool_new(0 as os::raw::c_int as u32);
     (*self_0).root = ts_subtree_edit((*self_0).root, edit, &mut pool);
-    (*self_0).parent_cache_start = 0 as libc::c_int as u32;
-    (*self_0).parent_cache_size = 0 as libc::c_int as u32;
+    (*self_0).parent_cache_start = 0 as os::raw::c_int as u32;
+    (*self_0).parent_cache_size = 0 as os::raw::c_int as u32;
     ts_subtree_pool_delete(&mut pool);
 }
 #[no_mangle]
@@ -134,8 +135,8 @@ pub unsafe extern "C" fn ts_tree_get_changed_ranges(
             stack: {
                 let mut init = TreeCursorEntryArray {
                     contents: 0 as *mut TreeCursorEntry,
-                    size: 0 as libc::c_int as u32,
-                    capacity: 0 as libc::c_int as u32,
+                    size: 0 as os::raw::c_int as u32,
+                    capacity: 0 as os::raw::c_int as u32,
                 };
                 init
             },
@@ -148,8 +149,8 @@ pub unsafe extern "C" fn ts_tree_get_changed_ranges(
             stack: {
                 let mut init = TreeCursorEntryArray {
                     contents: 0 as *mut TreeCursorEntry,
-                    size: 0 as libc::c_int as u32,
-                    capacity: 0 as libc::c_int as u32,
+                    size: 0 as os::raw::c_int as u32,
+                    capacity: 0 as os::raw::c_int as u32,
                 };
                 init
             },
@@ -161,8 +162,8 @@ pub unsafe extern "C" fn ts_tree_get_changed_ranges(
     let mut included_range_differences: TSRangeArray = {
         let mut init = TSRangeArray {
             contents: 0 as *mut TSRange,
-            size: 0 as libc::c_int as u32,
-            capacity: 0 as libc::c_int as u32,
+            size: 0 as os::raw::c_int as u32,
+            capacity: 0 as os::raw::c_int as u32,
         };
         init
     };
@@ -198,7 +199,7 @@ pub unsafe extern "C" fn ts_tree_get_cached_parent(
     mut self_0: *const TSTree,
     mut node: *const TSNode,
 ) -> TSNode {
-    let mut i: u32 = 0 as libc::c_int as u32;
+    let mut i: u32 = 0 as os::raw::c_int as u32;
     while i < (*self_0).parent_cache_size {
         let mut index: u32 = (*self_0)
             .parent_cache_start
@@ -220,7 +221,7 @@ pub unsafe extern "C" fn ts_tree_get_cached_parent(
         0 as *const TSTree,
         0 as *const Subtree,
         length_zero(),
-        0 as libc::c_int as TSSymbol,
+        0 as os::raw::c_int as TSSymbol,
     );
 }
 #[no_mangle]
@@ -233,7 +234,7 @@ pub unsafe extern "C" fn ts_tree_set_cached_parent(
     if (*self_0).parent_cache.is_null() {
         (*self_0).parent_cache = ts_calloc(
             PARENT_CACHE_CAPACITY as size_t,
-            ::std::mem::size_of::<ParentCacheEntry>() as libc::c_ulong,
+            ::std::mem::size_of::<ParentCacheEntry>() as os::raw::c_ulong,
         ) as *mut ParentCacheEntry
     }
     let mut index: u32 = (*self_0)
@@ -246,18 +247,18 @@ pub unsafe extern "C" fn ts_tree_set_cached_parent(
             parent: (*parent).id as *const Subtree,
             position: {
                 let mut init = Length {
-                    bytes: (*parent).context[0 as libc::c_int as usize],
+                    bytes: (*parent).context[0 as os::raw::c_int as usize],
                     extent: {
                         let mut init = TSPoint {
-                            row: (*parent).context[1 as libc::c_int as usize],
-                            column: (*parent).context[2 as libc::c_int as usize],
+                            row: (*parent).context[1 as os::raw::c_int as usize],
+                            column: (*parent).context[2 as os::raw::c_int as usize],
                         };
                         init
                     },
                 };
                 init
             },
-            alias_symbol: (*parent).context[3 as libc::c_int as usize] as TSSymbol,
+            alias_symbol: (*parent).context[3 as os::raw::c_int as usize] as TSSymbol,
         };
         init
     };

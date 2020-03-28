@@ -1,5 +1,7 @@
 use crate::*;
 
+use std::os;
+
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub struct ReusableNode {
@@ -28,8 +30,8 @@ pub unsafe extern "C" fn reusable_node_new() -> ReusableNode {
             stack: {
                 let mut init = StackEntryArray {
                     contents: 0 as *mut StackEntry,
-                    size: 0 as libc::c_int as u32,
-                    capacity: 0 as libc::c_int as u32,
+                    size: 0 as os::raw::c_int as u32,
+                    capacity: 0 as os::raw::c_int as u32,
                 };
                 init
             },
@@ -42,7 +44,7 @@ pub unsafe extern "C" fn reusable_node_new() -> ReusableNode {
 }
 #[inline]
 pub unsafe extern "C" fn reusable_node_clear(mut self_0: *mut ReusableNode) {
-    (*self_0).stack.size = 0 as libc::c_int as u32;
+    (*self_0).stack.size = 0 as os::raw::c_int as u32;
     (*self_0).last_external_token = Subtree {
         ptr: 0 as *const SubtreeHeapData,
     };
@@ -52,28 +54,28 @@ pub unsafe extern "C" fn reusable_node_reset(mut self_0: *mut ReusableNode, mut 
     reusable_node_clear(self_0);
     array__grow(
         &mut (*self_0).stack as *mut StackEntryArray as *mut VoidArray,
-        1 as libc::c_int as size_t,
-        ::std::mem::size_of::<StackEntry>() as libc::c_ulong,
+        1 as os::raw::c_int as size_t,
+        ::std::mem::size_of::<StackEntry>() as os::raw::c_ulong,
     );
     let fresh5 = (*self_0).stack.size;
     (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
     *(*self_0).stack.contents.offset(fresh5 as isize) = {
         let mut init = StackEntry {
             tree: tree,
-            child_index: 0 as libc::c_int as u32,
-            byte_offset: 0 as libc::c_int as u32,
+            child_index: 0 as os::raw::c_int as u32,
+            byte_offset: 0 as os::raw::c_int as u32,
         };
         init
     };
 }
 #[inline]
 pub unsafe extern "C" fn reusable_node_tree(mut self_0: *mut ReusableNode) -> Subtree {
-    return if (*self_0).stack.size > 0 as libc::c_int as libc::c_uint {
+    return if (*self_0).stack.size > 0 as os::raw::c_int as os::raw::c_uint {
         (*(*self_0).stack.contents.offset(
             (*self_0)
                 .stack
                 .size
-                .wrapping_sub(1 as libc::c_int as libc::c_uint) as isize,
+                .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
         ))
         .tree
     } else {
@@ -84,16 +86,16 @@ pub unsafe extern "C" fn reusable_node_tree(mut self_0: *mut ReusableNode) -> Su
 }
 #[inline]
 pub unsafe extern "C" fn reusable_node_byte_offset(mut self_0: *mut ReusableNode) -> u32 {
-    return if (*self_0).stack.size > 0 as libc::c_int as libc::c_uint {
+    return if (*self_0).stack.size > 0 as os::raw::c_int as os::raw::c_uint {
         (*(*self_0).stack.contents.offset(
             (*self_0)
                 .stack
                 .size
-                .wrapping_sub(1 as libc::c_int as libc::c_uint) as isize,
+                .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
         ))
         .byte_offset
     } else {
-        4294967295 as libc::c_uint
+        4294967295 as os::raw::c_uint
     };
 }
 #[inline]
@@ -105,16 +107,16 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
     if (*self_0)
         .stack
         .size
-        .wrapping_sub(1 as libc::c_int as libc::c_uint)
+        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
         < (*self_0).stack.size
     {
     } else {
         __assert_fail(
             b"(u32)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
-                as *const libc::c_char,
-            b"lib/src/./reusable_node.h\x00" as *const u8 as *const libc::c_char,
-            49 as libc::c_int as libc::c_uint,
-            (*::std::mem::transmute::<&[u8; 43], &[libc::c_char; 43]>(
+                as *const os::raw::c_char,
+            b"lib/src/./reusable_node.h\x00" as *const u8 as *const os::raw::c_char,
+            49 as os::raw::c_int as os::raw::c_uint,
+            (*::std::mem::transmute::<&[u8; 43], &[os::raw::c_char; 43]>(
                 b"void reusable_node_advance(ReusableNode *)\x00",
             ))
             .as_ptr(),
@@ -124,7 +126,7 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
         (*self_0)
             .stack
             .size
-            .wrapping_sub(1 as libc::c_int as libc::c_uint) as isize,
+            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
     ) as *mut StackEntry);
     let mut byte_offset: u32 = last_entry
         .byte_offset
@@ -152,23 +154,23 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
             .offset((*self_0).stack.size as isize);
         next_index = popped_entry
             .child_index
-            .wrapping_add(1 as libc::c_int as libc::c_uint);
-        if (*self_0).stack.size == 0 as libc::c_int as libc::c_uint {
+            .wrapping_add(1 as os::raw::c_int as os::raw::c_uint);
+        if (*self_0).stack.size == 0 as os::raw::c_int as os::raw::c_uint {
             return;
         }
         if (*self_0)
             .stack
             .size
-            .wrapping_sub(1 as libc::c_int as libc::c_uint)
+            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
             < (*self_0).stack.size
         {
         } else {
             __assert_fail(
                 b"(u32)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
-                    as *const libc::c_char,
-                b"lib/src/./reusable_node.h\x00" as *const u8 as *const libc::c_char,
-                61 as libc::c_int as libc::c_uint,
-                (*::std::mem::transmute::<&[u8; 43], &[libc::c_char; 43]>(
+                    as *const os::raw::c_char,
+                b"lib/src/./reusable_node.h\x00" as *const u8 as *const os::raw::c_char,
+                61 as os::raw::c_int as os::raw::c_uint,
+                (*::std::mem::transmute::<&[u8; 43], &[os::raw::c_char; 43]>(
                     b"void reusable_node_advance(ReusableNode *)\x00",
                 ))
                 .as_ptr(),
@@ -178,7 +180,7 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
             (*self_0)
                 .stack
                 .size
-                .wrapping_sub(1 as libc::c_int as libc::c_uint) as isize,
+                .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
         ) as *mut StackEntry))
             .tree;
         if !(ts_subtree_child_count(tree) <= next_index) {
@@ -187,8 +189,8 @@ pub unsafe extern "C" fn reusable_node_advance(mut self_0: *mut ReusableNode) {
     }
     array__grow(
         &mut (*self_0).stack as *mut StackEntryArray as *mut VoidArray,
-        1 as libc::c_int as size_t,
-        ::std::mem::size_of::<StackEntry>() as libc::c_ulong,
+        1 as os::raw::c_int as size_t,
+        ::std::mem::size_of::<StackEntry>() as os::raw::c_ulong,
     );
     let fresh6 = (*self_0).stack.size;
     (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -210,16 +212,16 @@ pub unsafe extern "C" fn reusable_node_descend(mut self_0: *mut ReusableNode) ->
     if (*self_0)
         .stack
         .size
-        .wrapping_sub(1 as libc::c_int as libc::c_uint)
+        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
         < (*self_0).stack.size
     {
     } else {
         __assert_fail(
             b"(u32)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
-                as *const libc::c_char,
-            b"lib/src/./reusable_node.h\x00" as *const u8 as *const libc::c_char,
-            72 as libc::c_int as libc::c_uint,
-            (*::std::mem::transmute::<&[u8; 44], &[libc::c_char; 44]>(
+                as *const os::raw::c_char,
+            b"lib/src/./reusable_node.h\x00" as *const u8 as *const os::raw::c_char,
+            72 as os::raw::c_int as os::raw::c_uint,
+            (*::std::mem::transmute::<&[u8; 44], &[os::raw::c_char; 44]>(
                 b"_Bool reusable_node_descend(ReusableNode *)\x00",
             ))
             .as_ptr(),
@@ -229,13 +231,13 @@ pub unsafe extern "C" fn reusable_node_descend(mut self_0: *mut ReusableNode) ->
         (*self_0)
             .stack
             .size
-            .wrapping_sub(1 as libc::c_int as libc::c_uint) as isize,
+            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
     ) as *mut StackEntry);
-    if ts_subtree_child_count(last_entry.tree) > 0 as libc::c_int as libc::c_uint {
+    if ts_subtree_child_count(last_entry.tree) > 0 as os::raw::c_int as os::raw::c_uint {
         array__grow(
             &mut (*self_0).stack as *mut StackEntryArray as *mut VoidArray,
-            1 as libc::c_int as size_t,
-            ::std::mem::size_of::<StackEntry>() as libc::c_ulong,
+            1 as os::raw::c_int as size_t,
+            ::std::mem::size_of::<StackEntry>() as os::raw::c_ulong,
         );
         let fresh7 = (*self_0).stack.size;
         (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -245,15 +247,15 @@ pub unsafe extern "C" fn reusable_node_descend(mut self_0: *mut ReusableNode) ->
                     .c2rust_unnamed
                     .c2rust_unnamed
                     .children
-                    .offset(0 as libc::c_int as isize),
-                child_index: 0 as libc::c_int as u32,
+                    .offset(0 as os::raw::c_int as isize),
+                child_index: 0 as os::raw::c_int as u32,
                 byte_offset: last_entry.byte_offset,
             };
             init
         };
-        return 1 as libc::c_int != 0;
+        return 1 as os::raw::c_int != 0;
     } else {
-        return 0 as libc::c_int != 0;
+        return 0 as os::raw::c_int != 0;
     };
 }
 #[inline]
