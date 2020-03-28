@@ -1442,6 +1442,8 @@ pub unsafe extern "C" fn ts_stack_clear(mut self_0: *mut Stack) {
         init
     };
 }
+
+// TODO: consider moving it to the C-ONLY API.
 #[no_mangle]
 pub unsafe extern "C" fn ts_stack_print_dot_graph(
     mut self_0: *mut Stack,
@@ -1455,7 +1457,10 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
     );
     let mut was_recording_allocations: bool = ts_toggle_allocation_recording(0 as libc::c_int != 0);
     if f.is_null() {
-        f = stderr
+        f = libc::fdopen(
+            libc::STDERR_FILENO,
+            b"w\x00".as_ptr() as *const libc::c_char,
+        );
     }
     fprintf(
         f,
