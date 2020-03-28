@@ -206,8 +206,8 @@ unsafe extern "C" fn stack_node_release(
         if (*pool).size < 50 as os::raw::c_int as os::raw::c_uint {
             array__grow(
                 pool as *mut VoidArray,
-                1 as os::raw::c_int as size_t,
-                ::std::mem::size_of::<*mut StackNode>() as os::raw::c_ulong,
+                1 as os::raw::c_int as usize,
+                ::std::mem::size_of::<*mut StackNode>(),
             );
             let fresh0 = (*pool).size;
             (*pool).size = (*pool).size.wrapping_add(1);
@@ -233,7 +233,7 @@ unsafe extern "C" fn stack_node_new(
         (*pool).size = (*pool).size.wrapping_sub(1);
         *(*pool).contents.offset((*pool).size as isize) as *mut ffi::c_void
     } else {
-        ts_malloc(::std::mem::size_of::<StackNode>() as os::raw::c_ulong)
+        ts_malloc(::std::mem::size_of::<StackNode>())
     } as *mut StackNode;
     *node = {
         let mut init = StackNode {
@@ -422,8 +422,8 @@ unsafe extern "C" fn ts_stack__add_version(
     };
     array__grow(
         &mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<StackHead>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<StackHead>(),
     );
     let fresh3 = (*self_0).heads.size;
     (*self_0).heads.size = (*self_0).heads.size.wrapping_add(1);
@@ -432,10 +432,7 @@ unsafe extern "C" fn ts_stack__add_version(
     if !head.last_external_token.ptr.is_null() {
         ts_subtree_retain(head.last_external_token);
     }
-    return (*self_0)
-        .heads
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
+    return (*self_0).heads.size.wrapping_sub(1);
 }
 unsafe extern "C" fn ts_stack__add_slice(
     mut self_0: *mut Stack,
@@ -443,13 +440,8 @@ unsafe extern "C" fn ts_stack__add_slice(
     mut node: *mut StackNode,
     mut subtrees: *mut SubtreeArray,
 ) {
-    let mut i: u32 = (*self_0)
-        .slices
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
-    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
-        > 0 as os::raw::c_int as os::raw::c_uint
-    {
+    let mut i: u32 = (*self_0).slices.size.wrapping_sub(1);
+    while i.wrapping_add(1) > 0 as os::raw::c_int as os::raw::c_uint {
         let mut version: StackVersion = (*(*self_0).slices.contents.offset(i as isize)).version;
         if (*(*self_0).heads.contents.offset(version as isize)).node == node {
             let mut slice: StackSlice = {
@@ -461,8 +453,8 @@ unsafe extern "C" fn ts_stack__add_slice(
             };
             array__splice(
                 &mut (*self_0).slices as *mut StackSliceArray as *mut VoidArray,
-                ::std::mem::size_of::<StackSlice>() as os::raw::c_ulong,
-                i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint),
+                ::std::mem::size_of::<StackSlice>(),
+                i.wrapping_add(1),
                 0 as os::raw::c_int as u32,
                 1 as os::raw::c_int as u32,
                 &mut slice as *mut StackSlice as *const ffi::c_void,
@@ -481,8 +473,8 @@ unsafe extern "C" fn ts_stack__add_slice(
     };
     array__grow(
         &mut (*self_0).slices as *mut StackSliceArray as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<StackSlice>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<StackSlice>(),
     );
     let fresh4 = (*self_0).slices.size;
     (*self_0).slices.size = (*self_0).slices.size.wrapping_add(1);
@@ -531,14 +523,14 @@ unsafe extern "C" fn stack__iter(
         include_subtrees = 1 as os::raw::c_int != 0;
         array__reserve(
             &mut iterator.subtrees as *mut SubtreeArray as *mut VoidArray,
-            ::std::mem::size_of::<Subtree>() as os::raw::c_ulong,
+            ::std::mem::size_of::<Subtree>(),
             goal_subtree_count as u32,
         );
     }
     array__grow(
         &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<StackIterator>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<StackIterator>(),
     );
     let fresh5 = (*self_0).iterators.size;
     (*self_0).iterators.size = (*self_0).iterators.size.wrapping_add(1);
@@ -571,7 +563,7 @@ unsafe extern "C" fn stack__iter(
                 }
                 array__erase(
                     &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
-                    ::std::mem::size_of::<StackIterator>() as os::raw::c_ulong,
+                    ::std::mem::size_of::<StackIterator>(),
                     i,
                 );
                 i = i.wrapping_sub(1);
@@ -610,18 +602,13 @@ unsafe extern "C" fn stack__iter(
                             *(*self_0).iterators.contents.offset(i as isize);
                         array__grow(
                             &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
-                            1 as os::raw::c_int as size_t,
-                            ::std::mem::size_of::<StackIterator>() as os::raw::c_ulong,
+                            1 as os::raw::c_int as usize,
+                            ::std::mem::size_of::<StackIterator>(),
                         );
                         let fresh6 = (*self_0).iterators.size;
                         (*self_0).iterators.size = (*self_0).iterators.size.wrapping_add(1);
                         *(*self_0).iterators.contents.offset(fresh6 as isize) = current_iterator;
-                        if (*self_0)
-                            .iterators
-                            .size
-                            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-                            < (*self_0).iterators.size
-                        {
+                        if (*self_0).iterators.size.wrapping_sub(1) < (*self_0).iterators.size {
                         } else {
                             __assert_fail(b"(u32)(&self->iterators)->size - 1 < (&self->iterators)->size\x00"
                                               as *const u8 as
@@ -632,13 +619,11 @@ unsafe extern "C" fn stack__iter(
                                           (*::std::mem::transmute::<&[u8; 79],
                                                                     &[os::raw::c_char; 79]>(b"StackSliceArray stack__iter(Stack *, StackVersion, StackCallback, void *, int)\x00")).as_ptr());
                         }
-                        next_iterator = &mut *(*self_0).iterators.contents.offset(
-                            (*self_0)
-                                .iterators
-                                .size
-                                .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-                                as isize,
-                        ) as *mut StackIterator;
+                        next_iterator = &mut *(*self_0)
+                            .iterators
+                            .contents
+                            .offset((*self_0).iterators.size.wrapping_sub(1) as isize)
+                            as *mut StackIterator;
                         ts_subtree_array_copy(
                             (*next_iterator).subtrees,
                             &mut (*next_iterator).subtrees,
@@ -653,8 +638,8 @@ unsafe extern "C" fn stack__iter(
                                     array__grow(
                                         &mut (*next_iterator).subtrees as *mut SubtreeArray
                                             as *mut VoidArray,
-                                        1 as os::raw::c_int as size_t,
-                                        ::std::mem::size_of::<Subtree>() as os::raw::c_ulong,
+                                        1 as os::raw::c_int as usize,
+                                        ::std::mem::size_of::<Subtree>(),
                                     );
                                     let fresh7 = (*next_iterator).subtrees.size;
                                     (*next_iterator).subtrees.size =
@@ -689,10 +674,8 @@ unsafe extern "C" fn stack__iter(
 // Create a stack.
 #[no_mangle]
 pub unsafe extern "C" fn ts_stack_new(mut subtree_pool: *mut SubtreePool) -> *mut Stack {
-    let mut self_0: *mut Stack = ts_calloc(
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<Stack>() as os::raw::c_ulong,
-    ) as *mut Stack;
+    let mut self_0: *mut Stack =
+        ts_calloc(1 as os::raw::c_int as usize, ::std::mem::size_of::<Stack>()) as *mut Stack;
     (*self_0).heads.size = 0 as os::raw::c_int as u32;
     (*self_0).heads.capacity = 0 as os::raw::c_int as u32;
     (*self_0).heads.contents = 0 as *mut StackHead;
@@ -707,22 +690,22 @@ pub unsafe extern "C" fn ts_stack_new(mut subtree_pool: *mut SubtreePool) -> *mu
     (*self_0).node_pool.contents = 0 as *mut *mut StackNode;
     array__reserve(
         &mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray,
-        ::std::mem::size_of::<StackHead>() as os::raw::c_ulong,
+        ::std::mem::size_of::<StackHead>(),
         4 as os::raw::c_int as u32,
     );
     array__reserve(
         &mut (*self_0).slices as *mut StackSliceArray as *mut VoidArray,
-        ::std::mem::size_of::<StackSlice>() as os::raw::c_ulong,
+        ::std::mem::size_of::<StackSlice>(),
         4 as os::raw::c_int as u32,
     );
     array__reserve(
         &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
-        ::std::mem::size_of::<StackIterator>() as os::raw::c_ulong,
+        ::std::mem::size_of::<StackIterator>(),
         4 as os::raw::c_int as u32,
     );
     array__reserve(
         &mut (*self_0).node_pool as *mut StackNodeArray as *mut VoidArray,
-        ::std::mem::size_of::<*mut StackNode>() as os::raw::c_ulong,
+        ::std::mem::size_of::<*mut StackNode>(),
         50 as os::raw::c_int as u32,
     );
     (*self_0).subtree_pool = subtree_pool;
@@ -899,7 +882,7 @@ pub unsafe extern "C" fn ts_stack_error_cost(
                 .ptr
                 .is_null()
     {
-        result = result.wrapping_add(500 as os::raw::c_int as os::raw::c_uint)
+        result = result.wrapping_add(500)
     }
     return result;
 }
@@ -1235,12 +1218,8 @@ unsafe extern "C" fn summarize_stack_callback(
     if depth > (*session).max_depth {
         return StackActionStop as os::raw::c_int as StackAction;
     }
-    let mut i: os::raw::c_uint = (*(*session).summary)
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
-    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
-        > 0 as os::raw::c_int as os::raw::c_uint
-    {
+    let mut i: os::raw::c_uint = (*(*session).summary).size.wrapping_sub(1);
+    while i.wrapping_add(1) > 0 as os::raw::c_int as os::raw::c_uint {
         let mut entry: StackSummaryEntry = *(*(*session).summary).contents.offset(i as isize);
         if entry.depth < depth {
             break;
@@ -1252,8 +1231,8 @@ unsafe extern "C" fn summarize_stack_callback(
     }
     array__grow(
         (*session).summary as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<StackSummaryEntry>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<StackSummaryEntry>(),
     );
     let fresh8 = (*(*session).summary).size;
     (*(*session).summary).size = (*(*session).summary).size.wrapping_add(1);
@@ -1277,8 +1256,7 @@ pub unsafe extern "C" fn ts_stack_record_summary(
 ) {
     let mut session: SummarizeStackSession = {
         let mut init = SummarizeStackSession {
-            summary: ts_malloc(::std::mem::size_of::<StackSummary>() as os::raw::c_ulong)
-                as *mut StackSummary,
+            summary: ts_malloc(::std::mem::size_of::<StackSummary>()) as *mut StackSummary,
             max_depth: max_depth,
         };
         init
@@ -1412,7 +1390,7 @@ pub unsafe extern "C" fn ts_stack_remove_version(
     );
     array__erase(
         &mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray,
-        ::std::mem::size_of::<StackHead>() as os::raw::c_ulong,
+        ::std::mem::size_of::<StackHead>(),
         version,
     );
 }
@@ -1465,7 +1443,7 @@ pub unsafe extern "C" fn ts_stack_renumber_version(
     *target_head = *source_head;
     array__erase(
         &mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray,
-        ::std::mem::size_of::<StackHead>() as os::raw::c_ulong,
+        ::std::mem::size_of::<StackHead>(),
         v1,
     );
 }
@@ -1498,19 +1476,14 @@ pub unsafe extern "C" fn ts_stack_copy_version(
     }
     array__grow(
         &mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<StackHead>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<StackHead>(),
     );
     let fresh10 = (*self_0).heads.size;
     (*self_0).heads.size = (*self_0).heads.size.wrapping_add(1);
     *(*self_0).heads.contents.offset(fresh10 as isize) =
         *(*self_0).heads.contents.offset(version as isize);
-    if (*self_0)
-        .heads
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-        < (*self_0).heads.size
-    {
+    if (*self_0).heads.size.wrapping_sub(1) < (*self_0).heads.size {
     } else {
         __assert_fail(
             b"(u32)(&self->heads)->size - 1 < (&self->heads)->size\x00" as *const u8
@@ -1523,21 +1496,17 @@ pub unsafe extern "C" fn ts_stack_copy_version(
             .as_ptr(),
         );
     }
-    let mut head: *mut StackHead = &mut *(*self_0).heads.contents.offset(
-        (*self_0)
-            .heads
-            .size
-            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
-    ) as *mut StackHead;
+    let mut head: *mut StackHead = &mut *(*self_0)
+        .heads
+        .contents
+        .offset((*self_0).heads.size.wrapping_sub(1) as isize)
+        as *mut StackHead;
     stack_node_retain((*head).node);
     if !(*head).last_external_token.ptr.is_null() {
         ts_subtree_retain((*head).last_external_token);
     }
     (*head).summary = 0 as *mut StackSummary;
-    return (*self_0)
-        .heads
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
+    return (*self_0).heads.size.wrapping_sub(1);
 }
 // Merge the given two stack versions if possible, returning true
 // if they were successfully merged and false otherwise.
@@ -1748,8 +1717,8 @@ pub unsafe extern "C" fn ts_stack_clear(mut self_0: *mut Stack) {
     (*self_0).heads.size = 0 as os::raw::c_int as u32;
     array__grow(
         &mut (*self_0).heads as *mut StackHeadArray as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<StackHead>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<StackHead>(),
     );
     let fresh11 = (*self_0).heads.size;
     (*self_0).heads.size = (*self_0).heads.size.wrapping_add(1);
@@ -1775,7 +1744,7 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
 ) -> bool {
     array__reserve(
         &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
-        ::std::mem::size_of::<StackIterator>() as os::raw::c_ulong,
+        ::std::mem::size_of::<StackIterator>(),
         32 as os::raw::c_int as u32,
     );
     let mut was_recording_allocations: bool =
@@ -1855,8 +1824,8 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
             fprintf(f, b"\"]\n\x00" as *const u8 as *const os::raw::c_char);
             array__grow(
                 &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
-                1 as os::raw::c_int as size_t,
-                ::std::mem::size_of::<StackIterator>() as os::raw::c_ulong,
+                1 as os::raw::c_int as usize,
+                ::std::mem::size_of::<StackIterator>(),
             );
             let fresh12 = (*self_0).iterators.size;
             (*self_0).iterators.size = (*self_0).iterators.size.wrapping_add(1);
@@ -2000,18 +1969,13 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
                     } else {
                         array__grow(
                             &mut (*self_0).iterators as *mut StackIteratorArray as *mut VoidArray,
-                            1 as os::raw::c_int as size_t,
-                            ::std::mem::size_of::<StackIterator>() as os::raw::c_ulong,
+                            1 as os::raw::c_int as usize,
+                            ::std::mem::size_of::<StackIterator>(),
                         );
                         let fresh13 = (*self_0).iterators.size;
                         (*self_0).iterators.size = (*self_0).iterators.size.wrapping_add(1);
                         *(*self_0).iterators.contents.offset(fresh13 as isize) = iterator;
-                        if (*self_0)
-                            .iterators
-                            .size
-                            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-                            < (*self_0).iterators.size
-                        {
+                        if (*self_0).iterators.size.wrapping_sub(1) < (*self_0).iterators.size {
                         } else {
                             __assert_fail(b"(u32)(&self->iterators)->size - 1 < (&self->iterators)->size\x00"
                                               as *const u8 as
@@ -2022,21 +1986,19 @@ pub unsafe extern "C" fn ts_stack_print_dot_graph(
                                           (*::std::mem::transmute::<&[u8; 68],
                                                                     &[os::raw::c_char; 68]>(b"_Bool ts_stack_print_dot_graph(Stack *, const TSLanguage *, FILE *)\x00")).as_ptr());
                         }
-                        next_iterator = &mut *(*self_0).iterators.contents.offset(
-                            (*self_0)
-                                .iterators
-                                .size
-                                .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-                                as isize,
-                        ) as *mut StackIterator
+                        next_iterator = &mut *(*self_0)
+                            .iterators
+                            .contents
+                            .offset((*self_0).iterators.size.wrapping_sub(1) as isize)
+                            as *mut StackIterator
                     }
                     (*next_iterator).node = link.node;
                     j_1 += 1
                 }
                 array__grow(
                     &mut visited_nodes as *mut StackNodeArray as *mut VoidArray,
-                    1 as os::raw::c_int as size_t,
-                    ::std::mem::size_of::<*mut StackNode>() as os::raw::c_ulong,
+                    1 as os::raw::c_int as usize,
+                    ::std::mem::size_of::<*mut StackNode>(),
                 );
                 let fresh14 = visited_nodes.size;
                 visited_nodes.size = visited_nodes.size.wrapping_add(1);

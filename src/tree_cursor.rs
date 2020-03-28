@@ -33,12 +33,7 @@ pub struct CursorChildIterator {
 unsafe extern "C" fn ts_tree_cursor_iterate_children(
     mut self_0: *const TreeCursor,
 ) -> CursorChildIterator {
-    if (*self_0)
-        .stack
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-        < (*self_0).stack.size
-    {
+    if (*self_0).stack.size.wrapping_sub(1) < (*self_0).stack.size {
     } else {
         __assert_fail(
             b"(u32)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
@@ -51,12 +46,11 @@ unsafe extern "C" fn ts_tree_cursor_iterate_children(
             .as_ptr(),
         );
     }
-    let mut last_entry: *mut TreeCursorEntry = &mut *(*self_0).stack.contents.offset(
-        (*self_0)
-            .stack
-            .size
-            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
-    ) as *mut TreeCursorEntry;
+    let mut last_entry: *mut TreeCursorEntry = &mut *(*self_0)
+        .stack
+        .contents
+        .offset((*self_0).stack.size.wrapping_sub(1) as isize)
+        as *mut TreeCursorEntry;
     if ts_subtree_child_count(*(*last_entry).subtree) == 0 as os::raw::c_int as os::raw::c_uint {
         return {
             let mut init = CursorChildIterator {
@@ -162,8 +156,8 @@ pub unsafe extern "C" fn ts_tree_cursor_init(mut self_0: *mut TreeCursor, mut no
     (*self_0).stack.size = 0 as os::raw::c_int as u32;
     array__grow(
         &mut (*self_0).stack as *mut TreeCursorEntryArray as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<TreeCursorEntry>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<TreeCursorEntry>(),
     );
     let fresh0 = (*self_0).stack.size;
     (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -210,8 +204,8 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_first_child(mut _self: *mut TSTreeC
             if visible {
                 array__grow(
                     &mut (*self_0).stack as *mut TreeCursorEntryArray as *mut VoidArray,
-                    1 as os::raw::c_int as size_t,
-                    ::std::mem::size_of::<TreeCursorEntry>() as os::raw::c_ulong,
+                    1 as os::raw::c_int as usize,
+                    ::std::mem::size_of::<TreeCursorEntry>(),
                 );
                 let fresh1 = (*self_0).stack.size;
                 (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -225,8 +219,8 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_first_child(mut _self: *mut TSTreeC
             }
             array__grow(
                 &mut (*self_0).stack as *mut TreeCursorEntryArray as *mut VoidArray,
-                1 as os::raw::c_int as size_t,
-                ::std::mem::size_of::<TreeCursorEntry>() as os::raw::c_ulong,
+                1 as os::raw::c_int as usize,
+                ::std::mem::size_of::<TreeCursorEntry>(),
             );
             let fresh2 = (*self_0).stack.size;
             (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -273,8 +267,8 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_first_child_for_byte(
                 if visible {
                     array__grow(
                         &mut (*self_0).stack as *mut TreeCursorEntryArray as *mut VoidArray,
-                        1 as os::raw::c_int as size_t,
-                        ::std::mem::size_of::<TreeCursorEntry>() as os::raw::c_ulong,
+                        1 as os::raw::c_int as usize,
+                        ::std::mem::size_of::<TreeCursorEntry>(),
                     );
                     let fresh3 = (*self_0).stack.size;
                     (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -286,8 +280,8 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_first_child_for_byte(
                 }
                 array__grow(
                     &mut (*self_0).stack as *mut TreeCursorEntryArray as *mut VoidArray,
-                    1 as os::raw::c_int as size_t,
-                    ::std::mem::size_of::<TreeCursorEntry>() as os::raw::c_ulong,
+                    1 as os::raw::c_int as usize,
+                    ::std::mem::size_of::<TreeCursorEntry>(),
                 );
                 let fresh4 = (*self_0).stack.size;
                 (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -330,21 +324,15 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_next_sibling(mut _self: *mut TSTree
         iterator.position = entry.position;
         let mut visible: bool = 0 as os::raw::c_int != 0;
         ts_tree_cursor_child_iterator_next(&mut iterator, &mut entry, &mut visible);
-        if visible as os::raw::c_int != 0
-            && (*self_0)
-                .stack
-                .size
-                .wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
-                < initial_size
-        {
+        if visible as os::raw::c_int != 0 && (*self_0).stack.size.wrapping_add(1) < initial_size {
             break;
         }
         while ts_tree_cursor_child_iterator_next(&mut iterator, &mut entry, &mut visible) {
             if visible {
                 array__grow(
                     &mut (*self_0).stack as *mut TreeCursorEntryArray as *mut VoidArray,
-                    1 as os::raw::c_int as size_t,
-                    ::std::mem::size_of::<TreeCursorEntry>() as os::raw::c_ulong,
+                    1 as os::raw::c_int as usize,
+                    ::std::mem::size_of::<TreeCursorEntry>(),
                 );
                 let fresh5 = (*self_0).stack.size;
                 (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -354,8 +342,8 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_next_sibling(mut _self: *mut TSTree
             if ts_subtree_visible_child_count(*entry.subtree) != 0 {
                 array__grow(
                     &mut (*self_0).stack as *mut TreeCursorEntryArray as *mut VoidArray,
-                    1 as os::raw::c_int as size_t,
-                    ::std::mem::size_of::<TreeCursorEntry>() as os::raw::c_ulong,
+                    1 as os::raw::c_int as usize,
+                    ::std::mem::size_of::<TreeCursorEntry>(),
                 );
                 let fresh6 = (*self_0).stack.size;
                 (*self_0).stack.size = (*self_0).stack.size.wrapping_add(1);
@@ -371,22 +359,15 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_next_sibling(mut _self: *mut TSTree
 #[no_mangle]
 pub unsafe extern "C" fn ts_tree_cursor_goto_parent(mut _self: *mut TSTreeCursor) -> bool {
     let mut self_0: *mut TreeCursor = _self as *mut TreeCursor;
-    let mut i: os::raw::c_uint = (*self_0)
-        .stack
-        .size
-        .wrapping_sub(2 as os::raw::c_int as os::raw::c_uint);
-    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
-        > 0 as os::raw::c_int as os::raw::c_uint
-    {
+    let mut i: os::raw::c_uint = (*self_0).stack.size.wrapping_sub(2);
+    while i.wrapping_add(1) > 0 as os::raw::c_int as os::raw::c_uint {
         let mut entry: *mut TreeCursorEntry =
             &mut *(*self_0).stack.contents.offset(i as isize) as *mut TreeCursorEntry;
         let mut is_aliased: bool = 0 as os::raw::c_int != 0;
         if i > 0 as os::raw::c_int as os::raw::c_uint {
-            let mut parent_entry: *mut TreeCursorEntry = &mut *(*self_0)
-                .stack
-                .contents
-                .offset(i.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize)
-                as *mut TreeCursorEntry;
+            let mut parent_entry: *mut TreeCursorEntry =
+                &mut *(*self_0).stack.contents.offset(i.wrapping_sub(1) as isize)
+                    as *mut TreeCursorEntry;
             let mut alias_sequence: *const TSSymbol = ts_language_alias_sequence(
                 (*(*self_0).tree).language,
                 (*(*(*parent_entry).subtree).ptr)
@@ -402,7 +383,7 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_parent(mut _self: *mut TSTreeCursor
         if ts_subtree_visible(*(*entry).subtree) as os::raw::c_int != 0
             || is_aliased as os::raw::c_int != 0
         {
-            (*self_0).stack.size = i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint);
+            (*self_0).stack.size = i.wrapping_add(1);
             return 1 as os::raw::c_int != 0;
         }
         i = i.wrapping_sub(1)
@@ -412,12 +393,7 @@ pub unsafe extern "C" fn ts_tree_cursor_goto_parent(mut _self: *mut TSTreeCursor
 #[no_mangle]
 pub unsafe extern "C" fn ts_tree_cursor_current_node(mut _self: *const TSTreeCursor) -> TSNode {
     let mut self_0: *const TreeCursor = _self as *const TreeCursor;
-    if (*self_0)
-        .stack
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-        < (*self_0).stack.size
-    {
+    if (*self_0).stack.size.wrapping_sub(1) < (*self_0).stack.size {
     } else {
         __assert_fail(
             b"(u32)(&self->stack)->size - 1 < (&self->stack)->size\x00" as *const u8
@@ -430,20 +406,18 @@ pub unsafe extern "C" fn ts_tree_cursor_current_node(mut _self: *const TSTreeCur
             .as_ptr(),
         );
     }
-    let mut last_entry: *mut TreeCursorEntry = &mut *(*self_0).stack.contents.offset(
-        (*self_0)
-            .stack
-            .size
-            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize,
-    ) as *mut TreeCursorEntry;
+    let mut last_entry: *mut TreeCursorEntry = &mut *(*self_0)
+        .stack
+        .contents
+        .offset((*self_0).stack.size.wrapping_sub(1) as isize)
+        as *mut TreeCursorEntry;
     let mut alias_symbol: TSSymbol = 0 as os::raw::c_int as TSSymbol;
     if (*self_0).stack.size > 1 as os::raw::c_int as os::raw::c_uint {
-        let mut parent_entry: *mut TreeCursorEntry = &mut *(*self_0).stack.contents.offset(
-            (*self_0)
-                .stack
-                .size
-                .wrapping_sub(2 as os::raw::c_int as os::raw::c_uint) as isize,
-        ) as *mut TreeCursorEntry;
+        let mut parent_entry: *mut TreeCursorEntry = &mut *(*self_0)
+            .stack
+            .contents
+            .offset((*self_0).stack.size.wrapping_sub(2) as isize)
+            as *mut TreeCursorEntry;
         let mut alias_sequence: *const TSSymbol = ts_language_alias_sequence(
             (*(*self_0).tree).language,
             (*(*(*parent_entry).subtree).ptr)
@@ -474,24 +448,15 @@ pub unsafe extern "C" fn ts_tree_cursor_current_status(
     *can_have_later_siblings_with_this_field = 0 as os::raw::c_int != 0;
     // Walk up the tree, visiting the current node and its invisible ancestors,
     // because fields can refer to nodes through invisible *wrapper* nodes,
-    let mut i: os::raw::c_uint = (*self_0)
-        .stack
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
+    let mut i: os::raw::c_uint = (*self_0).stack.size.wrapping_sub(1);
     while i > 0 as os::raw::c_int as os::raw::c_uint {
         let mut entry: *mut TreeCursorEntry =
             &mut *(*self_0).stack.contents.offset(i as isize) as *mut TreeCursorEntry;
-        let mut parent_entry: *mut TreeCursorEntry = &mut *(*self_0)
-            .stack
-            .contents
-            .offset(i.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize)
-            as *mut TreeCursorEntry;
+        let mut parent_entry: *mut TreeCursorEntry =
+            &mut *(*self_0).stack.contents.offset(i.wrapping_sub(1) as isize)
+                as *mut TreeCursorEntry;
         // Stop walking up when a visible ancestor is found.
-        if i != (*self_0)
-            .stack
-            .size
-            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-        {
+        if i != (*self_0).stack.size.wrapping_sub(1) {
             if ts_subtree_visible(*(*entry).subtree) {
                 break;
             }
@@ -510,11 +475,7 @@ pub unsafe extern "C" fn ts_tree_cursor_current_status(
                 break;
             }
         }
-        if ts_subtree_child_count(*(*parent_entry).subtree)
-            > (*entry)
-                .child_index
-                .wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
-        {
+        if ts_subtree_child_count(*(*parent_entry).subtree) > (*entry).child_index.wrapping_add(1) {
             *can_have_later_siblings = 1 as os::raw::c_int != 0
         }
         if ts_subtree_extra(*(*entry).subtree) {
@@ -570,24 +531,15 @@ pub unsafe extern "C" fn ts_tree_cursor_current_field_id(
 ) -> TSFieldId {
     let mut self_0: *const TreeCursor = _self as *const TreeCursor;
     // Walk up the tree, visiting the current node and its invisible ancestors.
-    let mut i: os::raw::c_uint = (*self_0)
-        .stack
-        .size
-        .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
+    let mut i: os::raw::c_uint = (*self_0).stack.size.wrapping_sub(1);
     while i > 0 as os::raw::c_int as os::raw::c_uint {
         let mut entry: *mut TreeCursorEntry =
             &mut *(*self_0).stack.contents.offset(i as isize) as *mut TreeCursorEntry;
-        let mut parent_entry: *mut TreeCursorEntry = &mut *(*self_0)
-            .stack
-            .contents
-            .offset(i.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize)
-            as *mut TreeCursorEntry;
+        let mut parent_entry: *mut TreeCursorEntry =
+            &mut *(*self_0).stack.contents.offset(i.wrapping_sub(1) as isize)
+                as *mut TreeCursorEntry;
         // Stop walking up when another visible node is found.
-        if i != (*self_0)
-            .stack
-            .size
-            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-        {
+        if i != (*self_0).stack.size.wrapping_sub(1) {
             if ts_subtree_visible(*(*entry).subtree) {
                 break;
             }
@@ -663,7 +615,7 @@ pub unsafe extern "C" fn ts_tree_cursor_copy(mut _cursor: *const TSTreeCursor) -
     (*copy).tree = (*cursor).tree;
     array__splice(
         &mut (*copy).stack as *mut TreeCursorEntryArray as *mut VoidArray,
-        ::std::mem::size_of::<TreeCursorEntry>() as os::raw::c_ulong,
+        ::std::mem::size_of::<TreeCursorEntry>(),
         (*copy).stack.size,
         0 as os::raw::c_int as u32,
         (*cursor).stack.size,

@@ -8,6 +8,7 @@ use libc::{
     FILE,
 };
 use std::{
+    convert::TryInto,
     ffi, os,
     sync::atomic::{AtomicU32, AtomicUsize, Ordering},
 };
@@ -34,18 +35,6 @@ extern "C" {
     pub fn iswalnum(__wc: wint_t) -> os::raw::c_int;
 }
 
-pub type size_t = os::raw::c_ulong;
-pub type __uint8_t = os::raw::c_uchar;
-pub type __int16_t = os::raw::c_short;
-pub type __uint16_t = os::raw::c_ushort;
-pub type __int32_t = os::raw::c_int;
-pub type __uint32_t = os::raw::c_uint;
-pub type __off_t = os::raw::c_long;
-pub type __off64_t = os::raw::c_long;
-pub type __int64_t = os::raw::c_long;
-pub type i64 = __int64_t;
-
-pub type __uint64_t = os::raw::c_ulong;
 pub type __time_t = os::raw::c_long;
 pub type __clockid_t = os::raw::c_int;
 pub type __syscall_slong_t = os::raw::c_long;
@@ -85,7 +74,6 @@ pub static mut LENGTH_MAX: Length = {
 };
 
 pub type clockid_t = __clockid_t;
-pub type u64 = __uint64_t;
 
 pub type TSDuration = u64;
 // POSIX with monotonic clock support (Linux)
@@ -119,11 +107,6 @@ pub type wint_t = os::raw::c_uint;
 pub static mut TS_TREE_STATE_NONE: TSStateId =
     (32767 as os::raw::c_int * 2 as os::raw::c_int + 1 as os::raw::c_int) as TSStateId;
 
-pub type i16 = __int16_t;
-pub type i32 = __int32_t;
-pub type u8 = __uint8_t;
-pub type u16 = __uint16_t;
-pub type u32 = __uint32_t;
 pub type TSSymbol = u16;
 pub type TSFieldId = u16;
 pub type TSSymbolType = os::raw::c_uint;
@@ -193,8 +176,8 @@ pub struct Lexer {
     pub token_start_position: Length,
     pub token_end_position: Length,
     pub included_ranges: *mut TSRange,
-    pub included_range_count: size_t,
-    pub current_included_range_index: size_t,
+    pub included_range_count: usize,
+    pub current_included_range_index: usize,
     pub chunk: *const os::raw::c_char,
     pub chunk_start: u32,
     pub chunk_size: u32,
@@ -603,9 +586,9 @@ pub struct TSTreeCursor {
 
 // Private
 #[inline]
-pub unsafe extern "C" fn ts_malloc(mut size: size_t) -> *mut ffi::c_void {
+pub unsafe extern "C" fn ts_malloc(mut size: usize) -> *mut ffi::c_void {
     let mut result: *mut ffi::c_void = malloc(size as usize);
-    if size > 0 as os::raw::c_int as os::raw::c_ulong && result.is_null() {
+    if size > 0 && result.is_null() {
         fprintf(
             stderr,
             b"tree-sitter failed to allocate %lu bytes\x00" as *const u8 as *const os::raw::c_char,
@@ -616,9 +599,9 @@ pub unsafe extern "C" fn ts_malloc(mut size: size_t) -> *mut ffi::c_void {
     return result;
 }
 #[inline]
-pub unsafe extern "C" fn ts_calloc(mut count: size_t, mut size: size_t) -> *mut ffi::c_void {
+pub unsafe extern "C" fn ts_calloc(mut count: usize, mut size: usize) -> *mut ffi::c_void {
     let mut result: *mut ffi::c_void = calloc(count as usize, size as usize);
-    if count > 0 as os::raw::c_int as os::raw::c_ulong && result.is_null() {
+    if count > 0 && result.is_null() {
         fprintf(
             stderr,
             b"tree-sitter failed to allocate %lu bytes\x00" as *const u8 as *const os::raw::c_char,
@@ -854,10 +837,10 @@ pub unsafe extern "C" fn ts_language_field_map(
 #[inline]
 pub unsafe extern "C" fn ts_realloc(
     mut buffer: *mut ffi::c_void,
-    mut size: size_t,
+    mut size: usize,
 ) -> *mut ffi::c_void {
     let mut result: *mut ffi::c_void = realloc(buffer, size as usize);
-    if size > 0 as os::raw::c_int as os::raw::c_ulong && result.is_null() {
+    if size > 0 && result.is_null() {
         fprintf(
             stderr,
             b"tree-sitter failed to reallocate %lu bytes\x00" as *const u8
@@ -884,7 +867,7 @@ pub unsafe extern "C" fn ts_subtree_visible_child_count(mut self_0: Subtree) -> 
 #[inline]
 pub unsafe extern "C" fn array__splice(
     mut self_0: *mut VoidArray,
-    mut element_size: size_t,
+    mut element_size: usize,
     mut index: u32,
     mut old_count: u32,
     mut new_count: u32,
@@ -910,28 +893,27 @@ pub unsafe extern "C" fn array__splice(
     let mut contents: *mut os::raw::c_char = (*self_0).contents as *mut os::raw::c_char;
     if (*self_0).size > old_end {
         memmove(
-            contents.offset((new_end as os::raw::c_ulong).wrapping_mul(element_size) as isize)
+            contents.offset((new_end as usize).wrapping_mul(element_size) as isize)
                 as *mut ffi::c_void,
-            contents.offset((old_end as os::raw::c_ulong).wrapping_mul(element_size) as isize)
+            contents.offset((old_end as usize).wrapping_mul(element_size) as isize)
                 as *const ffi::c_void,
-            ((*self_0).size.wrapping_sub(old_end) as os::raw::c_ulong).wrapping_mul(element_size)
-                as usize,
+            ((*self_0).size.wrapping_sub(old_end) as usize).wrapping_mul(element_size) as usize,
         );
     }
     if new_count > 0 as os::raw::c_int as os::raw::c_uint {
         if !elements.is_null() {
             memcpy(
-                contents.offset((index as os::raw::c_ulong).wrapping_mul(element_size) as isize)
+                contents.offset((index as usize).wrapping_mul(element_size) as isize)
                     as *mut ffi::c_void,
                 elements,
-                (new_count as os::raw::c_ulong).wrapping_mul(element_size) as usize,
+                (new_count as usize).wrapping_mul(element_size) as usize,
             );
         } else {
             memset(
-                contents.offset((index as os::raw::c_ulong).wrapping_mul(element_size) as isize)
+                contents.offset((index as usize).wrapping_mul(element_size) as isize)
                     as *mut ffi::c_void,
                 0 as os::raw::c_int,
-                (new_count as os::raw::c_ulong).wrapping_mul(element_size) as usize,
+                (new_count as usize).wrapping_mul(element_size),
             );
         }
     }
@@ -949,17 +931,17 @@ pub unsafe extern "C" fn array__delete(mut self_0: *mut VoidArray) {
 #[inline]
 pub unsafe extern "C" fn array__reserve(
     mut self_0: *mut VoidArray,
-    mut element_size: size_t,
+    mut element_size: usize,
     mut new_capacity: u32,
 ) {
     if new_capacity > (*self_0).capacity {
         if !(*self_0).contents.is_null() {
             (*self_0).contents = ts_realloc(
                 (*self_0).contents,
-                (new_capacity as os::raw::c_ulong).wrapping_mul(element_size),
+                (new_capacity as usize).wrapping_mul(element_size),
             )
         } else {
-            (*self_0).contents = ts_calloc(new_capacity as size_t, element_size)
+            (*self_0).contents = ts_calloc(new_capacity as usize, element_size)
         }
         (*self_0).capacity = new_capacity
     };
@@ -967,17 +949,14 @@ pub unsafe extern "C" fn array__reserve(
 #[inline]
 pub unsafe extern "C" fn array__grow(
     mut self_0: *mut VoidArray,
-    mut count: size_t,
-    mut element_size: size_t,
+    mut count: usize,
+    mut element_size: usize,
 ) {
-    let mut new_size: size_t = ((*self_0).size as os::raw::c_ulong).wrapping_add(count);
-    if new_size > (*self_0).capacity as os::raw::c_ulong {
-        let mut new_capacity: size_t = (*self_0)
-            .capacity
-            .wrapping_mul(2 as os::raw::c_int as os::raw::c_uint)
-            as size_t;
-        if new_capacity < 8 as os::raw::c_int as os::raw::c_ulong {
-            new_capacity = 8 as os::raw::c_int as size_t
+    let mut new_size: usize = ((*self_0).size as usize).wrapping_add(count);
+    if new_size > (*self_0).capacity as usize {
+        let mut new_capacity: usize = (*self_0).capacity.wrapping_mul(2) as usize;
+        if new_capacity < 8 {
+            new_capacity = 8 as os::raw::c_int as usize
         }
         if new_capacity < new_size {
             new_capacity = new_size
@@ -1170,7 +1149,7 @@ pub unsafe extern "C" fn ts_subtree_to_mut_unsafe(mut self_0: Subtree) -> Mutabl
 #[inline]
 pub unsafe extern "C" fn array__erase(
     mut self_0: *mut VoidArray,
-    mut element_size: size_t,
+    mut element_size: usize,
     mut index: u32,
 ) {
     if index < (*self_0).size {
@@ -1187,17 +1166,15 @@ pub unsafe extern "C" fn array__erase(
     }
     let mut contents: *mut os::raw::c_char = (*self_0).contents as *mut os::raw::c_char;
     memmove(
-        contents.offset((index as os::raw::c_ulong).wrapping_mul(element_size) as isize)
-            as *mut ffi::c_void,
         contents.offset(
-            (index.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as os::raw::c_ulong)
-                .wrapping_mul(element_size) as isize,
+            (index as os::raw::c_ulong).wrapping_mul(element_size.try_into().unwrap()) as isize,
+        ) as *mut ffi::c_void,
+        contents.offset(
+            (index.wrapping_add(1) as os::raw::c_ulong)
+                .wrapping_mul(element_size.try_into().unwrap()) as isize,
         ) as *const ffi::c_void,
-        ((*self_0)
-            .size
-            .wrapping_sub(index)
-            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as os::raw::c_ulong)
-            .wrapping_mul(element_size) as usize,
+        ((*self_0).size.wrapping_sub(index).wrapping_sub(1) as os::raw::c_ulong)
+            .wrapping_mul(element_size.try_into().unwrap()) as usize,
     );
     (*self_0).size = (*self_0).size.wrapping_sub(1);
 }
@@ -1329,13 +1306,12 @@ pub unsafe extern "C" fn clock_null() -> TSClock {
 #[inline]
 pub unsafe extern "C" fn clock_after(mut base: TSClock, mut duration: TSDuration) -> TSClock {
     let mut result: TSClock = base;
-    result.tv_sec = (result.tv_sec as os::raw::c_ulong)
-        .wrapping_add(duration.wrapping_div(1000000 as os::raw::c_int as os::raw::c_ulong))
+    result.tv_sec = (result.tv_sec as os::raw::c_ulong).wrapping_add(duration.wrapping_div(1000000))
         as __time_t as __time_t;
     result.tv_nsec = (result.tv_nsec as os::raw::c_ulong).wrapping_add(
         duration
             .wrapping_rem(1000000 as os::raw::c_int as os::raw::c_ulong)
-            .wrapping_mul(1000 as os::raw::c_int as os::raw::c_ulong),
+            .wrapping_mul(1000),
     ) as __syscall_slong_t as __syscall_slong_t;
     return result;
 }
@@ -1493,8 +1469,7 @@ pub unsafe extern "C" fn ts_language_next_state(
         let mut actions: *const TSParseAction =
             ts_language_actions(self_0, state, symbol, &mut count);
         if count > 0 as os::raw::c_int as os::raw::c_uint {
-            let mut action: TSParseAction = *actions
-                .offset(count.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize);
+            let mut action: TSParseAction = *actions.offset(count.wrapping_sub(1) as isize);
             if action.type_0() as os::raw::c_int == TSParseActionTypeShift as os::raw::c_int {
                 return if action.params.c2rust_unnamed.extra() as os::raw::c_int != 0 {
                     state as os::raw::c_int
@@ -1540,8 +1515,8 @@ pub unsafe extern "C" fn ts_reduce_action_set_add(
     }
     array__grow(
         self_0 as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<ReduceAction>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<ReduceAction>(),
     );
     let fresh4 = (*self_0).size;
     (*self_0).size = (*self_0).size.wrapping_add(1);
@@ -1559,8 +1534,8 @@ pub unsafe extern "C" fn duration_to_micros(mut self_0: TSDuration) -> u64 {
 }
 
 #[inline]
-pub unsafe extern "C" fn atomic_load(mut p: *const size_t) -> size_t {
-    (&*(p as *const AtomicUsize)).load(Ordering::SeqCst) as size_t
+pub unsafe extern "C" fn atomic_load(mut p: *const usize) -> usize {
+    (&*(p as *const AtomicUsize)).load(Ordering::SeqCst) as usize
 }
 
 // Lexer
@@ -1596,7 +1571,7 @@ pub unsafe extern "C" fn ts_decode_utf16(
                     - 0x10000 as os::raw::c_int)
         }
     }
-    return i.wrapping_mul(2 as os::raw::c_int as os::raw::c_uint);
+    return i.wrapping_mul(2);
 }
 
 #[inline]

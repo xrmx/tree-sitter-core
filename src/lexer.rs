@@ -205,7 +205,7 @@ unsafe extern "C" fn ts_lexer__mark_end(mut _self: *mut TSLexer) {
             .included_ranges
             .offset((*self_0).current_included_range_index as isize)
             as *mut TSRange;
-        if (*self_0).current_included_range_index > 0 as os::raw::c_int as os::raw::c_ulong
+        if (*self_0).current_included_range_index > 0
             && (*self_0).current_position.bytes == (*current_included_range).start_byte
         {
             let mut previous_included_range: *mut TSRange =
@@ -301,8 +301,8 @@ pub unsafe extern "C" fn ts_lexer_init(mut self_0: *mut Lexer) {
                 extent: TSPoint { row: 0, column: 0 },
             },
             included_ranges: 0 as *mut TSRange,
-            included_range_count: 0 as os::raw::c_int as size_t,
-            current_included_range_index: 0 as os::raw::c_int as size_t,
+            included_range_count: 0 as os::raw::c_int as usize,
+            current_included_range_index: 0 as os::raw::c_int as usize,
             chunk: 0 as *const os::raw::c_char,
             chunk_start: 0 as os::raw::c_int as u32,
             chunk_size: 0 as os::raw::c_int as u32,
@@ -334,7 +334,7 @@ unsafe extern "C" fn ts_lexer_goto(mut self_0: *mut Lexer, mut position: Length)
     let mut found_included_range: bool = 0 as os::raw::c_int != 0;
     // Move to the first valid position at or after the given position.
     let mut i: os::raw::c_uint = 0 as os::raw::c_int as os::raw::c_uint;
-    while (i as os::raw::c_ulong) < (*self_0).included_range_count {
+    while (i as usize) < (*self_0).included_range_count {
         let mut included_range: *mut TSRange =
             &mut *(*self_0).included_ranges.offset(i as isize) as *mut TSRange;
         if (*included_range).end_byte > position.bytes {
@@ -347,7 +347,7 @@ unsafe extern "C" fn ts_lexer_goto(mut self_0: *mut Lexer, mut position: Length)
                     init
                 }
             }
-            (*self_0).current_included_range_index = i as size_t;
+            (*self_0).current_included_range_index = i as usize;
             found_included_range = 1 as os::raw::c_int != 0;
             break;
         } else {
@@ -369,11 +369,10 @@ unsafe extern "C" fn ts_lexer_goto(mut self_0: *mut Lexer, mut position: Length)
         // If the given position is beyond any of included ranges, move to the EOF
         // state - past the end of the included ranges.
         (*self_0).current_included_range_index = (*self_0).included_range_count;
-        let mut last_included_range: *mut TSRange = &mut *(*self_0).included_ranges.offset(
-            (*self_0)
-                .included_range_count
-                .wrapping_sub(1 as os::raw::c_int as os::raw::c_ulong) as isize,
-        ) as *mut TSRange;
+        let mut last_included_range: *mut TSRange = &mut *(*self_0)
+            .included_ranges
+            .offset((*self_0).included_range_count.wrapping_sub(1) as isize)
+            as *mut TSRange;
         (*self_0).current_position = {
             let mut init = Length {
                 bytes: (*last_included_range).end_byte,
@@ -424,10 +423,7 @@ pub unsafe extern "C" fn ts_lexer_finish(mut self_0: *mut Lexer, mut lookahead_e
     if length_is_undefined((*self_0).token_end_position) {
         ts_lexer__mark_end(&mut (*self_0).data);
     }
-    let mut current_lookahead_end_byte: u32 = (*self_0)
-        .current_position
-        .bytes
-        .wrapping_add(1 as os::raw::c_int as os::raw::c_uint);
+    let mut current_lookahead_end_byte: u32 = (*self_0).current_position.bytes.wrapping_add(1);
     // In order to determine that a byte sequence is invalid UTF8 or UTF16,
     // the character decoding algorithm may have looked at the following byte.
     // Therefore, the next byte *after* the current (invalid) character
@@ -470,8 +466,7 @@ pub unsafe extern "C" fn ts_lexer_set_included_ranges(
             i = i.wrapping_add(1)
         }
     }
-    let mut size: size_t = (count as os::raw::c_ulong)
-        .wrapping_mul(::std::mem::size_of::<TSRange>() as os::raw::c_ulong);
+    let mut size: usize = (count as usize).wrapping_mul(::std::mem::size_of::<TSRange>());
     (*self_0).included_ranges =
         ts_realloc((*self_0).included_ranges as *mut ffi::c_void, size) as *mut TSRange;
     memcpy(
@@ -479,7 +474,7 @@ pub unsafe extern "C" fn ts_lexer_set_included_ranges(
         ranges as *const ffi::c_void,
         size as usize,
     );
-    (*self_0).included_range_count = count as size_t;
+    (*self_0).included_range_count = count as usize;
     ts_lexer_goto(self_0, (*self_0).current_position);
     return 1 as os::raw::c_int != 0;
 }

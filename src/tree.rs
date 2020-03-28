@@ -12,22 +12,20 @@ pub unsafe extern "C" fn ts_tree_new(
     mut included_ranges: *const TSRange,
     mut included_range_count: os::raw::c_uint,
 ) -> *mut TSTree {
-    let mut result: *mut TSTree =
-        ts_malloc(::std::mem::size_of::<TSTree>() as os::raw::c_ulong) as *mut TSTree;
+    let mut result: *mut TSTree = ts_malloc(::std::mem::size_of::<TSTree>()) as *mut TSTree;
     (*result).root = root;
     (*result).language = language;
     (*result).parent_cache = 0 as *mut ParentCacheEntry;
     (*result).parent_cache_start = 0 as os::raw::c_int as u32;
     (*result).parent_cache_size = 0 as os::raw::c_int as u32;
     (*result).included_ranges = ts_calloc(
-        included_range_count as size_t,
-        ::std::mem::size_of::<TSRange>() as os::raw::c_ulong,
+        included_range_count as usize,
+        ::std::mem::size_of::<TSRange>(),
     ) as *mut TSRange;
     memcpy(
         (*result).included_ranges as *mut ffi::c_void,
         included_ranges as *const ffi::c_void,
-        (included_range_count as libc::size_t)
-            .wrapping_mul(::std::mem::size_of::<TSRange>() as libc::size_t),
+        (included_range_count as usize).wrapping_mul(::std::mem::size_of::<TSRange>() as usize),
     );
     (*result).included_range_count = included_range_count;
     return result;
@@ -233,8 +231,8 @@ pub unsafe extern "C" fn ts_tree_set_cached_parent(
     let mut self_0: *mut TSTree = _self as *mut TSTree;
     if (*self_0).parent_cache.is_null() {
         (*self_0).parent_cache = ts_calloc(
-            PARENT_CACHE_CAPACITY as size_t,
-            ::std::mem::size_of::<ParentCacheEntry>() as os::raw::c_ulong,
+            PARENT_CACHE_CAPACITY as usize,
+            ::std::mem::size_of::<ParentCacheEntry>(),
         ) as *mut ParentCacheEntry
     }
     let mut index: u32 = (*self_0)

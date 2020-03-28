@@ -223,11 +223,8 @@ unsafe extern "C" fn ts_subtree_has_trailing_empty_descendant(
     mut self_0: Subtree,
     mut other: Subtree,
 ) -> bool {
-    let mut i: os::raw::c_uint =
-        ts_subtree_child_count(self_0).wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
-    while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
-        > 0 as os::raw::c_int as os::raw::c_uint
-    {
+    let mut i: os::raw::c_uint = ts_subtree_child_count(self_0).wrapping_sub(1);
+    while i.wrapping_add(1) > 0 as os::raw::c_int as os::raw::c_uint {
         let mut child: Subtree = *(*self_0.ptr)
             .c2rust_unnamed
             .c2rust_unnamed
@@ -666,9 +663,7 @@ pub unsafe extern "C" fn ts_node_child_by_field_id(
             if ts_subtree_extra(ts_node__subtree(child)) {
                 continue;
             }
-            let mut index: u32 = iterator
-                .structural_child_index
-                .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
+            let mut index: u32 = iterator.structural_child_index.wrapping_sub(1);
             if index < (*field_map).child_index as os::raw::c_uint {
                 continue;
             }

@@ -37,7 +37,7 @@ pub struct TSParser {
     pub timeout_duration: TSDuration,
     pub accept_count: os::raw::c_uint,
     pub operation_count: os::raw::c_uint,
-    pub cancellation_flag: *const size_t,
+    pub cancellation_flag: *const usize,
     pub old_tree: Subtree,
     pub included_range_differences: TSRangeArray,
     pub included_range_difference_index: os::raw::c_uint,
@@ -298,7 +298,7 @@ unsafe extern "C" fn ts_parser__version_status(
     let mut cost: os::raw::c_uint = ts_stack_error_cost((*self_0).stack, version);
     let mut is_paused: bool = ts_stack_is_paused((*self_0).stack, version);
     if is_paused {
-        cost = cost.wrapping_add(100 as os::raw::c_int as os::raw::c_uint)
+        cost = cost.wrapping_add(100)
     }
     return {
         let mut init = ErrorStatus {
@@ -463,10 +463,7 @@ unsafe extern "C" fn ts_parser__lex(
                     b"lex_external state:%d, row:%u, column:%u\x00" as *const u8
                         as *const os::raw::c_char,
                     lex_mode.external_lex_state as os::raw::c_int,
-                    current_position
-                        .extent
-                        .row
-                        .wrapping_add(1 as os::raw::c_int as os::raw::c_uint),
+                    current_position.extent.row.wrapping_add(1),
                     current_position.extent.column,
                 );
                 ts_parser__log(self_0);
@@ -514,10 +511,7 @@ unsafe extern "C" fn ts_parser__lex(
                 b"lex_internal state:%d, row:%u, column:%u\x00" as *const u8
                     as *const os::raw::c_char,
                 lex_mode.lex_state as os::raw::c_int,
-                current_position
-                    .extent
-                    .row
-                    .wrapping_add(1 as os::raw::c_int as os::raw::c_uint),
+                current_position.extent.row.wrapping_add(1),
                 current_position.extent.column,
             );
             ts_parser__log(self_0);
@@ -701,13 +695,13 @@ unsafe extern "C" fn ts_parser__lex(
 unsafe extern "C" fn ts_parser__get_cached_token(
     mut self_0: *mut TSParser,
     mut state: TSStateId,
-    mut position: size_t,
+    mut position: usize,
     mut last_external_token: Subtree,
     mut table_entry: *mut TableEntry,
 ) -> Subtree {
     let mut cache: *mut TokenCache = &mut (*self_0).token_cache;
     if !(*cache).token.ptr.is_null()
-        && (*cache).byte_index as os::raw::c_ulong == position
+        && (*cache).byte_index as usize == position
         && ts_subtree_external_scanner_state_eq((*cache).last_external_token, last_external_token)
             as os::raw::c_int
             != 0
@@ -729,7 +723,7 @@ unsafe extern "C" fn ts_parser__get_cached_token(
 }
 unsafe extern "C" fn ts_parser__set_cached_token(
     mut self_0: *mut TSParser,
-    mut byte_index: size_t,
+    mut byte_index: usize,
     mut last_external_token: Subtree,
     mut token: Subtree,
 ) {
@@ -1106,10 +1100,8 @@ unsafe extern "C" fn ts_parser__reduce(
             ts_stack_remove_version((*self_0).stack, slice_version);
             ts_subtree_array_delete(&mut (*self_0).tree_pool, &mut slice.subtrees);
             removed_version_count = removed_version_count.wrapping_add(1);
-            while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) < pop.size {
-                let mut next_slice: StackSlice = *pop
-                    .contents
-                    .offset(i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as isize);
+            while i.wrapping_add(1) < pop.size {
+                let mut next_slice: StackSlice = *pop.contents.offset(i.wrapping_add(1) as isize);
                 if next_slice.version != slice.version {
                     break;
                 }
@@ -1123,12 +1115,9 @@ unsafe extern "C" fn ts_parser__reduce(
             let mut children: SubtreeArray = slice.subtrees;
             while children.size > 0 as os::raw::c_int as os::raw::c_uint
                 && ts_subtree_extra(
-                    *children.contents.offset(
-                        children
-                            .size
-                            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-                            as isize,
-                    ),
+                    *children
+                        .contents
+                        .offset(children.size.wrapping_sub(1) as isize),
                 ) as os::raw::c_int
                     != 0
             {
@@ -1145,10 +1134,8 @@ unsafe extern "C" fn ts_parser__reduce(
             // into one, because they all diverged from a common state. In that case,
             // choose one of the arrays of trees to be the parent node's children, and
             // delete the rest of the tree arrays.
-            while i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) < pop.size {
-                let mut next_slice_0: StackSlice = *pop
-                    .contents
-                    .offset(i.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) as isize);
+            while i.wrapping_add(1) < pop.size {
+                let mut next_slice_0: StackSlice = *pop.contents.offset(i.wrapping_add(1) as isize);
                 if next_slice_0.version != slice.version {
                     break;
                 }
@@ -1156,12 +1143,9 @@ unsafe extern "C" fn ts_parser__reduce(
                 let mut children_0: SubtreeArray = next_slice_0.subtrees;
                 while children_0.size > 0 as os::raw::c_int as os::raw::c_uint
                     && ts_subtree_extra(
-                        *children_0.contents.offset(
-                            children_0
-                                .size
-                                .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint)
-                                as isize,
-                        ),
+                        *children_0
+                            .contents
+                            .offset(children_0.size.wrapping_sub(1) as isize),
                     ) as os::raw::c_int
                         != 0
                 {
@@ -1266,12 +1250,8 @@ unsafe extern "C" fn ts_parser__accept(
         let mut root: Subtree = Subtree {
             ptr: 0 as *const SubtreeHeapData,
         };
-        let mut j: u32 = trees
-            .size
-            .wrapping_sub(1 as os::raw::c_int as os::raw::c_uint);
-        while j.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
-            > 0 as os::raw::c_int as os::raw::c_uint
-        {
+        let mut j: u32 = trees.size.wrapping_sub(1);
+        while j.wrapping_add(1) > 0 as os::raw::c_int as os::raw::c_uint {
             let mut child: Subtree = *trees.contents.offset(j as isize);
             if !ts_subtree_extra(child) {
                 if !child.data.is_inline() {
@@ -1300,7 +1280,7 @@ unsafe extern "C" fn ts_parser__accept(
                 }
                 array__splice(
                     &mut trees as *mut SubtreeArray as *mut VoidArray,
-                    ::std::mem::size_of::<Subtree>() as os::raw::c_ulong,
+                    ::std::mem::size_of::<Subtree>(),
                     j,
                     1 as os::raw::c_int as u32,
                     child_count,
@@ -1571,7 +1551,7 @@ unsafe extern "C" fn ts_parser__handle_error(
         v = if v == version {
             previous_version_count
         } else {
-            v.wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
+            v.wrapping_add(1)
         }
     }
     let mut i: os::raw::c_uint = previous_version_count;
@@ -1621,7 +1601,7 @@ unsafe extern "C" fn ts_parser__recover_to_state(
             i = i.wrapping_sub(1);
             array__erase(
                 &mut pop as *mut StackSliceArray as *mut VoidArray,
-                ::std::mem::size_of::<StackSlice>() as os::raw::c_ulong,
+                ::std::mem::size_of::<StackSlice>(),
                 fresh8,
             );
         } else if ts_stack_state((*self_0).stack, slice.version) as os::raw::c_int
@@ -1633,7 +1613,7 @@ unsafe extern "C" fn ts_parser__recover_to_state(
             i = i.wrapping_sub(1);
             array__erase(
                 &mut pop as *mut StackSliceArray as *mut VoidArray,
-                ::std::mem::size_of::<StackSlice>() as os::raw::c_ulong,
+                ::std::mem::size_of::<StackSlice>(),
                 fresh9,
             );
         } else {
@@ -1655,7 +1635,7 @@ unsafe extern "C" fn ts_parser__recover_to_state(
                 if error_child_count > 0 as os::raw::c_int as os::raw::c_uint {
                     array__splice(
                         &mut slice.subtrees as *mut SubtreeArray as *mut VoidArray,
-                        ::std::mem::size_of::<Subtree>() as os::raw::c_ulong,
+                        ::std::mem::size_of::<Subtree>(),
                         0 as os::raw::c_int as u32,
                         0 as os::raw::c_int as u32,
                         error_child_count,
@@ -1759,23 +1739,19 @@ unsafe extern "C" fn ts_parser__recover(
                     if !would_merge {
                         // Do not recover if the result would clearly be worse than some existing stack version.
                         let mut new_cost: os::raw::c_uint = current_error_cost
-                            .wrapping_add(
-                                entry
-                                    .depth
-                                    .wrapping_mul(100 as os::raw::c_int as os::raw::c_uint),
-                            )
+                            .wrapping_add(entry.depth.wrapping_mul(100))
                             .wrapping_add(
                                 position
                                     .bytes
                                     .wrapping_sub(entry.position.bytes)
-                                    .wrapping_mul(1 as os::raw::c_int as os::raw::c_uint),
+                                    .wrapping_mul(1),
                             )
                             .wrapping_add(
                                 position
                                     .extent
                                     .row
                                     .wrapping_sub(entry.position.extent.row)
-                                    .wrapping_mul(30 as os::raw::c_int as os::raw::c_uint),
+                                    .wrapping_mul(30),
                             );
                         if ts_parser__better_version_exists(
                             self_0,
@@ -1886,16 +1862,9 @@ unsafe extern "C" fn ts_parser__recover(
     }
     // Do not recover if the result would clearly be worse than some existing stack version.
     let mut new_cost_0: os::raw::c_uint = current_error_cost
-        .wrapping_add(100 as os::raw::c_int as os::raw::c_uint)
-        .wrapping_add(
-            ts_subtree_total_bytes(lookahead).wrapping_mul(1 as os::raw::c_int as os::raw::c_uint),
-        )
-        .wrapping_add(
-            ts_subtree_total_size(lookahead)
-                .extent
-                .row
-                .wrapping_mul(30 as os::raw::c_int as os::raw::c_uint),
-        );
+        .wrapping_add(100)
+        .wrapping_add(ts_subtree_total_bytes(lookahead).wrapping_mul(1))
+        .wrapping_add(ts_subtree_total_size(lookahead).extent.row.wrapping_mul(30));
     if ts_parser__better_version_exists(self_0, version, 0 as os::raw::c_int != 0, new_cost_0) {
         ts_stack_halt((*self_0).stack, version);
         ts_subtree_release(&mut (*self_0).tree_pool, lookahead);
@@ -1911,10 +1880,9 @@ unsafe extern "C" fn ts_parser__recover(
         &mut n,
     );
     if n > 0 as os::raw::c_int as os::raw::c_uint
-        && (*actions.offset(n.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize))
-            .type_0() as os::raw::c_int
+        && (*actions.offset(n.wrapping_sub(1) as isize)).type_0() as os::raw::c_int
             == TSParseActionTypeShift as os::raw::c_int
-        && (*actions.offset(n.wrapping_sub(1 as os::raw::c_int as os::raw::c_uint) as isize))
+        && (*actions.offset(n.wrapping_sub(1) as isize))
             .params
             .c2rust_unnamed
             .extra() as os::raw::c_int
@@ -1945,13 +1913,13 @@ unsafe extern "C" fn ts_parser__recover(
     };
     array__reserve(
         &mut children_0 as *mut SubtreeArray as *mut VoidArray,
-        ::std::mem::size_of::<Subtree>() as os::raw::c_ulong,
+        ::std::mem::size_of::<Subtree>(),
         1 as os::raw::c_int as u32,
     );
     array__grow(
         &mut children_0 as *mut SubtreeArray as *mut VoidArray,
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<Subtree>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<Subtree>(),
     );
     let fresh11 = children_0.size;
     children_0.size = children_0.size.wrapping_add(1);
@@ -1985,13 +1953,13 @@ unsafe extern "C" fn ts_parser__recover(
             while ts_stack_version_count((*self_0).stack)
                 > (*pop.contents.offset(0 as os::raw::c_int as isize))
                     .version
-                    .wrapping_add(1 as os::raw::c_int as os::raw::c_uint)
+                    .wrapping_add(1)
             {
                 ts_stack_remove_version(
                     (*self_0).stack,
                     (*pop.contents.offset(0 as os::raw::c_int as isize))
                         .version
-                        .wrapping_add(1 as os::raw::c_int as os::raw::c_uint),
+                        .wrapping_add(1),
                 );
             }
         }
@@ -2003,8 +1971,8 @@ unsafe extern "C" fn ts_parser__recover(
         array__grow(
             &mut (*pop.contents.offset(0 as os::raw::c_int as isize)).subtrees as *mut SubtreeArray
                 as *mut VoidArray,
-            1 as os::raw::c_int as size_t,
-            ::std::mem::size_of::<Subtree>() as os::raw::c_ulong,
+            1 as os::raw::c_int as usize,
+            ::std::mem::size_of::<Subtree>(),
         );
         let ref mut fresh12 = (*pop.contents.offset(0 as os::raw::c_int as isize))
             .subtrees
@@ -2078,7 +2046,7 @@ unsafe extern "C" fn ts_parser__advance(
         lookahead = ts_parser__get_cached_token(
             self_0,
             state,
-            position as size_t,
+            position as usize,
             last_external_token,
             &mut table_entry,
         )
@@ -2087,7 +2055,7 @@ unsafe extern "C" fn ts_parser__advance(
     if lookahead.ptr.is_null() {
         lookahead = ts_parser__lex(self_0, version, state);
         if !lookahead.ptr.is_null() {
-            ts_parser__set_cached_token(self_0, position as size_t, last_external_token, lookahead);
+            ts_parser__set_cached_token(self_0, position as usize, last_external_token, lookahead);
             ts_language_table_entry(
                 (*self_0).language,
                 state,
@@ -2377,8 +2345,8 @@ unsafe extern "C" fn ts_parser__advance(
 unsafe extern "C" fn ts_parser__condense_stack(mut self_0: *mut TSParser) -> os::raw::c_uint {
     let mut made_changes: bool = 0 as os::raw::c_int != 0;
     let mut min_error_cost: os::raw::c_uint = (2147483647 as os::raw::c_int as os::raw::c_uint)
-        .wrapping_mul(2 as os::raw::c_uint)
-        .wrapping_add(1 as os::raw::c_uint);
+        .wrapping_mul(2)
+        .wrapping_add(1);
     let mut i: StackVersion = 0 as os::raw::c_int as StackVersion;
     while i < ts_stack_version_count((*self_0).stack) {
         // Prune any versions that have been marked for removal.
@@ -2507,8 +2475,8 @@ unsafe extern "C" fn ts_parser_has_outstanding_parse(mut self_0: *mut TSParser) 
 #[no_mangle]
 pub unsafe extern "C" fn ts_parser_new() -> *mut TSParser {
     let mut self_0: *mut TSParser = ts_calloc(
-        1 as os::raw::c_int as size_t,
-        ::std::mem::size_of::<TSParser>() as os::raw::c_ulong,
+        1 as os::raw::c_int as usize,
+        ::std::mem::size_of::<TSParser>(),
     ) as *mut TSParser;
     ts_lexer_init(&mut (*self_0).lexer);
     (*self_0).reduce_actions.size = 0 as os::raw::c_int as u32;
@@ -2516,7 +2484,7 @@ pub unsafe extern "C" fn ts_parser_new() -> *mut TSParser {
     (*self_0).reduce_actions.contents = 0 as *mut ReduceAction;
     array__reserve(
         &mut (*self_0).reduce_actions as *mut ReduceActionSet as *mut VoidArray,
-        ::std::mem::size_of::<ReduceAction>() as os::raw::c_ulong,
+        ::std::mem::size_of::<ReduceAction>(),
         4 as os::raw::c_int as u32,
     );
     (*self_0).tree_pool = ts_subtree_pool_new(32 as os::raw::c_int as u32);
@@ -2526,7 +2494,7 @@ pub unsafe extern "C" fn ts_parser_new() -> *mut TSParser {
     };
     (*self_0).reusable_node = reusable_node_new();
     (*self_0).dot_graph_file = 0 as *mut FILE;
-    (*self_0).cancellation_flag = 0 as *const size_t;
+    (*self_0).cancellation_flag = 0 as *const usize;
     (*self_0).timeout_duration = 0 as os::raw::c_int as TSDuration;
     (*self_0).end_clock = clock_null();
     (*self_0).operation_count = 0 as os::raw::c_int as os::raw::c_uint;
@@ -2545,7 +2513,7 @@ pub unsafe extern "C" fn ts_parser_new() -> *mut TSParser {
     (*self_0).included_range_difference_index = 0 as os::raw::c_int as os::raw::c_uint;
     ts_parser__set_cached_token(
         self_0,
-        0 as os::raw::c_int as size_t,
+        0 as os::raw::c_int as usize,
         Subtree {
             ptr: 0 as *const SubtreeHeapData,
         },
@@ -2579,7 +2547,7 @@ pub unsafe extern "C" fn ts_parser_delete(mut self_0: *mut TSParser) {
     ts_lexer_delete(&mut (*self_0).lexer);
     ts_parser__set_cached_token(
         self_0,
-        0 as os::raw::c_int as size_t,
+        0 as os::raw::c_int as usize,
         Subtree {
             ptr: 0 as *const SubtreeHeapData,
         },
@@ -2651,15 +2619,15 @@ pub unsafe extern "C" fn ts_parser_print_dot_graphs(
     };
 }
 #[no_mangle]
-pub unsafe extern "C" fn ts_parser_cancellation_flag(mut self_0: *const TSParser) -> *const size_t {
-    return (*self_0).cancellation_flag as *const size_t;
+pub unsafe extern "C" fn ts_parser_cancellation_flag(mut self_0: *const TSParser) -> *const usize {
+    return (*self_0).cancellation_flag as *const usize;
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_parser_set_cancellation_flag(
     mut self_0: *mut TSParser,
-    mut flag: *const size_t,
+    mut flag: *const usize,
 ) {
-    (*self_0).cancellation_flag = flag as *const size_t;
+    (*self_0).cancellation_flag = flag as *const usize;
 }
 #[no_mangle]
 pub unsafe extern "C" fn ts_parser_timeout_micros(mut self_0: *const TSParser) -> u64 {
@@ -2711,7 +2679,7 @@ pub unsafe extern "C" fn ts_parser_reset(mut self_0: *mut TSParser) {
     ts_stack_clear((*self_0).stack);
     ts_parser__set_cached_token(
         self_0,
-        0 as os::raw::c_int as size_t,
+        0 as os::raw::c_int as usize,
         Subtree {
             ptr: 0 as *const SubtreeHeapData,
         },
@@ -2838,7 +2806,7 @@ pub unsafe extern "C" fn ts_parser_parse(
                         ts_stack_position((*self_0).stack, version)
                             .extent
                             .row
-                            .wrapping_add(1 as os::raw::c_int as os::raw::c_uint),
+                            .wrapping_add(1),
                         ts_stack_position((*self_0).stack, version).extent.column,
                     );
                     ts_parser__log(self_0);

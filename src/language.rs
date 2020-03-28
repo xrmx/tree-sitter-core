@@ -138,7 +138,9 @@ pub unsafe extern "C" fn ts_language_symbol_for_name(
     let mut i: TSSymbol = 0 as os::raw::c_int as TSSymbol;
     while (i as os::raw::c_uint) < count {
         let mut metadata: TSSymbolMetadata = ts_language_symbol_metadata(self_0, i);
-        if !(!metadata.visible() || metadata.named() as os::raw::c_int != is_named as os::raw::c_int) {
+        if !(!metadata.visible()
+            || metadata.named() as os::raw::c_int != is_named as os::raw::c_int)
+        {
             let mut symbol_name: *const os::raw::c_char =
                 *(*self_0).symbol_names.offset(i as isize);
             if strncmp(symbol_name, string, length as usize) == 0
@@ -196,7 +198,7 @@ pub unsafe extern "C" fn ts_language_field_id_for_name(
 ) -> TSFieldId {
     let mut count: u32 = ts_language_field_count(self_0);
     let mut i: TSSymbol = 1 as os::raw::c_int as TSSymbol;
-    while (i as os::raw::c_uint) < count.wrapping_add(1 as os::raw::c_int as os::raw::c_uint) {
+    while (i as os::raw::c_uint) < count.wrapping_add(1) {
         match strncmp(
             name,
             *(*self_0).field_names.offset(i as isize),
